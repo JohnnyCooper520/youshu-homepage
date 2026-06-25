@@ -19,7 +19,6 @@ const copy = {
     navHrefs: ["#reading", "#products", "#products", "#membership", "#method"],
     account: "我的报告",
     heroRegion: "首页主视觉",
-    heroKicker: "东方命理人生顾问",
     heroSubtitle: "命盘有数，选择有光",
     heroLede: "先看格局，再看选择。心里有数，路就不乱。",
     primaryCta: "先看一盘",
@@ -101,9 +100,9 @@ const copy = {
     productTitle: "单次解读与全年会员，都在这里选。",
     badges: { single: "单次", featured: "主推", member: "会员" },
     prices: {
-      basic: { cny: "人民币 ¥29.9", usd: "美元约 $4.2" },
-      annual: { cny: "人民币 ¥199", usd: "美元约 $28" },
-      membership: { cny: "人民币 ¥299/年", usd: "美元约 $42/年" },
+      basic: { cny: "人民币 ¥29.9", usd: "USD $4.2" },
+      annual: { cny: "人民币 ¥199", usd: "USD $28" },
+      membership: { cny: "人民币 ¥299/年", usd: "USD $42/year" },
     },
     products: [
       { title: "命盘报告", question: "先知己，再谈选择。", priceKey: "basic", action: "生成命盘报告" },
@@ -145,7 +144,6 @@ const copy = {
     navHrefs: ["#reading", "#products", "#products", "#membership", "#method"],
     account: "我的報告",
     heroRegion: "首頁主視覺",
-    heroKicker: "東方命理人生顧問",
     heroSubtitle: "命盤有數，選擇有光",
     heroLede: "先看格局，再看選擇。心裡有數，路就不亂。",
     primaryCta: "先看一盤",
@@ -227,9 +225,9 @@ const copy = {
     productTitle: "單次解讀與全年會員，都在這裡選。",
     badges: { single: "單次", featured: "主推", member: "會員" },
     prices: {
-      basic: { cny: "人民幣 ¥29.9", usd: "美元約 $4.2" },
-      annual: { cny: "人民幣 ¥199", usd: "美元約 $28" },
-      membership: { cny: "人民幣 ¥299/年", usd: "美元約 $42/年" },
+      basic: { cny: "人民幣 ¥29.9", usd: "USD $4.2" },
+      annual: { cny: "人民幣 ¥199", usd: "USD $28" },
+      membership: { cny: "人民幣 ¥299/年", usd: "USD $42/year" },
     },
     products: [
       { title: "命盤報告", question: "先知己，再談選擇。", priceKey: "basic", action: "生成命盤報告" },
@@ -271,7 +269,6 @@ const copy = {
     navHrefs: ["#reading", "#products", "#products", "#membership", "#method"],
     account: "My reports",
     heroRegion: "Hero",
-    heroKicker: "Eastern Metaphysics Life Advisor",
     heroSubtitle: "A clear chart, a clearer choice.",
     heroLede: "Read the pattern first, then decide. When the mind has a number, the path feels less tangled.",
     primaryCta: "Read my chart",
@@ -353,9 +350,9 @@ const copy = {
     productTitle: "Choose a single reading, or keep the whole year in one account.",
     badges: { single: "single", featured: "recommended", member: "member" },
     prices: {
-      basic: { cny: "RMB ¥29.9", usd: "approx. USD $4.2" },
-      annual: { cny: "RMB ¥199", usd: "approx. USD $28" },
-      membership: { cny: "RMB ¥299/year", usd: "approx. USD $42/year" },
+      basic: { cny: "RMB ¥29.9", usd: "USD $4.2" },
+      annual: { cny: "RMB ¥199", usd: "USD $28" },
+      membership: { cny: "RMB ¥299/year", usd: "USD $42/year" },
     },
     products: [
       { title: "Bazi Report", question: "Know yourself before you choose.", priceKey: "basic", action: "Generate bazi report" },
@@ -481,6 +478,10 @@ function getCurrentPage() {
   }
 
   return window.location.pathname === "/report" ? "report" : "home";
+}
+
+function getDisplayPrice(price, language) {
+  return language === "en" ? price.usd : price.cny;
 }
 
 function ReportPage({ t, report, onBackHome }) {
@@ -638,7 +639,6 @@ export default function App() {
       <main id="top" lang={language}>
         <section className="hero" aria-label={t.heroRegion} role="region">
           <div className="hero-copy">
-            <p className="kicker">{t.heroKicker}</p>
             <h1>有数</h1>
             <p className="hero-subtitle">{t.heroSubtitle}</p>
             <p className="hero-lede">{t.heroLede}</p>
@@ -719,13 +719,12 @@ export default function App() {
                   />
                 </label>
               ) : null}
+              <div className="form-submit api-actions single-action" aria-live="polite">
+                <button type="button" onClick={generate} disabled={isGenerating}>
+                  {activeEntry.action}
+                </button>
+              </div>
             </form>
-
-            <div className="api-actions single-action" aria-live="polite">
-              <button type="button" onClick={generate} disabled={isGenerating}>
-                {activeEntry.action}
-              </button>
-            </div>
 
             {isGenerating ? (
               <div className="insight-stage" id="reading-result" aria-live="polite">
@@ -758,6 +757,7 @@ export default function App() {
             <div className="service-choices" aria-label={t.purchaseLabel}>
               {purchaseOptions.map((product) => {
                 const price = t.prices[product.priceKey];
+                const displayPrice = getDisplayPrice(price, language);
                 const isFeatured = product.title === featuredProduct.title;
                 const isMembership = product.title === t.annualMembership.title;
 
@@ -769,9 +769,8 @@ export default function App() {
                     key={product.title}
                   >
                     <span>{isMembership ? t.badges.member : isFeatured ? t.badges.featured : t.badges.single}</span>
-                    <strong className="dual-price" aria-label={`${price.cny}，${price.usd}`}>
-                      <span>{price.cny}</span>
-                      <small>{price.usd}</small>
+                    <strong className="dual-price single-price" aria-label={displayPrice}>
+                      <span>{displayPrice}</span>
                     </strong>
                     <h3>{product.title}</h3>
                     <p>{product.question}</p>

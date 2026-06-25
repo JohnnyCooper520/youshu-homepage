@@ -151,14 +151,14 @@ select:focus-visible {
 }
 
 .hero {
-  min-height: 100svh;
+  min-height: 92svh;
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 0.92fr) minmax(340px, 1fr);
   gap: clamp(28px, 5vw, 84px);
   align-items: center;
   overflow: hidden;
-  padding: 118px clamp(24px, 7vw, 110px) 76px;
+  padding: 108px clamp(24px, 7vw, 110px) 54px;
   background:
     radial-gradient(circle at 78% 44%, rgba(61, 139, 120, 0.22), transparent 34%),
     radial-gradient(circle at 52% 6%, rgba(212, 168, 79, 0.12), transparent 28%),
@@ -392,7 +392,7 @@ select:focus-visible {
 .membership,
 .method,
 .closing {
-  padding: clamp(82px, 9vw, 138px) clamp(24px, 7vw, 110px);
+  padding: clamp(58px, 6vw, 96px) clamp(24px, 7vw, 110px);
 }
 
 .reading {
@@ -534,12 +534,45 @@ select:focus-visible {
 }
 
 .question-field {
-  grid-column: span 3;
+  grid-column: span 2;
 }
 
 .birth-form.with-question > label:nth-child(5) select,
 .birth-form.with-question .question-field textarea {
   min-height: 96px;
+}
+
+.form-submit {
+  grid-column: span 2;
+  align-self: end;
+  display: flex;
+}
+
+.birth-form.with-question .form-submit {
+  grid-column: span 1;
+}
+
+.form-submit button {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.form-submit.api-actions.single-action button,
+.form-submit.api-actions.single-action button:first-child {
+  min-height: 64px;
+  display: grid;
+  place-items: center;
+  justify-content: center;
+  padding-inline: clamp(22px, 2.4vw, 34px);
+  border-radius: 16px;
+  font-size: clamp(17px, 1.18vw, 20px);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.birth-form.with-question .form-submit.api-actions.single-action button,
+.birth-form.with-question .form-submit.api-actions.single-action button:first-child {
+  min-height: 92px;
 }
 
 .api-actions {
@@ -834,7 +867,7 @@ select:focus-visible {
 
 .product-section {
   scroll-margin-top: 78px;
-  padding-block: clamp(38px, 4vw, 58px);
+  padding-block: clamp(30px, 3.2vw, 46px);
   background:
     radial-gradient(circle at 82% 12%, rgba(61, 139, 120, 0.18), transparent 30%),
     radial-gradient(circle at 16% 82%, rgba(212, 168, 79, 0.1), transparent 28%),
@@ -924,8 +957,8 @@ select:focus-visible {
   justify-self: end;
   display: grid;
   gap: 2px;
-  min-width: 116px;
-  padding: 7px 10px;
+  min-width: 104px;
+  padding: 10px 12px;
   border: 1px solid rgba(247, 243, 232, 0.14);
   border-radius: 12px;
   color: rgba(247, 243, 232, 0.78);
@@ -935,6 +968,12 @@ select:focus-visible {
   font-weight: 900;
   line-height: 1.15;
   text-align: right;
+}
+
+.service-choice > strong.single-price {
+  align-self: start;
+  place-items: center end;
+  min-height: 42px;
 }
 
 .service-choice > strong small {
@@ -979,41 +1018,41 @@ select:focus-visible {
 .service-detail-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 10px;
 }
 
 .service-feature {
-  min-height: 500px;
+  min-height: 300px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: clamp(20px, 2.4vw, 30px);
-  padding: clamp(22px, 2.5vw, 30px);
+  gap: clamp(12px, 1.6vw, 18px);
+  padding: clamp(18px, 2vw, 24px);
 }
 
 .annual-detail {
   background:
-    radial-gradient(circle at 12% 18%, rgba(212, 168, 79, 0.12), transparent 32%),
-    linear-gradient(145deg, rgba(245, 245, 241, 0.08), rgba(245, 245, 241, 0.025)),
+    radial-gradient(circle at 12% 18%, rgba(212, 168, 79, 0.08), transparent 30%),
+    linear-gradient(145deg, rgba(245, 245, 241, 0.065), rgba(245, 245, 241, 0.018)),
     #111820;
 }
 
 .membership-detail {
-  border-color: rgba(61, 139, 120, 0.36);
+  border-color: rgba(127, 200, 180, 0.26);
   background:
-    radial-gradient(circle at 88% 14%, rgba(61, 139, 120, 0.2), transparent 34%),
-    linear-gradient(145deg, rgba(245, 245, 241, 0.08), rgba(245, 245, 241, 0.025)),
-    #101c1b;
+    radial-gradient(circle at 88% 16%, rgba(61, 139, 120, 0.11), transparent 32%),
+    linear-gradient(145deg, rgba(245, 245, 241, 0.055), rgba(245, 245, 241, 0.018)),
+    #101918;
 }
 
 .service-label {
   display: inline-flex;
   width: fit-content;
-  padding: 8px 12px;
+  padding: 6px 11px;
   border: 1px solid rgba(212, 168, 79, 0.28);
   border-radius: 999px;
   color: var(--gold);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 900;
 }
 
@@ -1025,9 +1064,9 @@ select:focus-visible {
 
 .service-feature h3 {
   max-width: 760px;
-  margin: 18px 0 14px;
+  margin: 10px 0 8px;
   font-family: var(--display);
-  font-size: clamp(30px, 3.1vw, 46px);
+  font-size: clamp(24px, 2.25vw, 34px);
   line-height: 1.16;
   text-wrap: balance;
 }
@@ -1036,28 +1075,30 @@ select:focus-visible {
   max-width: 700px;
   margin: 0;
   color: var(--muted);
-  line-height: 1.86;
+  font-size: 15px;
+  line-height: 1.58;
 }
 
 .timeline-preview {
   align-self: stretch;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-content: start;
-  gap: 0;
+  gap: 0 18px;
   min-height: 0;
-  padding: clamp(18px, 2vw, 24px);
+  padding: clamp(13px, 1.6vw, 18px);
   border: 1px solid rgba(247, 243, 232, 0.12);
-  border-radius: 14px;
+  border-radius: 12px;
   background:
-    linear-gradient(180deg, rgba(212, 168, 79, 0.08), rgba(61, 139, 120, 0.05)),
-    rgba(8, 10, 13, 0.42);
+    linear-gradient(180deg, rgba(212, 168, 79, 0.055), rgba(61, 139, 120, 0.03)),
+    rgba(8, 10, 13, 0.26);
 }
 
 .coverage-note {
+  grid-column: 1 / -1;
   display: grid;
-  gap: 8px;
-  padding-bottom: 16px;
+  gap: 6px;
+  padding-bottom: 10px;
   border-bottom: 1px solid rgba(247, 243, 232, 0.12);
 }
 
@@ -1069,17 +1110,17 @@ select:focus-visible {
 
 .coverage-note strong {
   color: var(--ink);
-  font-size: 17px;
+  font-size: 16px;
   line-height: 1.45;
 }
 
 .timeline-row {
   position: relative;
   display: grid;
-  grid-template-columns: 112px minmax(0, 1fr);
-  gap: 16px;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 10px;
   min-height: 0;
-  padding: 14px 0 14px 22px;
+  padding: 9px 0 9px 18px;
   border-bottom: 1px solid rgba(247, 243, 232, 0.1);
   background: transparent;
 }
@@ -1088,12 +1129,12 @@ select:focus-visible {
   content: "";
   position: absolute;
   left: 2px;
-  top: 21px;
-  width: 9px;
-  height: 9px;
+  top: 15px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--gold);
-  box-shadow: 0 0 20px rgba(212, 168, 79, 0.32);
+  box-shadow: 0 0 14px rgba(212, 168, 79, 0.24);
 }
 
 .timeline-row:last-child {
@@ -1104,14 +1145,14 @@ select:focus-visible {
 .timeline-row strong {
   display: block;
   color: var(--ink);
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .timeline-row p {
   margin-top: 0;
   color: var(--dim);
-  font-size: 14px;
-  line-height: 1.55;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .member-service-label {
@@ -1120,23 +1161,28 @@ select:focus-visible {
 }
 
 .membership-detail .membership-benefits {
-  border-top: 1px solid rgba(247, 243, 232, 0.12);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(247, 243, 232, 0.1);
 }
 
 .membership-detail .membership-benefit {
-  min-height: 88px;
-  background: rgba(255, 255, 255, 0.04);
+  min-height: 56px;
+  padding: 9px 10px;
+  border-color: rgba(247, 243, 232, 0.09);
+  background: rgba(255, 255, 255, 0.025);
 }
 
 .membership-detail .membership-benefit strong {
-  font-size: clamp(19px, 1.7vw, 24px);
+  font-size: clamp(16px, 1.2vw, 18px);
 }
 
 .service-feature a,
 .service-cta {
   width: fit-content;
-  margin-top: 22px;
-  padding: 12px 18px;
+  margin-top: 10px;
+  padding: 10px 16px;
   border-radius: 999px;
   color: #101008;
   background: var(--gold);
@@ -1503,6 +1549,10 @@ select:focus-visible {
     grid-column: 1 / -1;
   }
 
+  .birth-form.with-question .form-submit {
+    grid-column: 1 / -1;
+  }
+
   .service-choices,
   .service-detail-grid,
   .preview-grid,
@@ -1593,7 +1643,7 @@ select:focus-visible {
   .method,
   .closing,
   .report-hero {
-    padding: 68px 24px;
+    padding: 52px 24px;
   }
 
   .section-copy h2,
@@ -1615,6 +1665,11 @@ select:focus-visible {
   }
 
   .question-field {
+    grid-column: span 1;
+  }
+
+  .form-submit,
+  .birth-form.with-question .form-submit {
     grid-column: span 1;
   }
 
@@ -1663,7 +1718,8 @@ select:focus-visible {
     grid-template-columns: 92px minmax(0, 1fr);
   }
 
-  .membership-benefits {
+  .membership-benefits,
+  .membership-detail .membership-benefits {
     grid-template-columns: 1fr;
   }
 

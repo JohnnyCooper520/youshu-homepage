@@ -33,11 +33,9 @@ describe("Youshu homepage", () => {
     expect(screen.getAllByText("今年运势解读").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("年度会员").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("人民币 ¥29.9")).toHaveLength(2);
-    expect(screen.getAllByText("美元约 $4.2")).toHaveLength(2);
     expect(screen.getByText("人民币 ¥199")).toBeInTheDocument();
-    expect(screen.getByText("美元约 $28")).toBeInTheDocument();
     expect(screen.getByText("人民币 ¥299/年")).toBeInTheDocument();
-    expect(screen.getByText("美元约 $42/年")).toBeInTheDocument();
+    expect(screen.queryByText(/美元约/)).not.toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "购买选择" })).getByLabelText("购买项目")).toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("今年运势 · 起盘日起算")).toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("起盘日起，向后看完整 12 个月。")).toBeInTheDocument();
@@ -80,13 +78,15 @@ describe("Youshu homepage", () => {
 
   it("switches the entry form by product before generation", async () => {
     const user = userEvent.setup();
-    render(<App />);
+    const { container } = render(<App />);
     const readingRegion = screen.getByRole("region", { name: "先行洞察" });
     const modeSwitcher = within(readingRegion).getByLabelText("选择服务");
+    const birthForm = container.querySelector(".birth-form");
 
     expect(within(modeSwitcher).getByRole("button", { name: /命盘报告/ })).toHaveAttribute("aria-pressed", "true");
     expect(within(readingRegion).queryByLabelText("想问的事")).not.toBeInTheDocument();
     expect(within(readingRegion).getByRole("button", { name: "生成命盘报告" })).toBeInTheDocument();
+    expect(within(birthForm).getByRole("button", { name: "生成命盘报告" })).toBeInTheDocument();
 
     await user.click(within(modeSwitcher).getByRole("button", { name: /今年运势/ }));
 
@@ -120,7 +120,7 @@ describe("Youshu homepage", () => {
     expect(screen.getByText("命盤有數，選擇有光")).toBeInTheDocument();
     expect(screen.getAllByText("命盤報告").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("人民幣 ¥199")).toBeInTheDocument();
-    expect(screen.getByText("美元約 $28")).toBeInTheDocument();
+    expect(screen.queryByText(/美元約/)).not.toBeInTheDocument();
 
     await user.selectOptions(languageSelect, "en");
 
@@ -129,8 +129,8 @@ describe("Youshu homepage", () => {
     expect(screen.queryByText(/AI/)).not.toBeInTheDocument();
     expect(screen.getAllByText("Bazi Report").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Annual Outlook").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("RMB ¥199")).toBeInTheDocument();
-    expect(screen.getByText("approx. USD $28")).toBeInTheDocument();
+    expect(screen.getByText("USD $28")).toBeInTheDocument();
+    expect(screen.queryByText(/RMB/)).not.toBeInTheDocument();
   });
 
   it("does not expose DeepSeek key controls on the customer page", () => {
