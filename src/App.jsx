@@ -8,7 +8,11 @@ const languageOptions = [
 
 const focusIds = ["career", "relationship", "emotion", "money"];
 const entryModeIds = ["bazi", "annual", "question"];
+const legalPageIds = ["terms", "privacy", "refund", "contact"];
 const reportStorageKey = "youshu:last-report";
+const companyNameZh = "北京一叶泛舟文化科技有限公司";
+const companyNameEn = "Beijing Yiye Fanzhou Culture Technology Co., Ltd.";
+const supportEmail = "qinyuneo@gmail.com";
 
 const copy = {
   "zh-CN": {
@@ -135,6 +139,67 @@ const copy = {
     closingTitle: "先看一眼，再决定往哪一层深入。",
     backToReading: "回到起盘入口",
     viewProducts: "查看购买选择",
+    footerTagline: "有数提供东方命理视角下的自我认知与选择参考。",
+    footerDisclaimer: "内容仅供自我认知、情绪整理和选择参考，不构成医疗、法律、投资、心理治疗或其他专业建议。",
+    footerAge: "建议 18 岁以上用户使用。",
+    footerCompanyLabel: "运营主体",
+    footerSupportLabel: "客服邮箱",
+    footerLinks: { terms: "服务条款", privacy: "隐私政策", refund: "退款政策", contact: "联系我们" },
+    legalBackHome: "回到首页",
+    legalUpdated: "更新日期：2026 年 6 月 26 日",
+    legalPages: {
+      terms: {
+        title: "服务条款",
+        intro: "使用有数，即表示你理解并同意以下服务边界。本页面为上线测试版条款，正式商业化前可能继续更新。",
+        sections: [
+          ["服务性质", "有数提供基于确定性排盘、规则化解读与大模型生成的命理报告、问事解读和年度趋势参考。内容用于自我认知、情绪整理和选择辅助，不承诺预测结果必然发生。"],
+          ["适用人群", "本服务建议 18 岁以上用户使用。若你正在处理医疗、法律、投资、心理危机或人身安全等高风险事项，请优先咨询合资格专业人士或当地紧急服务。"],
+          ["用户责任", "你应提供相对准确的出生日期、出生时间、出生地和问题背景。若输入信息不准确，报告可能偏离你的实际情况。你也应自行判断是否采纳报告建议。"],
+          ["数字内容交付", "报告生成后即视为数字内容已交付。当前 P0 阶段可能通过网页会话保存报告，后续接入账户后会支持更稳定的历史归档。"],
+          ["禁止用途", "不得将本服务用于违法、骚扰、歧视、操纵他人、医疗诊断、金融承诺或其他高风险决策自动化。"],
+          ["变更与联系", `我们可能根据产品测试情况调整页面、价格、权益和条款。如有问题，请联系 ${supportEmail}。`],
+        ],
+      },
+      privacy: {
+        title: "隐私政策",
+        intro: "我们只收集生成报告所需的信息，并尽量让数据用途清楚、克制。",
+        sections: [
+          ["我们收集什么", "你主动填写的出生日期、出生时间、出生地、性别、关注方向、具体问题、语言偏好，以及生成报告所需的基础技术信息。"],
+          ["如何使用", "这些信息用于排盘、生成报告、改进提示词与服务质量、处理客服请求，以及在接入账户后帮助你找回历史报告。"],
+          ["大模型处理", "生成报告时，必要的排盘结果、问题背景和语言选项会发送给我们使用的大模型服务商。我们不会在前端展示或要求用户提交 DeepSeek API Key。"],
+          ["保存与删除", "P0 阶段报告可能保存在浏览器会话中；接入账户后会按账户保存。你可以通过客服邮箱请求删除与更正相关信息。"],
+          ["第三方服务", "我们可能使用 Vercel 托管、DeepSeek 生成报告，未来可能接入 Supabase、支付服务商和基础分析工具。第三方会按其政策处理必要数据。"],
+          ["联系我们", `隐私相关请求请发送至 ${supportEmail}。`],
+        ],
+      },
+      refund: {
+        title: "退款政策",
+        intro: "命理报告属于按用户输入生成的数字内容。原则上，报告一经生成或交付，不支持无理由退款。",
+        sections: [
+          ["原则", "已生成、已展示或已发送的命盘报告、问事解惑、年度运势解读，通常不予退款。购买前请确认服务性质为参考性数字内容。"],
+          ["可退款或补偿情形", "如发生重复扣款、付款成功但报告未生成、系统故障导致无法交付、明显错误订单，用户可在付款后 7 日内联系处理。我们会根据情况退款、补发或提供等值额度。"],
+          ["不支持退款情形", "因个人主观感受不符、对解读结论不满意、输入信息错误、已阅读后改变主意，通常不构成退款理由。"],
+          ["会员退款", "年度会员开通后，如已使用任一付费报告、问事额度或会员权益，原则上不支持全额退款。未使用且在 7 日内提出的异常订单可人工评估。"],
+          ["处理方式", `退款申请请发送至 ${supportEmail}，并提供付款邮箱、订单时间、购买项目和问题描述。`],
+        ],
+      },
+      contact: {
+        title: "联系我们",
+        intro: "产品仍在 P0 测试期。报告、订单、退款、隐私和合作问题都可以通过邮箱联系。",
+        sections: [
+          ["客服邮箱", supportEmail],
+          ["运营主体", companyNameZh],
+          ["服务范围", "命盘报告、问事解惑、今年运势解读、年度会员与报告归档相关问题。"],
+          ["回复时间", "我们会尽量在 2 个工作日内回复。复杂订单、退款或隐私请求可能需要更多时间核对。"],
+        ],
+      },
+    },
+    generationErrorTitle: "生成暂时未完成",
+    apiErrors: {
+      backendKey: "服务端模型配置正在调整，请稍后再试或联系客服。",
+      questionRequired: "请先写下你想问的具体事情，再生成问事解惑。",
+      default: "生成暂时没有完成，请稍后重试。",
+    },
   },
   "zh-TW": {
     brandHome: "有數首頁",
@@ -260,6 +325,67 @@ const copy = {
     closingTitle: "先看一眼，再決定往哪一層深入。",
     backToReading: "回到起盤入口",
     viewProducts: "查看購買選擇",
+    footerTagline: "有數提供東方命理視角下的自我認知與選擇參考。",
+    footerDisclaimer: "內容僅供自我認知、情緒整理和選擇參考，不構成醫療、法律、投資、心理治療或其他專業建議。",
+    footerAge: "建議 18 歲以上用戶使用。",
+    footerCompanyLabel: "營運主體",
+    footerSupportLabel: "客服信箱",
+    footerLinks: { terms: "服務條款", privacy: "隱私政策", refund: "退款政策", contact: "聯絡我們" },
+    legalBackHome: "回到首頁",
+    legalUpdated: "更新日期：2026 年 6 月 26 日",
+    legalPages: {
+      terms: {
+        title: "服務條款",
+        intro: "使用有數，即表示你理解並同意以下服務邊界。本頁面為上線測試版條款，正式商業化前可能繼續更新。",
+        sections: [
+          ["服務性質", "有數提供基於確定性排盤、規則化解讀與大模型生成的命理報告、問事解讀和年度趨勢參考。內容用於自我認知、情緒整理和選擇輔助，不承諾預測結果必然發生。"],
+          ["適用人群", "本服務建議 18 歲以上用戶使用。若你正在處理醫療、法律、投資、心理危機或人身安全等高風險事項，請優先諮詢合資格專業人士或當地緊急服務。"],
+          ["用戶責任", "你應提供相對準確的出生日期、出生時間、出生地和問題背景。若輸入資訊不準確，報告可能偏離你的實際情況。你也應自行判斷是否採納報告建議。"],
+          ["數位內容交付", "報告生成後即視為數位內容已交付。當前 P0 階段可能透過網頁會話保存報告，後續接入帳戶後會支持更穩定的歷史歸檔。"],
+          ["禁止用途", "不得將本服務用於違法、騷擾、歧視、操縱他人、醫療診斷、金融承諾或其他高風險決策自動化。"],
+          ["變更與聯絡", `我們可能根據產品測試情況調整頁面、價格、權益和條款。如有問題，請聯絡 ${supportEmail}。`],
+        ],
+      },
+      privacy: {
+        title: "隱私政策",
+        intro: "我們只收集生成報告所需的資訊，並盡量讓資料用途清楚、克制。",
+        sections: [
+          ["我們收集什麼", "你主動填寫的出生日期、出生時間、出生地、性別、關注方向、具體問題、語言偏好，以及生成報告所需的基礎技術資訊。"],
+          ["如何使用", "這些資訊用於排盤、生成報告、改進提示詞與服務品質、處理客服請求，以及在接入帳戶後幫助你找回歷史報告。"],
+          ["大模型處理", "生成報告時，必要的排盤結果、問題背景和語言選項會發送給我們使用的大模型服務商。我們不會在前端展示或要求用戶提交 DeepSeek API Key。"],
+          ["保存與刪除", "P0 階段報告可能保存在瀏覽器會話中；接入帳戶後會按帳戶保存。你可以透過客服信箱請求刪除與更正相關資訊。"],
+          ["第三方服務", "我們可能使用 Vercel 託管、DeepSeek 生成報告，未來可能接入 Supabase、支付服務商和基礎分析工具。第三方會按其政策處理必要資料。"],
+          ["聯絡我們", `隱私相關請求請發送至 ${supportEmail}。`],
+        ],
+      },
+      refund: {
+        title: "退款政策",
+        intro: "命理報告屬於按用戶輸入生成的數位內容。原則上，報告一經生成或交付，不支持無理由退款。",
+        sections: [
+          ["原則", "已生成、已展示或已發送的命盤報告、問事解惑、年度運勢解讀，通常不予退款。購買前請確認服務性質為參考性數位內容。"],
+          ["可退款或補償情形", "如發生重複扣款、付款成功但報告未生成、系統故障導致無法交付、明顯錯誤訂單，用戶可在付款後 7 日內聯絡處理。我們會根據情況退款、補發或提供等值額度。"],
+          ["不支持退款情形", "因個人主觀感受不符、對解讀結論不滿意、輸入資訊錯誤、已閱讀後改變主意，通常不構成退款理由。"],
+          ["會員退款", "年度會員開通後，如已使用任一付費報告、問事額度或會員權益，原則上不支持全額退款。未使用且在 7 日內提出的異常訂單可人工評估。"],
+          ["處理方式", `退款申請請發送至 ${supportEmail}，並提供付款信箱、訂單時間、購買項目和問題描述。`],
+        ],
+      },
+      contact: {
+        title: "聯絡我們",
+        intro: "產品仍在 P0 測試期。報告、訂單、退款、隱私和合作問題都可以透過信箱聯絡。",
+        sections: [
+          ["客服信箱", supportEmail],
+          ["營運主體", companyNameZh],
+          ["服務範圍", "命盤報告、問事解惑、今年運勢解讀、年度會員與報告歸檔相關問題。"],
+          ["回覆時間", "我們會盡量在 2 個工作日內回覆。複雜訂單、退款或隱私請求可能需要更多時間核對。"],
+        ],
+      },
+    },
+    generationErrorTitle: "生成暫時未完成",
+    apiErrors: {
+      backendKey: "服務端模型配置正在調整，請稍後再試或聯絡客服。",
+      questionRequired: "請先寫下你想問的具體事情，再生成問事解惑。",
+      default: "生成暫時沒有完成，請稍後重試。",
+    },
   },
   en: {
     brandHome: "Youshu home",
@@ -385,6 +511,67 @@ const copy = {
     closingTitle: "Read a little first, then decide how deep to go.",
     backToReading: "Back to chart entry",
     viewProducts: "View purchase options",
+    footerTagline: "Youshu offers self-insight and decision support through an Eastern metaphysics lens.",
+    footerDisclaimer: "Content is for self-reflection, emotional organization, and decision support only. It is not medical, legal, financial, psychotherapy, or other professional advice.",
+    footerAge: "Recommended for users aged 18 and above.",
+    footerCompanyLabel: "Operator",
+    footerSupportLabel: "Support",
+    footerLinks: { terms: "Terms", privacy: "Privacy", refund: "Refunds", contact: "Contact" },
+    legalBackHome: "Back home",
+    legalUpdated: "Last updated: June 26, 2026",
+    legalPages: {
+      terms: {
+        title: "Terms of Service",
+        intro: "By using Youshu, you acknowledge the service boundaries below. These terms are written for the current public test and may be updated before full commercial launch.",
+        sections: [
+          ["Service nature", "Youshu provides Bazi chart reports, question readings, and annual outlooks generated from deterministic chart calculation, structured interpretation rules, and large language model output. The content supports self-insight and decision-making; it does not guarantee that any predicted event will happen."],
+          ["Who should use it", "The service is recommended for users aged 18 and above. For medical, legal, investment, mental health crisis, personal safety, or other high-risk matters, consult a qualified professional or local emergency service first."],
+          ["Your responsibility", "You should provide reasonably accurate birth date, birth time, birth place, and question context. Inaccurate input may affect the report. You remain responsible for deciding whether and how to use any suggestion."],
+          ["Digital delivery", "Once a report is generated, the digital content is considered delivered. In this P0 stage, reports may be kept in the browser session; after accounts are connected, report history will be stored more reliably."],
+          ["Prohibited use", "Do not use the service for unlawful activity, harassment, discrimination, manipulation, medical diagnosis, financial promises, or automated high-risk decisions."],
+          ["Changes and contact", `We may update pages, pricing, benefits, and terms as the product test evolves. Questions can be sent to ${supportEmail}.`],
+        ],
+      },
+      privacy: {
+        title: "Privacy Policy",
+        intro: "We collect only the information needed to generate and support your readings, and we aim to keep the purpose of that data clear.",
+        sections: [
+          ["What we collect", "Information you provide, including birth date, birth time, birth place, gender, reading focus, question content, language preference, and basic technical information required to operate the service."],
+          ["How we use it", "We use this information to calculate charts, generate reports, improve prompts and service quality, handle support requests, and, once accounts are connected, help you retrieve report history."],
+          ["Large model processing", "When generating a report, necessary chart data, question context, and language options may be sent to our large model provider. We do not display or ask users to submit a DeepSeek API key on the customer page."],
+          ["Retention and deletion", "During P0, reports may be stored in your browser session. After account support is added, reports may be stored by account. You may request deletion or correction through the support email."],
+          ["Third-party services", "We may use Vercel for hosting and DeepSeek for report generation. We may later add Supabase, payment providers, and basic analytics. These providers process necessary data under their own policies."],
+          ["Contact", `Privacy requests can be sent to ${supportEmail}.`],
+        ],
+      },
+      refund: {
+        title: "Refund Policy",
+        intro: "Youshu readings are personalized digital content generated from user input. In general, once a report is generated or delivered, it is not eligible for a no-reason refund.",
+        sections: [
+          ["General rule", "Generated, displayed, or delivered Bazi reports, question readings, and annual outlooks are usually non-refundable. Please confirm that the service is reference-based digital content before purchase."],
+          ["Refund or remedy cases", "If there is duplicate payment, successful payment without report generation, a system failure that prevents delivery, or an obviously mistaken order, contact us within 7 days. We may refund, regenerate, or provide equivalent credit depending on the case."],
+          ["Non-refundable cases", "A mismatch with personal expectations, disagreement with interpretation, incorrect user input, or changing your mind after reading the report usually does not qualify for a refund."],
+          ["Membership refunds", "After annual membership is activated, if any paid report, question quota, or member benefit has been used, full refunds are generally not available. Unused abnormal orders reported within 7 days may be reviewed manually."],
+          ["How to request", `Send refund requests to ${supportEmail} with payment email, order time, purchased item, and a short description of the issue.`],
+        ],
+      },
+      contact: {
+        title: "Contact",
+        intro: "Youshu is currently in P0 testing. Report, order, refund, privacy, and partnership questions can be sent by email.",
+        sections: [
+          ["Support email", supportEmail],
+          ["Operator", companyNameEn],
+          ["Service scope", "Bazi reports, question readings, annual outlooks, annual membership, and report archive questions."],
+          ["Response time", "We try to reply within 2 business days. Complex order, refund, or privacy requests may take longer to verify."],
+        ],
+      },
+    },
+    generationErrorTitle: "Generation paused",
+    apiErrors: {
+      backendKey: "The model service is being configured. Please try again later or contact support.",
+      questionRequired: "Please write the specific question first, then generate a question reading.",
+      default: "The report could not be generated. Please try again later.",
+    },
   },
 };
 
@@ -477,11 +664,94 @@ function getCurrentPage() {
     return "home";
   }
 
-  return window.location.pathname === "/report" ? "report" : "home";
+  const pathname = window.location.pathname.replace(/^\/+/, "") || "home";
+  if (pathname === "report") {
+    return "report";
+  }
+  if (legalPageIds.includes(pathname)) {
+    return pathname;
+  }
+  return "home";
 }
 
 function getDisplayPrice(price, language) {
   return language === "en" ? price.usd : price.cny;
+}
+
+function friendlyApiError(rawError, t) {
+  if (!rawError) {
+    return t.apiErrors.default;
+  }
+  if (/DeepSeek API key is not configured/i.test(rawError)) {
+    return t.apiErrors.backendKey;
+  }
+  if (/question is required/i.test(rawError)) {
+    return t.apiErrors.questionRequired;
+  }
+  return t.apiErrors.default;
+}
+
+function LegalPage({ t, pageId, onBackHome }) {
+  const page = t.legalPages[pageId] || t.legalPages.terms;
+
+  return (
+    <main className="legal-page">
+      <section className="legal-hero" aria-label={page.title} role="region">
+        <div className="legal-copy">
+          <p className="kicker">{t.legalUpdated}</p>
+          <h1>{page.title}</h1>
+          <p>{page.intro}</p>
+          <button className="primary-btn" type="button" onClick={onBackHome}>
+            {t.legalBackHome}
+          </button>
+        </div>
+        <article className="legal-card">
+          {page.sections.map(([heading, text]) => (
+            <section className="legal-block" key={heading}>
+              <h2>{heading}</h2>
+              <p>{text}</p>
+            </section>
+          ))}
+        </article>
+      </section>
+    </main>
+  );
+}
+
+function SiteFooter({ t, navigate }) {
+  const companyName = t.nav[0] === "Chart" ? companyNameEn : companyNameZh;
+
+  return (
+    <footer className="site-footer">
+      <div className="footer-brand">
+        <span className="brand-mark">有</span>
+        <div>
+          <strong>有数</strong>
+          <p>{t.footerTagline}</p>
+        </div>
+      </div>
+      <nav aria-label={t.footerLinks.terms}>
+        {legalPageIds.map((pageId) => (
+          <a href={`/${pageId}`} key={pageId} onClick={(event) => {
+            event.preventDefault();
+            navigate(`/${pageId}`);
+          }}>
+            {t.footerLinks[pageId]}
+          </a>
+        ))}
+      </nav>
+      <div className="footer-meta">
+        <p>{t.footerDisclaimer}</p>
+        <p>{t.footerAge}</p>
+        <p>
+          {t.footerCompanyLabel}：{companyName}
+        </p>
+        <p>
+          {t.footerSupportLabel}：<a href={`mailto:${supportEmail}`}>{supportEmail}</a>
+        </p>
+      </div>
+    </footer>
+  );
 }
 
 function ReportPage({ t, report, onBackHome }) {
@@ -511,6 +781,7 @@ function ReportPage({ t, report, onBackHome }) {
               </header>
               <ReportBody content={report.content} />
               <p className="report-footnote">{t.reportFootnote}</p>
+              <p className="report-footnote">{t.footerDisclaimer}</p>
             </>
           ) : (
             <div className="empty-report">
@@ -552,7 +823,7 @@ export default function App() {
 
   function navigate(path) {
     window.history.pushState({}, "", path);
-    setPage(path === "/report" ? "report" : "home");
+    setPage(getCurrentPage());
     if (!window.navigator.userAgent.includes("jsdom")) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -584,7 +855,7 @@ export default function App() {
       });
       const json = await response.json();
       if (!response.ok) {
-        storeAndOpenReport({ title: t.generatedTitle, content: json.error || "生成失败", language });
+        storeAndOpenReport({ title: t.generationErrorTitle, content: friendlyApiError(json.error, t), language });
         return;
       }
       storeAndOpenReport({
@@ -595,7 +866,7 @@ export default function App() {
         type: entryMode,
       });
     } catch (error) {
-      storeAndOpenReport({ title: t.generatedTitle, content: error.message, language });
+      storeAndOpenReport({ title: t.generationErrorTitle, content: friendlyApiError(error.message, t), language });
     } finally {
       setIsGenerating(false);
     }
@@ -635,6 +906,8 @@ export default function App() {
 
       {page === "report" ? (
         <ReportPage t={t} report={report} onBackHome={() => navigate("/")} />
+      ) : legalPageIds.includes(page) ? (
+        <LegalPage t={t} pageId={page} onBackHome={() => navigate("/")} />
       ) : (
       <main id="top" lang={language}>
         <section className="hero" aria-label={t.heroRegion} role="region">
@@ -864,6 +1137,7 @@ export default function App() {
         </section>
       </main>
       )}
+      <SiteFooter t={t} navigate={navigate} />
     </>
   );
 }

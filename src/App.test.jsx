@@ -61,7 +61,32 @@ describe("Youshu homepage", () => {
     expect(within(screen.getByRole("region", { name: "购买选择" })).queryByText("完整分析")).not.toBeInTheDocument();
     expect(screen.getByText("为什么值得信任")).toBeInTheDocument();
     expect(screen.queryByText("用一段先行洞察校准命盘倾向；若它贴近你的处境，再进入完整命盘、问事分析或年度路径。")).not.toBeInTheDocument();
+    expect(screen.getByText("内容仅供自我认知、情绪整理和选择参考，不构成医疗、法律、投资、心理治疗或其他专业建议。")).toBeInTheDocument();
+    expect(screen.getByText(/北京一叶泛舟文化科技有限公司/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "服务条款" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "隐私政策" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "退款政策" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "联系我们" })).toBeInTheDocument();
     expect(screen.getAllByRole("region")).toHaveLength(6);
+  });
+
+  it("opens legal pages with company, support, and refund rules", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("link", { name: "退款政策" }));
+
+    expect(window.location.pathname).toBe("/refund");
+    expect(screen.getByRole("heading", { name: "退款政策" })).toBeInTheDocument();
+    expect(screen.getByText("原则上，报告一经生成或交付，不支持无理由退款。", { exact: false })).toBeInTheDocument();
+    expect(screen.getByText("重复扣款", { exact: false })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("link", { name: "联系我们" }));
+
+    expect(window.location.pathname).toBe("/contact");
+    expect(screen.getByRole("heading", { name: "联系我们" })).toBeInTheDocument();
+    expect(screen.getAllByText("qinyuneo@gmail.com").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("北京一叶泛舟文化科技有限公司").length).toBeGreaterThanOrEqual(1);
   });
 
   it("keeps the idle reading entry focused on inputs instead of a demo result", async () => {
@@ -187,6 +212,24 @@ describe("Youshu homepage", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(fetchMock.mock.calls[0][0]).toBe("/api/generate");
     expect(fetchMock.mock.calls[0][1].body).not.toContain("sk-");
+  });
+
+  it("shows a localized support message when backend generation is not configured", async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ error: "DeepSeek API key is not configured on the backend" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "生成命盘报告" }));
+
+    expect(await screen.findByRole("heading", { name: "生成暂时未完成" })).toBeInTheDocument();
+    expect(screen.getByText("服务端模型配置正在调整，请稍后再试或联系客服。")).toBeInTheDocument();
+    expect(screen.queryByText(/DeepSeek API key is not configured/)).not.toBeInTheDocument();
   });
 
   it("keeps the homepage short after a generated report is available", async () => {
