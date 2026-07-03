@@ -15,6 +15,7 @@
     "deepseek:smoke": "node scripts/deepseek-smoke.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.110.0",
     "@vitejs/plugin-react": "^5.0.0",
     "lunar-javascript": "^1.7.7",
     "react": "^19.0.0",

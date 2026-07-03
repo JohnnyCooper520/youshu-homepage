@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { getSupabaseClient } from "./lib/supabaseClient.js";
+import { loadCloudReports, saveCloudReport } from "./lib/reportStore.js";
 
 const languageOptions = [
   { value: "zh-CN", label: "简体中文" },
@@ -98,6 +100,17 @@ const copy = {
     reportsEmptyText: "先起一盘，报告生成后会自动归档到这里。",
     reportOpenAction: "打开报告",
     reportUnknownType: "有数报告",
+    authTitle: "登录后，报告会跟着你走。",
+    authText: "当前浏览器会先保存报告。登录后，可把报告留到云端，之后换设备也能找回。",
+    authEmailLabel: "邮箱",
+    authEmailPlaceholder: "you@example.com",
+    authGoogle: "Google 登录",
+    authMagicLink: "发送登录链接",
+    authSignedIn: "已登录",
+    authSignOut: "退出登录",
+    authCheckEmail: "登录链接已发送，请检查邮箱。",
+    authUnavailable: "云端归档尚未配置，当前先保存到这台设备。",
+    authError: "登录暂时没有完成，请稍后再试。",
     birthDate: "出生日期",
     birthTime: "出生时辰",
     currentFocus: "当前关注",
@@ -292,6 +305,17 @@ const copy = {
     reportsEmptyText: "先起一盤，報告生成後會自動歸檔到這裡。",
     reportOpenAction: "打開報告",
     reportUnknownType: "有數報告",
+    authTitle: "登入後，報告會跟著你走。",
+    authText: "目前瀏覽器會先保存報告。登入後，可把報告留到雲端，之後換設備也能找回。",
+    authEmailLabel: "信箱",
+    authEmailPlaceholder: "you@example.com",
+    authGoogle: "Google 登入",
+    authMagicLink: "發送登入連結",
+    authSignedIn: "已登入",
+    authSignOut: "退出登入",
+    authCheckEmail: "登入連結已發送，請檢查信箱。",
+    authUnavailable: "雲端歸檔尚未配置，目前先保存到這台設備。",
+    authError: "登入暫時沒有完成，請稍後再試。",
     birthDate: "出生日期",
     birthTime: "出生時辰",
     currentFocus: "當前關注",
@@ -486,6 +510,17 @@ const copy = {
     reportsEmptyText: "Open a chart first. The report will be saved here after generation.",
     reportOpenAction: "Open report",
     reportUnknownType: "Youshu report",
+    authTitle: "Sign in and your reports can travel with you.",
+    authText: "This browser keeps reports first. After sign-in, reports can be saved to the cloud and recovered on another device.",
+    authEmailLabel: "Email",
+    authEmailPlaceholder: "you@example.com",
+    authGoogle: "Continue with Google",
+    authMagicLink: "Send sign-in link",
+    authSignedIn: "Signed in",
+    authSignOut: "Sign out",
+    authCheckEmail: "Sign-in link sent. Please check your inbox.",
+    authUnavailable: "Cloud archive is not configured yet. Reports are saved on this device for now.",
+    authError: "Sign-in could not finish. Please try again later.",
     birthDate: "Birth date",
     birthTime: "Birth hour",
     currentFocus: "Current focus",
@@ -859,7 +894,62 @@ function getReportTypeLabel(report, t) {
   return t.entryModes[report?.type]?.title || t.reportUnknownType;
 }
 
-function ReportsPage({ t, reports, onOpenReport, onBackHome }) {
+function AuthPanel({ t, cloudEnabled, user, email, status, onEmailChange, onGoogleSignIn, onMagicLink, onSignOut }) {
+  if (!cloudEnabled) {
+    return <p className="auth-note">{t.authUnavailable}</p>;
+  }
+
+  if (user) {
+    return (
+      <div className="auth-panel signed-in">
+        <div>
+          <span>{t.authSignedIn}</span>
+          <strong>{user.email}</strong>
+        </div>
+        <button type="button" onClick={onSignOut}>
+          {t.authSignOut}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="auth-panel">
+      <div>
+        <h2>{t.authTitle}</h2>
+        <p>{t.authText}</p>
+      </div>
+      <div className="auth-actions">
+        <button type="button" onClick={onGoogleSignIn}>
+          {t.authGoogle}
+        </button>
+        <label>
+          {t.authEmailLabel}
+          <input value={email} onChange={(event) => onEmailChange(event.target.value)} placeholder={t.authEmailPlaceholder} />
+        </label>
+        <button type="button" onClick={onMagicLink}>
+          {t.authMagicLink}
+        </button>
+      </div>
+      {status ? <p className="auth-note">{status}</p> : null}
+    </div>
+  );
+}
+
+function ReportsPage({
+  t,
+  reports,
+  onOpenReport,
+  onBackHome,
+  cloudEnabled,
+  cloudUser,
+  authEmail,
+  authStatus,
+  onAuthEmailChange,
+  onGoogleSignIn,
+  onMagicLink,
+  onSignOut,
+}) {
   return (
     <main className="report-page reports-page">
       <section className="report-hero reports-hero" aria-label={t.reportsPageRegion} role="region">
@@ -872,6 +962,17 @@ function ReportsPage({ t, reports, onOpenReport, onBackHome }) {
           </button>
         </div>
         <article className="report-archive-card" aria-label={t.reportsPageRegion}>
+          <AuthPanel
+            t={t}
+            cloudEnabled={cloudEnabled}
+            user={cloudUser}
+            email={authEmail}
+            status={authStatus}
+            onEmailChange={onAuthEmailChange}
+            onGoogleSignIn={onGoogleSignIn}
+            onMagicLink={onMagicLink}
+            onSignOut={onSignOut}
+          />
           {reports.length ? (
             <div className="report-list">
               {reports.map((savedReport) => {
@@ -947,6 +1048,7 @@ function ReportPage({ t, report, onBackHome }) {
 }
 
 export default function App() {
+  const supabaseClient = getSupabaseClient();
   const [language, setLanguage] = useState("zh-CN");
   const [focus, setFocus] = useState("career");
   const [birthDate, setBirthDate] = useState("1988-01-14");
@@ -959,10 +1061,14 @@ export default function App() {
   const [report, setReport] = useState(getStoredReport);
   const [page, setPage] = useState(getCurrentPage);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [cloudUser, setCloudUser] = useState(null);
+  const [authEmail, setAuthEmail] = useState("");
+  const [authStatus, setAuthStatus] = useState("");
   const t = copy[language];
   const activeEntry = t.entryModes[entryMode];
   const featuredProduct = t.products[2];
   const purchaseOptions = [...t.products, t.annualMembership];
+  const cloudEnabled = Boolean(supabaseClient);
   const reportIdFromUrl = typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("id");
   const displayedReport = reportIdFromUrl ? reports.find((savedReport) => savedReport.id === reportIdFromUrl) || report : report;
 
@@ -974,6 +1080,104 @@ export default function App() {
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
+
+  useEffect(() => {
+    if (!supabaseClient) {
+      return undefined;
+    }
+
+    let mounted = true;
+
+    async function loadUserAndReports() {
+      const { data } = await supabaseClient.auth.getSession();
+      const nextUser = data?.session?.user || null;
+      if (!mounted) {
+        return;
+      }
+      setCloudUser(nextUser);
+      if (nextUser) {
+        await refreshCloudReports(nextUser);
+      }
+    }
+
+    const subscription = supabaseClient.auth.onAuthStateChange((_event, session) => {
+      const nextUser = session?.user || null;
+      setCloudUser(nextUser);
+      if (nextUser) {
+        refreshCloudReports(nextUser);
+      }
+    });
+
+    loadUserAndReports();
+
+    return () => {
+      mounted = false;
+      subscription?.data?.subscription?.unsubscribe?.();
+    };
+  }, [supabaseClient]);
+
+  function mergeReports(primaryReports, fallbackReports) {
+    const seen = new Set();
+    return [...primaryReports, ...fallbackReports].filter((item) => {
+      if (!item?.id || seen.has(item.id)) {
+        return false;
+      }
+      seen.add(item.id);
+      return true;
+    });
+  }
+
+  async function refreshCloudReports(user = cloudUser) {
+    if (!supabaseClient || !user) {
+      return;
+    }
+
+    try {
+      const cloudReports = await loadCloudReports(supabaseClient, user);
+      setReports((currentReports) => mergeReports(cloudReports, currentReports));
+    } catch {
+      setAuthStatus(t.authError);
+    }
+  }
+
+  async function signInWithGoogle() {
+    if (!supabaseClient) {
+      setAuthStatus(t.authUnavailable);
+      return;
+    }
+
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+    setAuthStatus(error ? t.authError : "");
+  }
+
+  async function sendMagicLink() {
+    if (!supabaseClient || !authEmail.trim()) {
+      setAuthStatus(t.authError);
+      return;
+    }
+
+    const { error } = await supabaseClient.auth.signInWithOtp({
+      email: authEmail.trim(),
+      options: {
+        emailRedirectTo: window.location.origin,
+      },
+    });
+    setAuthStatus(error ? t.authError : t.authCheckEmail);
+  }
+
+  async function signOut() {
+    if (!supabaseClient) {
+      return;
+    }
+
+    await supabaseClient.auth.signOut();
+    setCloudUser(null);
+  }
 
   function navigate(path) {
     window.history.pushState({}, "", path);
@@ -1007,6 +1211,11 @@ export default function App() {
       const nextReports = [reportToOpen, ...reports.filter((savedReport) => savedReport.id !== reportToOpen.id)].slice(0, maxStoredReports);
       setReports(nextReports);
       saveStoredReports(nextReports);
+      if (supabaseClient && cloudUser) {
+        saveCloudReport(supabaseClient, cloudUser, reportToOpen).catch(() => {
+          setAuthStatus(t.authError);
+        });
+      }
     }
 
     setReport(reportToOpen);
@@ -1099,7 +1308,20 @@ export default function App() {
       {page === "report" ? (
         <ReportPage t={t} report={displayedReport} onBackHome={() => navigate("/")} />
       ) : page === "reports" ? (
-        <ReportsPage t={t} reports={reports} onOpenReport={openSavedReport} onBackHome={() => navigate("/#reading")} />
+        <ReportsPage
+          t={t}
+          reports={reports}
+          onOpenReport={openSavedReport}
+          onBackHome={() => navigate("/#reading")}
+          cloudEnabled={cloudEnabled}
+          cloudUser={cloudUser}
+          authEmail={authEmail}
+          authStatus={authStatus}
+          onAuthEmailChange={setAuthEmail}
+          onGoogleSignIn={signInWithGoogle}
+          onMagicLink={sendMagicLink}
+          onSignOut={signOut}
+        />
       ) : legalPageIds.includes(page) ? (
         <LegalPage t={t} pageId={page} onBackHome={() => navigate("/")} />
       ) : (

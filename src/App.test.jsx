@@ -7,6 +7,7 @@ beforeEach(() => {
   window.history.pushState({}, "", "/");
   window.sessionStorage.clear();
   window.localStorage.clear();
+  delete window.__youshuSupabaseClient;
 });
 
 afterEach(() => {
@@ -254,6 +255,82 @@ describe("Youshu homepage", () => {
     expect(window.location.search).toMatch(/id=/);
     expect(screen.getByText("丁卯 · 癸丑 · 戊辰 · 戊午")).toBeInTheDocument();
     expect(screen.getByText("先稳住节奏。")).toBeInTheDocument();
+  });
+
+  it("shows a lightweight sign-in panel when cloud reports are available but the user is signed out", async () => {
+    const user = userEvent.setup();
+    window.__youshuSupabaseClient = {
+      auth: {
+        getSession: vi.fn(async () => ({ data: { session: null }, error: null })),
+        onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
+        signInWithOAuth: vi.fn(async () => ({ error: null })),
+        signInWithOtp: vi.fn(async () => ({ error: null })),
+      },
+    };
+    render(<App />);
+
+    await user.click(screen.getByRole("link", { name: "我的报告" }));
+
+    expect(screen.getByRole("heading", { name: "我的报告" })).toBeInTheDocument();
+    expect(screen.getByText("登录后，报告会跟着你走。")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Google 登录" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "发送登录链接" })).toBeInTheDocument();
+  });
+
+  it("saves generated reports to Supabase when a user is signed in", async () => {
+    const user = userEvent.setup();
+    const insertMock = vi.fn(async () => ({ error: null }));
+    window.__youshuSupabaseClient = {
+      auth: {
+        getSession: vi.fn(async () => ({ data: { session: { user: { id: "user-1", email: "user@example.com" } } }, error: null })),
+        onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
+      },
+      from: vi.fn((table) => {
+        if (table !== "reports") {
+          throw new Error(`Unexpected table ${table}`);
+        }
+        return {
+          select: () => ({
+            eq: () => ({
+              order: async () => ({ data: [], error: null }),
+            }),
+          }),
+          insert: insertMock,
+        };
+      }),
+    };
+    const fetchMock = vi.fn(async () =>
+      new Response(
+        JSON.stringify({
+          ok: true,
+          type: "bazi",
+          content: "# 命盘报告\n先知己。",
+          paipan: {
+            pillars: {
+              year: { value: "丁卯" },
+              month: { value: "癸丑" },
+              day: { value: "戊辰" },
+              hour: { value: "戊午" },
+            },
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "生成命盘报告" }));
+    await screen.findByText("报告已成");
+
+    expect(insertMock).toHaveBeenCalledWith([
+      expect.objectContaining({
+        user_id: "user-1",
+        report_type: "bazi",
+        title: "生成结果",
+        report_payload: expect.objectContaining({ content: "# 命盘报告\n先知己。" }),
+      }),
+    ]);
   });
 
   it("shows a localized support message when backend generation is not configured", async () => {
