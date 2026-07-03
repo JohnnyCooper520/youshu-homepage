@@ -1,6 +1,8 @@
 import { calculateBazi } from "../src/paipan/calculateBazi.js";
 import { createDeepSeekChat } from "../src/llm/deepseekClient.js";
 import { generateReport } from "../src/report/generateReport.js";
+import { createAlipayVerifier, parseAlipayPassbackParams } from "./alipay.js";
+import { createSupabaseEntitlementStore } from "./paymentEntitlements.js";
 
 const VALID_TYPES = new Set(["bazi", "annual", "question"]);
 
@@ -33,12 +35,30 @@ function json(data, status = 200) {
   });
 }
 
+function plainText(data, status = 200) {
+  return new Response(data, {
+    status,
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+    },
+  });
+}
+
 async function readBody(request) {
   if (request.method === "GET" || request.method === "HEAD") {
     return {};
   }
   const text = await request.text();
-  return text ? JSON.parse(text) : {};
+  if (!text) {
+    return {};
+  }
+
+  const contentType = request.headers.get("content-type") || "";
+  if (contentType.includes("application/x-www-form-urlencoded")) {
+    return Object.fromEntries(new URLSearchParams(text));
+  }
+
+  return JSON.parse(text);
 }
 
 function normalizeInput(body) {
@@ -82,11 +102,45 @@ function mockContentFor(type, language) {
   return "# 本地测试报告 · 命盘报告\n这是一份本地测试报告，用来测试生成、归档和再次打开，不会消耗模型额度。\n\n## 命盘底色\n先看清自己的底色，再谈选择。";
 }
 
+function isPaidAlipayTrade(fields) {
+  return fields.trade_status === "TRADE_SUCCESS" || fields.trade_status === "TRADE_FINISHED";
+}
+
+function getAlipayPayment(fields, env) {
+  if (env.ALIPAY_APP_ID && fields.app_id !== env.ALIPAY_APP_ID) {
+    throw new Error("Alipay app_id mismatch");
+  }
+  if (!isPaidAlipayTrade(fields)) {
+    throw new Error("Alipay trade is not paid");
+  }
+
+  const passback = parseAlipayPassbackParams(fields.passback_params);
+  if (!passback.userId || !passback.productKey) {
+    throw new Error("Alipay passback_params must include userId and productKey");
+  }
+  if (!fields.out_trade_no) {
+    throw new Error("Alipay out_trade_no is required");
+  }
+
+  return {
+    provider: "alipay",
+    orderId: fields.out_trade_no,
+    providerTradeId: fields.trade_no || "",
+    userId: passback.userId,
+    productKey: passback.productKey,
+    amount: fields.total_amount || "",
+    raw: fields,
+  };
+}
+
 export function createApiHandler({
-  keyStore = createMemoryKeyStore(),
+  env = process.env,
+  keyStore = createMemoryKeyStore({ env }),
   createChat = createDeepSeekChat,
-  allowRuntimeKey = process.env.ALLOW_RUNTIME_DEEPSEEK_KEY === "true",
-  mockReports = process.env.MOCK_REPORTS === "true",
+  allowRuntimeKey = env.ALLOW_RUNTIME_DEEPSEEK_KEY === "true",
+  mockReports = env.MOCK_REPORTS === "true",
+  entitlementStore = createSupabaseEntitlementStore({ env }),
+  alipayVerifier = createAlipayVerifier({ env }),
 } = {}) {
   return async function handleApiRequest(request) {
     try {
@@ -152,8 +206,22 @@ export function createApiHandler({
         });
       }
 
+      if (url.pathname === "/api/payments/alipay/notify" && request.method === "POST") {
+        const fields = await readBody(request);
+        if (!alipayVerifier(fields)) {
+          return plainText("fail", 400);
+        }
+
+        const payment = getAlipayPayment(fields, env);
+        await entitlementStore.recordPayment(payment);
+        return plainText("success");
+      }
+
       return json({ error: "Not found" }, 404);
     } catch (error) {
+      if (new URL(request.url).pathname === "/api/payments/alipay/notify") {
+        return plainText("fail", 400);
+      }
       return json({ error: error.message || "Unknown server error" }, 500);
     }
   };

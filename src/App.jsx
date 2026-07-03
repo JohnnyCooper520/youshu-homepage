@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { consumeEntitlement, getModeAccess, getProductStatus, grantProduct, normalizeEntitlements } from "./lib/entitlements.js";
+import { consumeEntitlement, getModeAccess, getProductStatus, grantProduct, mergeEntitlements, normalizeEntitlements } from "./lib/entitlements.js";
+import { loadCloudEntitlements } from "./lib/cloudEntitlements.js";
 import { getSupabaseClient } from "./lib/supabaseClient.js";
 import { loadCloudReports, saveCloudReport } from "./lib/reportStore.js";
 
@@ -1361,7 +1362,7 @@ export default function App() {
       }
       setCloudUser(nextUser);
       if (nextUser) {
-        await refreshCloudReports(nextUser);
+        await refreshCloudData(nextUser);
       }
     }
 
@@ -1369,7 +1370,7 @@ export default function App() {
       const nextUser = session?.user || null;
       setCloudUser(nextUser);
       if (nextUser) {
-        refreshCloudReports(nextUser);
+        refreshCloudData(nextUser);
       }
     });
 
@@ -1392,14 +1393,22 @@ export default function App() {
     });
   }
 
-  async function refreshCloudReports(user = cloudUser) {
+  async function refreshCloudData(user = cloudUser) {
     if (!supabaseClient || !user) {
       return;
     }
 
     try {
-      const cloudReports = await loadCloudReports(supabaseClient, user);
+      const [cloudReports, cloudEntitlements] = await Promise.all([
+        loadCloudReports(supabaseClient, user),
+        loadCloudEntitlements(supabaseClient, user),
+      ]);
       setReports((currentReports) => mergeReports(cloudReports, currentReports));
+      setEntitlements((currentEntitlements) => {
+        const nextEntitlements = mergeEntitlements(currentEntitlements, cloudEntitlements);
+        saveStoredEntitlements(nextEntitlements);
+        return nextEntitlements;
+      });
     } catch {
       setAuthStatus(t.authError);
     }

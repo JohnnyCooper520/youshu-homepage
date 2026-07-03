@@ -159,6 +159,43 @@ describe("Youshu homepage", () => {
     expect(within(readingRegion).getByRole("button", { name: "生成命盘报告" })).toBeEnabled();
   });
 
+  it("loads paid entitlements from Supabase after sign in", async () => {
+    const user = { id: "user-1", email: "qinyuneo@gmail.com" };
+    const reportsOrderMock = vi.fn(async () => ({ data: [], error: null }));
+    const reportsEqMock = vi.fn(() => ({ order: reportsOrderMock }));
+    const reportsSelectMock = vi.fn(() => ({ eq: reportsEqMock }));
+    const entitlementsOrderMock = vi.fn(async () => ({
+      data: [{ product_key: "bazi", included_quantity: 1, used_quantity: 0, status: "active", expires_at: null }],
+      error: null,
+    }));
+    const entitlementsEqMock = vi.fn(() => ({ order: entitlementsOrderMock }));
+    const entitlementsSelectMock = vi.fn(() => ({ eq: entitlementsEqMock }));
+
+    window.__youshuSupabaseClient = {
+      auth: {
+        getSession: vi.fn(async () => ({ data: { session: { user } }, error: null })),
+        onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
+      },
+      from: vi.fn((table) => {
+        if (table === "reports") {
+          return { select: reportsSelectMock };
+        }
+        if (table === "user_entitlements") {
+          return { select: entitlementsSelectMock };
+        }
+        throw new Error(`Unexpected table: ${table}`);
+      }),
+    };
+
+    render(<App />);
+
+    const readingRegion = screen.getByRole("region", { name: "先行洞察" });
+    expect(await within(readingRegion).findByText("已开通，可生成")).toBeInTheDocument();
+    expect(within(readingRegion).getByText("剩余 1 次")).toBeInTheDocument();
+    expect(within(readingRegion).getByRole("button", { name: "生成命盘报告" })).toBeEnabled();
+    expect(entitlementsSelectMock).toHaveBeenCalledWith("product_key,included_quantity,used_quantity,status,expires_at");
+  });
+
   it("shows annual membership entitlements and unlocks all three report types for testing", async () => {
     const user = userEvent.setup();
     render(<App />);

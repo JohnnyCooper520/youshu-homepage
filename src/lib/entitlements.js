@@ -49,6 +49,28 @@ function toCount(value) {
   return Math.floor(nextValue);
 }
 
+export function mergeEntitlements(...values) {
+  const next = createEmptyEntitlements();
+
+  values.map(normalizeEntitlements).forEach((entitlements) => {
+    Object.entries(entitlements.purchases).forEach(([productKey, isPurchased]) => {
+      if (isPurchased) {
+        next.purchases[productKey] = true;
+      }
+    });
+
+    Object.entries(entitlements.remaining).forEach(([productKey, amount]) => {
+      next.remaining[productKey] = Math.max(toCount(next.remaining[productKey]), toCount(amount));
+    });
+
+    if (!next.updatedAt || entitlements.updatedAt > next.updatedAt) {
+      next.updatedAt = entitlements.updatedAt;
+    }
+  });
+
+  return next;
+}
+
 export function grantProduct(currentEntitlements, productKey, updatedAt = new Date().toISOString()) {
   const catalogItem = entitlementCatalog[productKey];
   const current = normalizeEntitlements(currentEntitlements);

@@ -14,5 +14,6 @@ describe("Supabase schema", () => {
     expect(schema).toContain('create policy "Users can read their own entitlements"');
     expect(schema).toContain("using (auth.uid() = user_id)");
     expect(schema).toContain("user_entitlements_user_product_idx");
+    expect(schema).toContain("user_entitlements_order_product_uidx");
   });
 });

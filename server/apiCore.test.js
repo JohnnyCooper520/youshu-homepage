@@ -13,6 +13,14 @@ function post(path, body) {
   });
 }
 
+function formPost(path, fields) {
+  return new Request(`http://localhost${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams(fields).toString(),
+  });
+}
+
 describe("apiCore", () => {
   it("reports backend DeepSeek key status without exposing it", async () => {
     const handler = createApiHandler({
@@ -167,5 +175,85 @@ describe("apiCore", () => {
     expect(json.type).toBe("bazi");
     expect(json.content).toContain("本地测试报告");
     expect(json.paipan.pillars.day.value).toBe("戊辰");
+  });
+
+  it("opens paid entitlements from a verified Alipay async notification", async () => {
+    const entitlementStore = {
+      recordPayment: vi.fn().mockResolvedValue({ inserted: 2 }),
+    };
+    const alipayVerifier = vi.fn().mockReturnValue(true);
+    const handler = createApiHandler({
+      keyStore: createMemoryKeyStore({ env: {} }),
+      createChat: vi.fn(),
+      entitlementStore,
+      alipayVerifier,
+      env: { ALIPAY_APP_ID: "2026000000000000" },
+    });
+
+    const response = await handler(
+      formPost("/api/payments/alipay/notify", {
+        app_id: "2026000000000000",
+        trade_status: "TRADE_SUCCESS",
+        out_trade_no: "YS202607040001",
+        trade_no: "2026070422000000000001",
+        total_amount: "29.90",
+        passback_params: JSON.stringify({
+          userId: "00000000-0000-4000-8000-000000000001",
+          productKey: "bazi",
+        }),
+        sign_type: "RSA2",
+        sign: "valid-signature",
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.text()).toBe("success");
+    expect(alipayVerifier).toHaveBeenCalledWith(
+      expect.objectContaining({
+        app_id: "2026000000000000",
+        out_trade_no: "YS202607040001",
+        sign: "valid-signature",
+      }),
+    );
+    expect(entitlementStore.recordPayment).toHaveBeenCalledWith(
+      expect.objectContaining({
+        provider: "alipay",
+        orderId: "YS202607040001",
+        providerTradeId: "2026070422000000000001",
+        productKey: "bazi",
+        userId: "00000000-0000-4000-8000-000000000001",
+        amount: "29.90",
+      }),
+    );
+  });
+
+  it("rejects Alipay notifications when signature verification fails", async () => {
+    const entitlementStore = {
+      recordPayment: vi.fn(),
+    };
+    const handler = createApiHandler({
+      keyStore: createMemoryKeyStore({ env: {} }),
+      createChat: vi.fn(),
+      entitlementStore,
+      alipayVerifier: vi.fn().mockReturnValue(false),
+      env: { ALIPAY_APP_ID: "2026000000000000" },
+    });
+
+    const response = await handler(
+      formPost("/api/payments/alipay/notify", {
+        app_id: "2026000000000000",
+        trade_status: "TRADE_SUCCESS",
+        out_trade_no: "YS202607040002",
+        passback_params: JSON.stringify({
+          userId: "00000000-0000-4000-8000-000000000001",
+          productKey: "question",
+        }),
+        sign: "bad-signature",
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.text()).toBe("fail");
+    expect(entitlementStore.recordPayment).not.toHaveBeenCalled();
   });
 });

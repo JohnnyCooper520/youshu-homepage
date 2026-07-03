@@ -75,3 +75,6 @@ using (auth.uid() = user_id);
 
 create index if not exists user_entitlements_user_product_idx
 on public.user_entitlements (user_id, product_key, status, expires_at);
+
+create unique index if not exists user_entitlements_order_product_uidx
+on public.user_entitlements (order_id, product_key);
