@@ -15,6 +15,11 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+async function testUnlock(user, productName = "命盘报告") {
+  const purchaseRegion = screen.getByRole("region", { name: "购买选择" });
+  await user.click(within(purchaseRegion).getByRole("button", { name: `测试开通：${productName}` }));
+}
+
 describe("Youshu homepage", () => {
   it("presents a three-product premium landing page with account access", () => {
     render(<App />);
@@ -49,6 +54,8 @@ describe("Youshu homepage", () => {
     expect(within(screen.getByRole("region", { name: "购买选择" })).getAllByRole("link", { name: "开通年度会员" })).toHaveLength(2);
     expect(within(screen.getByRole("region", { name: "购买选择" })).getByRole("link", { name: "生成命盘报告" })).toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "购买选择" })).getByRole("link", { name: "生成问事解惑" })).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "购买选择" })).getByRole("button", { name: "测试开通：命盘报告" })).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "购买选择" })).getByRole("button", { name: "测试开通：年度会员" })).toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "购买选择" })).queryByText("春季蓄势")).not.toBeInTheDocument();
     expect(screen.getByText("近守远换")).toBeInTheDocument();
     expect(screen.queryByText("流年十二月解读")).not.toBeInTheDocument();
@@ -113,6 +120,8 @@ describe("Youshu homepage", () => {
     expect(within(modeSwitcher).getByRole("button", { name: /命盘报告/ })).toHaveAttribute("aria-pressed", "true");
     expect(within(readingRegion).queryByLabelText("想问的事")).not.toBeInTheDocument();
     expect(within(readingRegion).getByRole("button", { name: "生成命盘报告" })).toBeInTheDocument();
+    expect(within(readingRegion).getByRole("button", { name: "生成命盘报告" })).toBeDisabled();
+    expect(within(readingRegion).getByText("这一项还未开通")).toBeInTheDocument();
     expect(within(birthForm).getByRole("button", { name: "生成命盘报告" })).toBeInTheDocument();
 
     await user.click(within(modeSwitcher).getByRole("button", { name: /今年运势/ }));
@@ -121,6 +130,7 @@ describe("Youshu homepage", () => {
     expect(within(readingRegion).getByText("从起盘日起，向后看完整 12 个月。")).toBeInTheDocument();
     expect(within(readingRegion).queryByLabelText("想问的事")).not.toBeInTheDocument();
     expect(within(readingRegion).getByRole("button", { name: "生成今年运势" })).toBeInTheDocument();
+    expect(within(readingRegion).getByText("这一项还未开通")).toBeInTheDocument();
 
     await user.click(within(modeSwitcher).getByRole("button", { name: /问事解惑/ }));
 
@@ -129,6 +139,41 @@ describe("Youshu homepage", () => {
     expect(within(readingRegion).getByLabelText("想问的事")).toBeInTheDocument();
     expect(within(readingRegion).getByPlaceholderText("例如：接下来半年适合换工作吗？")).toBeInTheDocument();
     expect(within(readingRegion).getByRole("button", { name: "生成问事解惑" })).toBeInTheDocument();
+    expect(within(readingRegion).getByText("这一项还未开通")).toBeInTheDocument();
+  });
+
+  it("locks paid report generation until the matching entitlement is opened", async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    render(<App />);
+
+    const readingRegion = screen.getByRole("region", { name: "先行洞察" });
+    expect(within(readingRegion).getByRole("button", { name: "生成命盘报告" })).toBeDisabled();
+    expect(within(readingRegion).getByText("这一项还未开通")).toBeInTheDocument();
+
+    await testUnlock(user, "命盘报告");
+
+    expect(within(readingRegion).getByText("已开通，可生成")).toBeInTheDocument();
+    expect(within(readingRegion).getByText("剩余 1 次")).toBeInTheDocument();
+    expect(within(readingRegion).getByRole("button", { name: "生成命盘报告" })).toBeEnabled();
+  });
+
+  it("shows annual membership entitlements and unlocks all three report types for testing", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await testUnlock(user, "年度会员");
+
+    const readingRegion = screen.getByRole("region", { name: "先行洞察" });
+    const modeSwitcher = within(readingRegion).getByLabelText("选择服务");
+    expect(within(readingRegion).getByText("年度会员已包含")).toBeInTheDocument();
+
+    await user.click(within(modeSwitcher).getByRole("button", { name: /问事解惑/ }));
+
+    expect(within(readingRegion).getByText("年度会员已包含")).toBeInTheDocument();
+    expect(within(readingRegion).getByText("剩余 12 次")).toBeInTheDocument();
+    expect(within(readingRegion).getByRole("button", { name: "生成问事解惑" })).toBeEnabled();
   });
 
   it("switches the web page between simplified Chinese, traditional Chinese, and English", async () => {
@@ -194,6 +239,7 @@ describe("Youshu homepage", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
+    await testUnlock(user, "命盘报告");
     await user.click(screen.getByRole("button", { name: "生成命盘报告" }));
 
     expect(window.location.pathname).toBe("/report");
@@ -239,6 +285,7 @@ describe("Youshu homepage", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
+    await testUnlock(user, "命盘报告");
     await user.click(screen.getByRole("button", { name: "生成命盘报告" }));
     await screen.findByText("报告已成");
     await user.click(screen.getByRole("link", { name: "我的报告" }));
@@ -280,6 +327,7 @@ describe("Youshu homepage", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
+    await testUnlock(user, "命盘报告");
     await user.click(screen.getByRole("button", { name: "生成命盘报告" }));
 
     const reportCard = await screen.findByLabelText("生成结果");
@@ -416,6 +464,7 @@ describe("Youshu homepage", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
+    await testUnlock(user, "命盘报告");
     await user.click(screen.getByRole("button", { name: "生成命盘报告" }));
     await screen.findByText("报告已成");
 
@@ -440,6 +489,7 @@ describe("Youshu homepage", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
+    await testUnlock(user, "命盘报告");
     await user.click(screen.getByRole("button", { name: "生成命盘报告" }));
 
     expect(await screen.findByRole("heading", { name: "有数报告", level: 1 })).toBeInTheDocument();
@@ -470,6 +520,7 @@ describe("Youshu homepage", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
+    await testUnlock(user, "命盘报告");
     await user.click(screen.getByRole("button", { name: "生成命盘报告" }));
     await screen.findByRole("heading", { name: "命盘报告", level: 1 });
     await user.click(screen.getByRole("button", { name: "回到首页" }));
@@ -493,6 +544,7 @@ describe("Youshu homepage", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
+    await testUnlock(user, "命盘报告");
     await user.click(screen.getByRole("button", { name: "生成命盘报告" }));
 
     expect(screen.getByText("正在起盘")).toBeInTheDocument();
@@ -551,6 +603,7 @@ describe("Youshu homepage", () => {
     const readingRegion = screen.getByRole("region", { name: "First insight" });
     const modeSwitcher = within(readingRegion).getByLabelText("Choose a service");
     await user.click(within(modeSwitcher).getByRole("button", { name: /Annual Outlook/ }));
+    await user.click(within(screen.getByRole("region", { name: "Purchase options" })).getByRole("button", { name: "Test unlock: Annual Outlook" }));
     await user.click(screen.getByRole("button", { name: "Generate annual outlook" }));
 
     expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({

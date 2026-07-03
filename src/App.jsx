@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { consumeEntitlement, getModeAccess, getProductStatus, grantProduct, normalizeEntitlements } from "./lib/entitlements.js";
 import { getSupabaseClient } from "./lib/supabaseClient.js";
 import { loadCloudReports, saveCloudReport } from "./lib/reportStore.js";
 
@@ -13,6 +14,7 @@ const entryModeIds = ["bazi", "annual", "question"];
 const legalPageIds = ["terms", "privacy", "refund", "contact"];
 const reportStorageKey = "youshu:last-report";
 const reportArchiveStorageKey = "youshu:reports";
+const entitlementStorageKey = "youshu:entitlements";
 const maxStoredReports = 30;
 const companyNameZh = "北京一叶泛舟文化科技有限公司";
 const companyNameEn = "Beijing Yiye Fanzhou Culture Technology Co., Ltd.";
@@ -137,11 +139,23 @@ const copy = {
       membership: { cny: "人民币 ¥299/年", usd: "USD $42/year" },
     },
     products: [
-      { title: "命盘报告", question: "先知己，再谈选择。", priceKey: "basic", action: "生成命盘报告" },
-      { title: "问事解惑", question: "事到眼前，先辨轻重。", priceKey: "basic", action: "生成问事解惑" },
-      { title: "今年运势解读", question: "起盘日起，向后看完整 12 个月。", priceKey: "annual", action: "看今年运势" },
+      { key: "bazi", title: "命盘报告", question: "先知己，再谈选择。", priceKey: "basic", action: "生成命盘报告" },
+      { key: "question", title: "问事解惑", question: "事到眼前，先辨轻重。", priceKey: "basic", action: "生成问事解惑" },
+      { key: "annual", title: "今年运势解读", question: "起盘日起，向后看完整 12 个月。", priceKey: "annual", action: "看今年运势" },
     ],
-    annualMembership: { title: "年度会员", question: "常看、常问、常复盘，都归入一处。", priceKey: "membership", action: "开通年度会员" },
+    annualMembership: { key: "membership", title: "年度会员", question: "常看、常问、常复盘，都归入一处。", priceKey: "membership", action: "开通年度会员" },
+    entitlementStatusLabel: "权益状态",
+    entitlementLockedTitle: "这一项还未开通",
+    entitlementLockedText: "可以先看页面里的判断样本；完整报告开通后生成。",
+    entitlementReady: "已开通，可生成",
+    entitlementMemberReady: "年度会员已包含",
+    entitlementRemaining: "剩余 {count} 次",
+    entitlementUsedUp: "已用完",
+    simulateUnlock: "测试开通",
+    simulateUnlockAria: "测试开通：{product}",
+    entitlementActive: "已开通",
+    entitlementIncluded: "会员已含",
+    entitlementLocked: "未开通",
     annualLabel: "今年运势 · 起盘日起算",
     annualTitle: "先看眼前，再看一年里的转折。",
     annualText: "不是按自然年切一刀，而是从你起盘这一刻，向后看完整十二个月。眼前怎么稳，后面哪里换挡，一并放进同一条路里。",
@@ -347,11 +361,23 @@ const copy = {
       membership: { cny: "人民幣 ¥299/年", usd: "USD $42/year" },
     },
     products: [
-      { title: "命盤報告", question: "先知己，再談選擇。", priceKey: "basic", action: "生成命盤報告" },
-      { title: "問事解惑", question: "事到眼前，先辨輕重。", priceKey: "basic", action: "生成問事解惑" },
-      { title: "今年運勢解讀", question: "起盤日起，向後看完整 12 個月。", priceKey: "annual", action: "看今年運勢" },
+      { key: "bazi", title: "命盤報告", question: "先知己，再談選擇。", priceKey: "basic", action: "生成命盤報告" },
+      { key: "question", title: "問事解惑", question: "事到眼前，先辨輕重。", priceKey: "basic", action: "生成問事解惑" },
+      { key: "annual", title: "今年運勢解讀", question: "起盤日起，向後看完整 12 個月。", priceKey: "annual", action: "看今年運勢" },
     ],
-    annualMembership: { title: "年度會員", question: "常看、常問、常復盤，都歸入一處。", priceKey: "membership", action: "開通年度會員" },
+    annualMembership: { key: "membership", title: "年度會員", question: "常看、常問、常復盤，都歸入一處。", priceKey: "membership", action: "開通年度會員" },
+    entitlementStatusLabel: "權益狀態",
+    entitlementLockedTitle: "這一項尚未開通",
+    entitlementLockedText: "可以先看頁面裡的判斷樣本；完整報告開通後生成。",
+    entitlementReady: "已開通，可生成",
+    entitlementMemberReady: "年度會員已包含",
+    entitlementRemaining: "剩餘 {count} 次",
+    entitlementUsedUp: "已用完",
+    simulateUnlock: "測試開通",
+    simulateUnlockAria: "測試開通：{product}",
+    entitlementActive: "已開通",
+    entitlementIncluded: "會員已含",
+    entitlementLocked: "未開通",
     annualLabel: "今年運勢 · 起盤日起算",
     annualTitle: "先看眼前，再看一年裡的轉折。",
     annualText: "不是按自然年切一刀，而是從你起盤這一刻，向後看完整十二個月。眼前怎麼穩，後面哪裡換擋，一併放進同一條路裡。",
@@ -557,11 +583,23 @@ const copy = {
       membership: { cny: "RMB ¥299/year", usd: "USD $42/year" },
     },
     products: [
-      { title: "Bazi Report", question: "Know yourself before you choose.", priceKey: "basic", action: "Generate bazi report" },
-      { title: "Question Reading", question: "When the matter arrives, weigh it first.", priceKey: "basic", action: "Generate question reading" },
-      { title: "Annual Outlook", question: "From the reading date, look across the next 12 months.", priceKey: "annual", action: "Read annual outlook" },
+      { key: "bazi", title: "Bazi Report", question: "Know yourself before you choose.", priceKey: "basic", action: "Generate bazi report" },
+      { key: "question", title: "Question Reading", question: "When the matter arrives, weigh it first.", priceKey: "basic", action: "Generate question reading" },
+      { key: "annual", title: "Annual Outlook", question: "From the reading date, look across the next 12 months.", priceKey: "annual", action: "Read annual outlook" },
     ],
-    annualMembership: { title: "Annual Membership", question: "For people who read, ask, and revisit often.", priceKey: "membership", action: "Start membership" },
+    annualMembership: { key: "membership", title: "Annual Membership", question: "For people who read, ask, and revisit often.", priceKey: "membership", action: "Start membership" },
+    entitlementStatusLabel: "Access status",
+    entitlementLockedTitle: "This reading is not opened yet",
+    entitlementLockedText: "Preview the sample judgments first. The full report generates after access is opened.",
+    entitlementReady: "Opened, ready to generate",
+    entitlementMemberReady: "Included in membership",
+    entitlementRemaining: "{count} left",
+    entitlementUsedUp: "Used",
+    simulateUnlock: "Test unlock",
+    simulateUnlockAria: "Test unlock: {product}",
+    entitlementActive: "Opened",
+    entitlementIncluded: "Member access",
+    entitlementLocked: "Locked",
     annualLabel: "Annual outlook · from reading date",
     annualTitle: "Read what is near, then the turnings of the year.",
     annualText: "This is not cut by the calendar year. It starts from the moment you open the chart and looks across a full twelve months: what to steady now, and where the later shift may come.",
@@ -806,6 +844,26 @@ function getStoredReports() {
   return Array.isArray(reports) ? reports : [];
 }
 
+function getStoredEntitlements() {
+  if (typeof window === "undefined") {
+    return normalizeEntitlements();
+  }
+
+  return normalizeEntitlements(readJsonStorage(window.localStorage, entitlementStorageKey, {}));
+}
+
+function saveStoredEntitlements(entitlements) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(entitlementStorageKey, JSON.stringify(normalizeEntitlements(entitlements)));
+  } catch {
+    // Entitlements stay in memory if local storage is unavailable.
+  }
+}
+
 function saveStoredReports(reports) {
   if (typeof window === "undefined") {
     return;
@@ -939,6 +997,36 @@ function friendlyApiError(rawError, t) {
     return t.apiErrors.questionRequired;
   }
   return t.apiErrors.default;
+}
+
+function fillTemplate(template, values) {
+  return Object.entries(values).reduce((text, [key, value]) => text.replace(`{${key}}`, String(value)), template);
+}
+
+function getAccessTitle(access, t) {
+  if (access.unlocked && access.source === "membership") {
+    return t.entitlementMemberReady;
+  }
+  if (access.unlocked) {
+    return t.entitlementReady;
+  }
+  if (access.source === "used") {
+    return t.entitlementUsedUp;
+  }
+  return t.entitlementLockedTitle;
+}
+
+function getProductStatusLabel(status, t) {
+  if (status === "included") {
+    return t.entitlementIncluded;
+  }
+  if (status === "active") {
+    return t.entitlementActive;
+  }
+  if (status === "used") {
+    return t.entitlementUsedUp;
+  }
+  return t.entitlementLocked;
 }
 
 function LegalPage({ t, pageId, onBackHome }) {
@@ -1232,6 +1320,7 @@ export default function App() {
   const [birthPlace, setBirthPlace] = useState("长春");
   const [question, setQuestion] = useState("");
   const [entryMode, setEntryMode] = useState("bazi");
+  const [entitlements, setEntitlements] = useState(getStoredEntitlements);
   const [reports, setReports] = useState(getStoredReports);
   const [report, setReport] = useState(getStoredReport);
   const [page, setPage] = useState(getCurrentPage);
@@ -1241,6 +1330,7 @@ export default function App() {
   const [authStatus, setAuthStatus] = useState("");
   const t = copy[language];
   const activeEntry = t.entryModes[entryMode];
+  const activeAccess = getModeAccess(entitlements, entryMode);
   const featuredProduct = t.products[2];
   const purchaseOptions = [...t.products, t.annualMembership];
   const cloudEnabled = Boolean(supabaseClient);
@@ -1354,6 +1444,22 @@ export default function App() {
     setCloudUser(null);
   }
 
+  function updateEntitlements(updater) {
+    setEntitlements((currentEntitlements) => {
+      const nextEntitlements = updater(currentEntitlements);
+      saveStoredEntitlements(nextEntitlements);
+      return nextEntitlements;
+    });
+  }
+
+  function openTestEntitlement(productKey) {
+    updateEntitlements((currentEntitlements) => grantProduct(currentEntitlements, productKey));
+  }
+
+  function consumeCurrentEntitlement() {
+    updateEntitlements((currentEntitlements) => consumeEntitlement(currentEntitlements, entryMode));
+  }
+
   function navigate(path) {
     window.history.pushState({}, "", path);
     setPage(getCurrentPage());
@@ -1403,6 +1509,11 @@ export default function App() {
   }
 
   async function generate() {
+    const nextAccess = getModeAccess(entitlements, entryMode);
+    if (!nextAccess.unlocked) {
+      return;
+    }
+
     setIsGenerating(true);
     setReport(null);
     try {
@@ -1432,6 +1543,7 @@ export default function App() {
         language,
         type: entryMode,
       });
+      consumeCurrentEntitlement();
     } catch (error) {
       storeAndOpenReport({ title: t.generationErrorTitle, content: friendlyApiError(error.message, t), language }, { archive: false });
     } finally {
@@ -1583,8 +1695,17 @@ export default function App() {
                   />
                 </label>
               ) : null}
+              <aside className={`entitlement-state ${activeAccess.unlocked ? "is-open" : "is-locked"}`} aria-live="polite">
+                <span>{t.entitlementStatusLabel}</span>
+                <strong>{getAccessTitle(activeAccess, t)}</strong>
+                <p>
+                  {activeAccess.unlocked
+                    ? fillTemplate(t.entitlementRemaining, { count: activeAccess.remaining })
+                    : t.entitlementLockedText}
+                </p>
+              </aside>
               <div className="form-submit api-actions single-action" aria-live="polite">
-                <button type="button" onClick={generate} disabled={isGenerating}>
+                <button type="button" onClick={generate} disabled={isGenerating || !activeAccess.unlocked}>
                   {activeEntry.action}
                 </button>
               </div>
@@ -1624,6 +1745,8 @@ export default function App() {
                 const displayPrice = getDisplayPrice(price, language);
                 const isFeatured = product.title === featuredProduct.title;
                 const isMembership = product.title === t.annualMembership.title;
+                const productStatus = getProductStatus(entitlements, product.key);
+                const unlockLabel = fillTemplate(t.simulateUnlockAria, { product: product.title });
 
                 return (
                   <article
@@ -1638,7 +1761,22 @@ export default function App() {
                     </strong>
                     <h3>{product.title}</h3>
                     <p>{product.question}</p>
-                    <a href={isMembership ? "#membership" : "#reading"}>{product.action}</a>
+                    <em className="entitlement-pill">{getProductStatusLabel(productStatus, t)}</em>
+                    <div className="product-card-actions">
+                      <a
+                        href={isMembership ? "#membership" : "#reading"}
+                        onClick={() => {
+                          if (!isMembership) {
+                            setEntryMode(product.key);
+                          }
+                        }}
+                      >
+                        {product.action}
+                      </a>
+                      <button type="button" aria-label={unlockLabel} onClick={() => openTestEntitlement(product.key)}>
+                        {t.simulateUnlock}
+                      </button>
+                    </div>
                   </article>
                 );
               })}
