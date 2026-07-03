@@ -12,6 +12,9 @@ create table if not exists public.reports (
 
 alter table public.reports enable row level security;
 
+grant usage on schema public to anon, authenticated;
+grant select, insert, update, delete on table public.reports to authenticated;
+
 drop policy if exists "Users can read their own reports" on public.reports;
 create policy "Users can read their own reports"
 on public.reports
