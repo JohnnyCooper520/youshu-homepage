@@ -10,6 +10,8 @@ const focusIds = ["career", "relationship", "emotion", "money"];
 const entryModeIds = ["bazi", "annual", "question"];
 const legalPageIds = ["terms", "privacy", "refund", "contact"];
 const reportStorageKey = "youshu:last-report";
+const reportArchiveStorageKey = "youshu:reports";
+const maxStoredReports = 30;
 const companyNameZh = "北京一叶泛舟文化科技有限公司";
 const companyNameEn = "Beijing Yiye Fanzhou Culture Technology Co., Ltd.";
 const supportEmail = "qinyuneo@gmail.com";
@@ -88,6 +90,14 @@ const copy = {
     reportBackHome: "回到首页",
     noReportTitle: "还没有可查看的报告",
     noReportText: "先回首页起一盘，生成后会自动来到这里。",
+    reportsPageRegion: "报告归档",
+    reportsPageKicker: "我的报告",
+    reportsPageTitle: "我的报告",
+    reportsPageText: "生成过的命盘、问事和今年运势，都会先留在这台设备里。登录上线后，再迁入你的账户。",
+    reportsEmptyTitle: "这里还没有报告",
+    reportsEmptyText: "先起一盘，报告生成后会自动归档到这里。",
+    reportOpenAction: "打开报告",
+    reportUnknownType: "有数报告",
     birthDate: "出生日期",
     birthTime: "出生时辰",
     currentFocus: "当前关注",
@@ -274,6 +284,14 @@ const copy = {
     reportBackHome: "回到首頁",
     noReportTitle: "還沒有可查看的報告",
     noReportText: "先回首頁起一盤，生成後會自動來到這裡。",
+    reportsPageRegion: "報告歸檔",
+    reportsPageKicker: "我的報告",
+    reportsPageTitle: "我的報告",
+    reportsPageText: "生成過的命盤、問事和今年運勢，都會先留在這台設備裡。登入上線後，再遷入你的帳戶。",
+    reportsEmptyTitle: "這裡還沒有報告",
+    reportsEmptyText: "先起一盤，報告生成後會自動歸檔到這裡。",
+    reportOpenAction: "打開報告",
+    reportUnknownType: "有數報告",
     birthDate: "出生日期",
     birthTime: "出生時辰",
     currentFocus: "當前關注",
@@ -460,6 +478,14 @@ const copy = {
     reportBackHome: "Back home",
     noReportTitle: "No report yet",
     noReportText: "Return home and open a chart first. The report will appear here after generation.",
+    reportsPageRegion: "Report archive",
+    reportsPageKicker: "My reports",
+    reportsPageTitle: "My reports",
+    reportsPageText: "Generated charts, questions, and annual outlooks are kept on this device first. Once login is connected, they can move into your account.",
+    reportsEmptyTitle: "No saved reports yet",
+    reportsEmptyText: "Open a chart first. The report will be saved here after generation.",
+    reportOpenAction: "Open report",
+    reportUnknownType: "Youshu report",
     birthDate: "Birth date",
     birthTime: "Birth hour",
     currentFocus: "Current focus",
@@ -646,17 +672,89 @@ function ReportBody({ content }) {
   );
 }
 
+function readJsonStorage(storage, key, fallback) {
+  if (!storage) {
+    return fallback;
+  }
+
+  try {
+    const value = storage.getItem(key);
+    return value ? JSON.parse(value) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 function getStoredReport() {
   if (typeof window === "undefined") {
     return null;
   }
 
-  try {
-    const value = window.sessionStorage.getItem(reportStorageKey);
-    return value ? JSON.parse(value) : null;
-  } catch {
-    return null;
+  return readJsonStorage(window.sessionStorage, reportStorageKey, null);
+}
+
+function getStoredReports() {
+  if (typeof window === "undefined") {
+    return [];
   }
+
+  const reports = readJsonStorage(window.localStorage, reportArchiveStorageKey, []);
+  return Array.isArray(reports) ? reports : [];
+}
+
+function saveStoredReports(reports) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(reportArchiveStorageKey, JSON.stringify(reports.slice(0, maxStoredReports)));
+  } catch {
+    // Local archive is a P0 convenience; report delivery should not fail if storage is unavailable.
+  }
+}
+
+function createReportId() {
+  if (typeof window !== "undefined" && window.crypto?.randomUUID) {
+    return window.crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function formatArchiveDate(value) {
+  if (!value) {
+    return "";
+  }
+  return value.replaceAll("-", "/");
+}
+
+function getReportSummary(content) {
+  if (!content) {
+    return "";
+  }
+
+  return content
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .find((line) => !line.startsWith("#"))
+    ?.replace(/^[-*]\s+/, "") || "";
+}
+
+function buildArchivedReport(report, context) {
+  const createdAt = new Date().toISOString();
+
+  return {
+    ...report,
+    id: report.id || createReportId(),
+    createdAt,
+    birthDate: context.birthDate,
+    birthTime: context.birthTime,
+    birthPlace: context.birthPlace,
+    focus: context.focus,
+    question: context.question,
+    summary: getReportSummary(report.content),
+  };
 }
 
 function getCurrentPage() {
@@ -665,6 +763,9 @@ function getCurrentPage() {
   }
 
   const pathname = window.location.pathname.replace(/^\/+/, "") || "home";
+  if (pathname === "reports") {
+    return "reports";
+  }
   if (pathname === "report") {
     return "report";
   }
@@ -754,6 +855,56 @@ function SiteFooter({ t, navigate }) {
   );
 }
 
+function getReportTypeLabel(report, t) {
+  return t.entryModes[report?.type]?.title || t.reportUnknownType;
+}
+
+function ReportsPage({ t, reports, onOpenReport, onBackHome }) {
+  return (
+    <main className="report-page reports-page">
+      <section className="report-hero reports-hero" aria-label={t.reportsPageRegion} role="region">
+        <div className="report-hero-copy">
+          <p className="kicker">{t.reportsPageKicker}</p>
+          <h1>{t.reportsPageTitle}</h1>
+          <p>{t.reportsPageText}</p>
+          <button className="primary-btn" type="button" onClick={onBackHome}>
+            {t.backToReading}
+          </button>
+        </div>
+        <article className="report-archive-card" aria-label={t.reportsPageRegion}>
+          {reports.length ? (
+            <div className="report-list">
+              {reports.map((savedReport) => {
+                const reportType = getReportTypeLabel(savedReport, t);
+                const birthLine = [formatArchiveDate(savedReport.birthDate), savedReport.birthPlace].filter(Boolean).join(" · ");
+
+                return (
+                  <button
+                    className="report-list-item"
+                    type="button"
+                    key={savedReport.id}
+                    onClick={() => onOpenReport(savedReport)}
+                  >
+                    <span>{reportType}</span>
+                    <strong>{birthLine || reportType}</strong>
+                    {savedReport.summary ? <p>{savedReport.summary}</p> : null}
+                    <em>{t.reportOpenAction}</em>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="empty-report">
+              <h2>{t.reportsEmptyTitle}</h2>
+              <p>{t.reportsEmptyText}</p>
+            </div>
+          )}
+        </article>
+      </section>
+    </main>
+  );
+}
+
 function ReportPage({ t, report, onBackHome }) {
   return (
     <main className="report-page" lang={report?.language || undefined}>
@@ -804,6 +955,7 @@ export default function App() {
   const [birthPlace, setBirthPlace] = useState("长春");
   const [question, setQuestion] = useState("");
   const [entryMode, setEntryMode] = useState("bazi");
+  const [reports, setReports] = useState(getStoredReports);
   const [report, setReport] = useState(getStoredReport);
   const [page, setPage] = useState(getCurrentPage);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -811,6 +963,8 @@ export default function App() {
   const activeEntry = t.entryModes[entryMode];
   const featuredProduct = t.products[2];
   const purchaseOptions = [...t.products, t.annualMembership];
+  const reportIdFromUrl = typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("id");
+  const displayedReport = reportIdFromUrl ? reports.find((savedReport) => savedReport.id === reportIdFromUrl) || report : report;
 
   useEffect(() => {
     function handlePopState() {
@@ -829,10 +983,39 @@ export default function App() {
     }
   }
 
-  function storeAndOpenReport(nextReport) {
-    setReport(nextReport);
-    window.sessionStorage.setItem(reportStorageKey, JSON.stringify(nextReport));
-    navigate("/report");
+  function openSavedReport(savedReport) {
+    setReport(savedReport);
+    try {
+      window.sessionStorage.setItem(reportStorageKey, JSON.stringify(savedReport));
+    } catch {
+      // Session storage is only a convenience for reloads.
+    }
+    navigate(`/report?id=${encodeURIComponent(savedReport.id)}`);
+  }
+
+  function storeAndOpenReport(nextReport, { archive = true } = {}) {
+    let reportToOpen = nextReport;
+
+    if (archive) {
+      reportToOpen = buildArchivedReport(nextReport, {
+        birthDate,
+        birthTime,
+        birthPlace,
+        focus: t.readings[focus].option,
+        question,
+      });
+      const nextReports = [reportToOpen, ...reports.filter((savedReport) => savedReport.id !== reportToOpen.id)].slice(0, maxStoredReports);
+      setReports(nextReports);
+      saveStoredReports(nextReports);
+    }
+
+    setReport(reportToOpen);
+    try {
+      window.sessionStorage.setItem(reportStorageKey, JSON.stringify(reportToOpen));
+    } catch {
+      // Session storage is only a convenience for reloads.
+    }
+    navigate(archive ? `/report?id=${encodeURIComponent(reportToOpen.id)}` : "/report");
   }
 
   async function generate() {
@@ -855,7 +1038,7 @@ export default function App() {
       });
       const json = await response.json();
       if (!response.ok) {
-        storeAndOpenReport({ title: t.generationErrorTitle, content: friendlyApiError(json.error, t), language });
+        storeAndOpenReport({ title: t.generationErrorTitle, content: friendlyApiError(json.error, t), language }, { archive: false });
         return;
       }
       storeAndOpenReport({
@@ -866,7 +1049,7 @@ export default function App() {
         type: entryMode,
       });
     } catch (error) {
-      storeAndOpenReport({ title: t.generationErrorTitle, content: friendlyApiError(error.message, t), language });
+      storeAndOpenReport({ title: t.generationErrorTitle, content: friendlyApiError(error.message, t), language }, { archive: false });
     } finally {
       setIsGenerating(false);
     }
@@ -900,12 +1083,23 @@ export default function App() {
               ))}
             </select>
           </label>
-          <a className="account-link" href="#account">{t.account}</a>
+          <a
+            className="account-link"
+            href="/reports"
+            onClick={(event) => {
+              event.preventDefault();
+              navigate("/reports");
+            }}
+          >
+            {t.account}
+          </a>
         </div>
       </header>
 
       {page === "report" ? (
-        <ReportPage t={t} report={report} onBackHome={() => navigate("/")} />
+        <ReportPage t={t} report={displayedReport} onBackHome={() => navigate("/")} />
+      ) : page === "reports" ? (
+        <ReportsPage t={t} reports={reports} onOpenReport={openSavedReport} onBackHome={() => navigate("/#reading")} />
       ) : legalPageIds.includes(page) ? (
         <LegalPage t={t} pageId={page} onBackHome={() => navigate("/")} />
       ) : (

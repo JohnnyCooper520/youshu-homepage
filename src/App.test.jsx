@@ -6,6 +6,7 @@ import App from "./App.jsx";
 beforeEach(() => {
   window.history.pushState({}, "", "/");
   window.sessionStorage.clear();
+  window.localStorage.clear();
 });
 
 afterEach(() => {
@@ -212,6 +213,47 @@ describe("Youshu homepage", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(fetchMock.mock.calls[0][0]).toBe("/api/generate");
     expect(fetchMock.mock.calls[0][1].body).not.toContain("sk-");
+  });
+
+  it("saves generated reports under My reports and opens a saved detail", async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi.fn(async () =>
+      new Response(
+        JSON.stringify({
+          ok: true,
+          type: "bazi",
+          content: "# 命盘报告\n先知己。\n\n## 用力方式\n先稳住节奏。",
+          paipan: {
+            pillars: {
+              year: { value: "丁卯" },
+              month: { value: "癸丑" },
+              day: { value: "戊辰" },
+              hour: { value: "戊午" },
+            },
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "生成命盘报告" }));
+    await screen.findByText("报告已成");
+    await user.click(screen.getByRole("link", { name: "我的报告" }));
+
+    expect(window.location.pathname).toBe("/reports");
+    expect(screen.getByRole("heading", { name: "我的报告" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /命盘报告/ })).toBeInTheDocument();
+    expect(screen.getByText("1988/01/14 · 长春")).toBeInTheDocument();
+    expect(screen.getByText("先知己。")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /命盘报告/ }));
+
+    expect(window.location.pathname).toBe("/report");
+    expect(window.location.search).toMatch(/id=/);
+    expect(screen.getByText("丁卯 · 癸丑 · 戊辰 · 戊午")).toBeInTheDocument();
+    expect(screen.getByText("先稳住节奏。")).toBeInTheDocument();
   });
 
   it("shows a localized support message when backend generation is not configured", async () => {

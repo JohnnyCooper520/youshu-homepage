@@ -52,16 +52,50 @@ function normalizeInput(body) {
   };
 }
 
+function mockContentFor(type, language) {
+  if (language === "en") {
+    if (type === "annual") {
+      return "# Local Mock Annual Outlook\nThis is a local test report. It lets you test saving, opening, and archive behavior without a model key.\n\n## Next Twelve Months\nFirst steady the near field, then read the turning points.";
+    }
+    if (type === "question") {
+      return "# Local Mock Question Reading\nThis is a local test report. It lets you test saving, opening, and archive behavior without a model key.\n\n## One Matter\nKeep the question concrete. The next step becomes easier to see.";
+    }
+    return "# Local Mock Bazi Report\nThis is a local test report. It lets you test saving, opening, and archive behavior without a model key.\n\n## Base Pattern\nKnow the ground first; then choose with less noise.";
+  }
+
+  if (language === "zh-TW") {
+    if (type === "annual") {
+      return "# 本地測試報告 · 今年運勢\n這是一份本地測試報告，用來測試生成、歸檔和再次打開，不會消耗模型額度。\n\n## 未來十二月\n先穩眼前，再看一年裡的轉折。";
+    }
+    if (type === "question") {
+      return "# 本地測試報告 · 問事解惑\n這是一份本地測試報告，用來測試生成、歸檔和再次打開，不會消耗模型額度。\n\n## 此事一問\n問題越具體，下一步越容易落地。";
+    }
+    return "# 本地測試報告 · 命盤報告\n這是一份本地測試報告，用來測試生成、歸檔和再次打開，不會消耗模型額度。\n\n## 命盤底色\n先看清自己的底色，再談選擇。";
+  }
+
+  if (type === "annual") {
+    return "# 本地测试报告 · 今年运势\n这是一份本地测试报告，用来测试生成、归档和再次打开，不会消耗模型额度。\n\n## 未来十二月\n先稳眼前，再看一年里的转折。";
+  }
+  if (type === "question") {
+    return "# 本地测试报告 · 问事解惑\n这是一份本地测试报告，用来测试生成、归档和再次打开，不会消耗模型额度。\n\n## 此事一问\n问题越具体，下一步越容易落地。";
+  }
+  return "# 本地测试报告 · 命盘报告\n这是一份本地测试报告，用来测试生成、归档和再次打开，不会消耗模型额度。\n\n## 命盘底色\n先看清自己的底色，再谈选择。";
+}
+
 export function createApiHandler({
   keyStore = createMemoryKeyStore(),
   createChat = createDeepSeekChat,
   allowRuntimeKey = process.env.ALLOW_RUNTIME_DEEPSEEK_KEY === "true",
+  mockReports = process.env.MOCK_REPORTS === "true",
 } = {}) {
   return async function handleApiRequest(request) {
     try {
       const url = new URL(request.url);
 
       if (url.pathname === "/api/deepseek/status" && request.method === "GET") {
+        if (mockReports) {
+          return json({ configured: true, source: "mock" });
+        }
         const key = keyStore.get();
         return json({ configured: Boolean(key.apiKey), source: key.source });
       }
@@ -76,11 +110,6 @@ export function createApiHandler({
       }
 
       if (url.pathname === "/api/generate" && request.method === "POST") {
-        const key = keyStore.get();
-        if (!key.apiKey) {
-          return json({ error: "DeepSeek API key is not configured on the backend" }, 400);
-        }
-
         const body = await readBody(request);
         const type = VALID_TYPES.has(body.type) ? body.type : "bazi";
         if (!body.birthDate || !body.birthTime) {
@@ -91,6 +120,20 @@ export function createApiHandler({
         }
 
         const paipan = calculateBazi(normalizeInput(body));
+        if (mockReports) {
+          return json({
+            ok: true,
+            type,
+            paipan,
+            content: mockContentFor(type, body.language || "zh-CN"),
+            usage: { source: "mock" },
+          });
+        }
+
+        const key = keyStore.get();
+        if (!key.apiKey) {
+          return json({ error: "DeepSeek API key is not configured on the backend" }, 400);
+        }
         const result = await generateReport({
           type,
           paipanResult: paipan,

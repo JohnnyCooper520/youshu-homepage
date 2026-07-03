@@ -139,4 +139,33 @@ describe("apiCore", () => {
     expect(response.status).toBe(400);
     expect(json.error).toContain("DeepSeek API key");
   });
+
+  it("generates a local mock report without a DeepSeek key when explicitly enabled", async () => {
+    const handler = createApiHandler({
+      keyStore: createMemoryKeyStore({ env: {} }),
+      createChat: vi.fn(),
+      mockReports: true,
+    });
+
+    expect(await readJson(await handler(new Request("http://localhost/api/deepseek/status")))).toEqual({
+      configured: true,
+      source: "mock",
+    });
+
+    const response = await handler(
+      post("/api/generate", {
+        type: "bazi",
+        language: "zh-CN",
+        birthDate: "1988-01-14",
+        birthTime: "11:25",
+        birthPlace: "长春",
+      }),
+    );
+    const json = await readJson(response);
+
+    expect(response.status).toBe(200);
+    expect(json.type).toBe("bazi");
+    expect(json.content).toContain("本地测试报告");
+    expect(json.paipan.pillars.day.value).toBe("戊辰");
+  });
 });
