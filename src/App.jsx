@@ -92,10 +92,15 @@ const copy = {
     reportBackHome: "回到首页",
     noReportTitle: "还没有可查看的报告",
     noReportText: "先回首页起一盘，生成后会自动来到这里。",
+    reportGeneratedAt: "生成于",
+    reportBirthInfo: "出生信息",
+    reportFocusInfo: "关注方向",
+    reportQuestionInfo: "所问之事",
     reportsPageRegion: "报告归档",
     reportsPageKicker: "我的报告",
     reportsPageTitle: "我的报告",
-    reportsPageText: "生成过的命盘、问事和今年运势，都会先留在这台设备里。登录上线后，再迁入你的账户。",
+    reportsPageText: "生成过的命盘、问事和今年运势，都会归在这里。日后再看，不必从头来过。",
+    reportsCount: "份报告",
     reportsEmptyTitle: "这里还没有报告",
     reportsEmptyText: "先起一盘，报告生成后会自动归档到这里。",
     reportOpenAction: "打开报告",
@@ -297,10 +302,15 @@ const copy = {
     reportBackHome: "回到首頁",
     noReportTitle: "還沒有可查看的報告",
     noReportText: "先回首頁起一盤，生成後會自動來到這裡。",
+    reportGeneratedAt: "生成於",
+    reportBirthInfo: "出生資訊",
+    reportFocusInfo: "關注方向",
+    reportQuestionInfo: "所問之事",
     reportsPageRegion: "報告歸檔",
     reportsPageKicker: "我的報告",
     reportsPageTitle: "我的報告",
-    reportsPageText: "生成過的命盤、問事和今年運勢，都會先留在這台設備裡。登入上線後，再遷入你的帳戶。",
+    reportsPageText: "生成過的命盤、問事和今年運勢，都會歸在這裡。日後再看，不必從頭來過。",
+    reportsCount: "份報告",
     reportsEmptyTitle: "這裡還沒有報告",
     reportsEmptyText: "先起一盤，報告生成後會自動歸檔到這裡。",
     reportOpenAction: "打開報告",
@@ -502,10 +512,15 @@ const copy = {
     reportBackHome: "Back home",
     noReportTitle: "No report yet",
     noReportText: "Return home and open a chart first. The report will appear here after generation.",
+    reportGeneratedAt: "Generated",
+    reportBirthInfo: "Birth info",
+    reportFocusInfo: "Focus",
+    reportQuestionInfo: "Question",
     reportsPageRegion: "Report archive",
     reportsPageKicker: "My reports",
     reportsPageTitle: "My reports",
-    reportsPageText: "Generated charts, questions, and annual outlooks are kept on this device first. Once login is connected, they can move into your account.",
+    reportsPageText: "Generated charts, questions, and annual outlooks return here. Next time, you do not start from zero.",
+    reportsCount: "reports",
     reportsEmptyTitle: "No saved reports yet",
     reportsEmptyText: "Open a chart first. The report will be saved here after generation.",
     reportOpenAction: "Open report",
@@ -663,13 +678,51 @@ function YinYangOrb({ label }) {
   );
 }
 
+function stripMarkdownMarkers(text = "") {
+  return text
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/^[-*+]\s+/, "")
+    .replace(/^\d+[.)]\s+/, "")
+    .trim();
+}
+
+function renderInlineMarkdown(text) {
+  const parts = [];
+  const pattern = /\*\*([^*]+)\*\*/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = pattern.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    parts.push(<strong key={`strong-${match.index}`}>{match[1]}</strong>);
+    lastIndex = pattern.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.length ? parts : text;
+}
+
 function ReportBody({ content }) {
   if (!content) {
     return null;
   }
 
   const sections = [];
-  let current = { heading: "", lines: [] };
+  let current = { heading: "", blocks: [] };
+
+  function pushListItem(item) {
+    const previousBlock = current.blocks[current.blocks.length - 1];
+    if (previousBlock?.type === "list") {
+      previousBlock.items.push(item);
+      return;
+    }
+    current.blocks.push({ type: "list", items: [item] });
+  }
 
   content
     .split(/\r?\n/)
@@ -677,19 +730,25 @@ function ReportBody({ content }) {
     .filter(Boolean)
     .forEach((line) => {
       const heading = line.match(/^#{1,4}\s+(.+)$/);
+      const listItem = line.match(/^(?:[-*+]|\d+[.)])\s+(.+)$/);
 
       if (heading) {
-        if (current.heading || current.lines.length) {
+        if (current.heading || current.blocks.length) {
           sections.push(current);
         }
-        current = { heading: heading[1], lines: [] };
+        current = { heading: stripMarkdownMarkers(heading[1]), blocks: [] };
         return;
       }
 
-      current.lines.push(line.replace(/^[-*]\s+/, ""));
+      if (listItem) {
+        pushListItem(stripMarkdownMarkers(listItem[1]));
+        return;
+      }
+
+      current.blocks.push({ type: "paragraph", text: line });
     });
 
-  if (current.heading || current.lines.length) {
+  if (current.heading || current.blocks.length) {
     sections.push(current);
   }
 
@@ -698,9 +757,19 @@ function ReportBody({ content }) {
       {sections.map((section, sectionIndex) => (
         <section className="report-block" key={`${section.heading}-${sectionIndex}`}>
           {section.heading ? <h4>{section.heading}</h4> : null}
-          {section.lines.map((line, lineIndex) => (
-            <p key={`${section.heading}-${lineIndex}`}>{line}</p>
-          ))}
+          {section.blocks.map((block, blockIndex) => {
+            if (block.type === "list") {
+              return (
+                <ul key={`${section.heading}-list-${blockIndex}`}>
+                  {block.items.map((item, itemIndex) => (
+                    <li key={`${section.heading}-item-${blockIndex}-${itemIndex}`}>{renderInlineMarkdown(item)}</li>
+                  ))}
+                </ul>
+              );
+            }
+
+            return <p key={`${section.heading}-${blockIndex}`}>{renderInlineMarkdown(block.text)}</p>;
+          })}
         </section>
       ))}
     </div>
@@ -763,17 +832,62 @@ function formatArchiveDate(value) {
   return value.replaceAll("-", "/");
 }
 
+function formatReportDateTime(value, language = "zh-CN") {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  if (language === "en") {
+    return new Intl.DateTimeFormat("en", {
+      timeZone: "Asia/Shanghai",
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(date);
+  }
+
+  const parts = new Intl.DateTimeFormat("zh-CN", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  })
+    .formatToParts(date)
+    .reduce((result, part) => {
+      result[part.type] = part.value;
+      return result;
+    }, {});
+
+  return `${parts.year}/${parts.month}/${parts.day} ${parts.hour}:${parts.minute}`;
+}
+
+function formatBirthInfo(report) {
+  return [formatArchiveDate(report?.birthDate), report?.birthTime, report?.birthPlace].filter(Boolean).join(" · ");
+}
+
 function getReportSummary(content) {
   if (!content) {
     return "";
   }
 
-  return content
+  const summaryLine = content
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean)
-    .find((line) => !line.startsWith("#"))
-    ?.replace(/^[-*]\s+/, "") || "";
+    .find((line) => !line.startsWith("#"));
+
+  return summaryLine ? stripMarkdownMarkers(summaryLine) : "";
 }
 
 function buildArchivedReport(report, context) {
@@ -894,6 +1008,20 @@ function getReportTypeLabel(report, t) {
   return t.entryModes[report?.type]?.title || t.reportUnknownType;
 }
 
+function getReportTypeEyebrow(report, t) {
+  return t.entryModes[report?.type]?.eyebrow || t.reportPageKicker;
+}
+
+function getReportArchiveContext(report, t) {
+  if (report?.type === "question" && report.question) {
+    return report.question;
+  }
+  if (report?.type === "annual") {
+    return t.entryModes.annual.summary;
+  }
+  return report?.focus || t.entryModes.bazi.summary;
+}
+
 function AuthPanel({ t, cloudEnabled, user, email, status, onEmailChange, onGoogleSignIn, onMagicLink, onSignOut }) {
   if (!cloudEnabled) {
     return <p className="auth-note">{t.authUnavailable}</p>;
@@ -974,26 +1102,40 @@ function ReportsPage({
             onSignOut={onSignOut}
           />
           {reports.length ? (
-            <div className="report-list">
-              {reports.map((savedReport) => {
-                const reportType = getReportTypeLabel(savedReport, t);
-                const birthLine = [formatArchiveDate(savedReport.birthDate), savedReport.birthPlace].filter(Boolean).join(" · ");
+            <>
+              <div className="report-archive-head">
+                <span>
+                  {reports.length} {t.reportsCount}
+                </span>
+                <p>{t.reportsPageText}</p>
+              </div>
+              <div className="report-list">
+                {reports.map((savedReport) => {
+                  const reportType = getReportTypeLabel(savedReport, t);
+                  const birthLine = [formatArchiveDate(savedReport.birthDate), savedReport.birthPlace].filter(Boolean).join(" · ");
+                  const createdAt = formatReportDateTime(savedReport.createdAt, savedReport.language || "zh-CN");
+                  const context = getReportArchiveContext(savedReport, t);
 
-                return (
-                  <button
-                    className="report-list-item"
-                    type="button"
-                    key={savedReport.id}
-                    onClick={() => onOpenReport(savedReport)}
-                  >
-                    <span>{reportType}</span>
-                    <strong>{birthLine || reportType}</strong>
-                    {savedReport.summary ? <p>{savedReport.summary}</p> : null}
-                    <em>{t.reportOpenAction}</em>
-                  </button>
-                );
-              })}
-            </div>
+                  return (
+                    <button
+                      className={`report-list-item report-type-${savedReport.type || "unknown"}`}
+                      type="button"
+                      key={savedReport.id}
+                      onClick={() => onOpenReport(savedReport)}
+                    >
+                      <span>{reportType}</span>
+                      <strong>{savedReport.summary || reportType}</strong>
+                      <p>{context}</p>
+                      <div className="report-list-meta">
+                        {birthLine ? <small>{birthLine}</small> : null}
+                        {createdAt ? <small>{createdAt}</small> : null}
+                      </div>
+                      <em>{t.reportOpenAction}</em>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
           ) : (
             <div className="empty-report">
               <h2>{t.reportsEmptyTitle}</h2>
@@ -1007,12 +1149,16 @@ function ReportsPage({
 }
 
 function ReportPage({ t, report, onBackHome }) {
+  const reportType = getReportTypeLabel(report, t);
+  const generatedAt = formatReportDateTime(report?.createdAt, report?.language || "zh-CN");
+  const birthInfo = formatBirthInfo(report);
+
   return (
     <main className="report-page" lang={report?.language || undefined}>
       <section className="report-hero" aria-label={t.reportPageRegion} role="region">
         <div className="report-hero-copy">
           <p className="kicker">{t.reportPageKicker}</p>
-          <h1>{report ? t.reportPageTitle : t.noReportTitle}</h1>
+          <h1>{report ? reportType : t.noReportTitle}</h1>
           <p>{report ? t.reportPageText : t.noReportText}</p>
           <button className="primary-btn" type="button" onClick={onBackHome}>
             {t.reportBackHome}
@@ -1022,8 +1168,37 @@ function ReportPage({ t, report, onBackHome }) {
           {report ? (
             <>
               <header className="report-heading">
-                <span>{t.reportReady}</span>
-                <h2>{report.title}</h2>
+                <div className="report-heading-status">
+                  <span>{t.reportReady}</span>
+                  <em>{getReportTypeEyebrow(report, t)}</em>
+                </div>
+                <h2>{reportType}</h2>
+                <div className="report-detail-grid">
+                  {generatedAt ? (
+                    <p>
+                      <span>{t.reportGeneratedAt}</span>
+                      <strong>{generatedAt}</strong>
+                    </p>
+                  ) : null}
+                  {birthInfo ? (
+                    <p>
+                      <span>{t.reportBirthInfo}</span>
+                      <strong>{birthInfo}</strong>
+                    </p>
+                  ) : null}
+                  {report.focus ? (
+                    <p>
+                      <span>{t.reportFocusInfo}</span>
+                      <strong>{report.focus}</strong>
+                    </p>
+                  ) : null}
+                  {report.question ? (
+                    <p className="wide">
+                      <span>{t.reportQuestionInfo}</span>
+                      <strong>{report.question}</strong>
+                    </p>
+                  ) : null}
+                </div>
                 {report.paipan ? (
                   <p className="report-meta">
                     <strong>{t.reportPillars}</strong>
