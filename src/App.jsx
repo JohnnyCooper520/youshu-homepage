@@ -154,6 +154,8 @@ const copy = {
     entitlementUsedUp: "已用完",
     simulateUnlock: "测试开通",
     simulateUnlockAria: "测试开通：{product}",
+    testUnlockCurrent: "测试开通当前服务",
+    testUnlockHint: "测试入口，仅本地或测试链接显示。",
     entitlementActive: "已开通",
     entitlementIncluded: "会员已含",
     entitlementLocked: "未开通",
@@ -376,6 +378,8 @@ const copy = {
     entitlementUsedUp: "已用完",
     simulateUnlock: "測試開通",
     simulateUnlockAria: "測試開通：{product}",
+    testUnlockCurrent: "測試開通目前服務",
+    testUnlockHint: "測試入口，僅本地或測試連結顯示。",
     entitlementActive: "已開通",
     entitlementIncluded: "會員已含",
     entitlementLocked: "未開通",
@@ -598,6 +602,8 @@ const copy = {
     entitlementUsedUp: "Used",
     simulateUnlock: "Test unlock",
     simulateUnlockAria: "Test unlock: {product}",
+    testUnlockCurrent: "Test unlock current reading",
+    testUnlockHint: "Test entry, shown only locally or through a test link.",
     entitlementActive: "Opened",
     entitlementIncluded: "Member access",
     entitlementLocked: "Locked",
@@ -987,6 +993,16 @@ function getDisplayPrice(price, language) {
   return language === "en" ? price.usd : price.cny;
 }
 
+function isTestUnlockMode() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const hostname = window.location.hostname;
+  const isLocalHost = hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+  return isLocalHost || new URLSearchParams(window.location.search).get("test") === "1";
+}
+
 function friendlyApiError(rawError, t) {
   if (!rawError) {
     return t.apiErrors.default;
@@ -1337,6 +1353,7 @@ export default function App() {
   const cloudEnabled = Boolean(supabaseClient);
   const reportIdFromUrl = typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("id");
   const displayedReport = reportIdFromUrl ? reports.find((savedReport) => savedReport.id === reportIdFromUrl) || report : report;
+  const testUnlockEnabled = isTestUnlockMode();
 
   useEffect(() => {
     function handlePopState() {
@@ -1713,6 +1730,14 @@ export default function App() {
                     : t.entitlementLockedText}
                 </p>
               </aside>
+              {testUnlockEnabled ? (
+                <div className="test-unlock-panel">
+                  <button type="button" onClick={() => openTestEntitlement(entryMode)}>
+                    {t.testUnlockCurrent}
+                  </button>
+                  <span>{t.testUnlockHint}</span>
+                </div>
+              ) : null}
               <div className="form-submit api-actions single-action" aria-live="polite">
                 <button type="button" onClick={generate} disabled={isGenerating || !activeAccess.unlocked}>
                   {activeEntry.action}
@@ -1782,9 +1807,11 @@ export default function App() {
                       >
                         {product.action}
                       </a>
-                      <button type="button" aria-label={unlockLabel} onClick={() => openTestEntitlement(product.key)}>
-                        {t.simulateUnlock}
-                      </button>
+                      {testUnlockEnabled ? (
+                        <button type="button" aria-label={unlockLabel} onClick={() => openTestEntitlement(product.key)}>
+                          {t.simulateUnlock}
+                        </button>
+                      ) : null}
                     </div>
                   </article>
                 );

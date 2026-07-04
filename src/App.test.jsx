@@ -159,6 +159,20 @@ describe("Youshu homepage", () => {
     expect(within(readingRegion).getByRole("button", { name: "生成命盘报告" })).toBeEnabled();
   });
 
+  it("lets testers open the current reading directly from the form", async () => {
+    const user = userEvent.setup();
+    window.history.pushState({}, "", "/?test=1");
+    render(<App />);
+
+    const readingRegion = screen.getByRole("region", { name: "先行洞察" });
+    expect(within(readingRegion).getByRole("button", { name: "生成命盘报告" })).toBeDisabled();
+
+    await user.click(within(readingRegion).getByRole("button", { name: "测试开通当前服务" }));
+
+    expect(within(readingRegion).getByText("已开通，可生成")).toBeInTheDocument();
+    expect(within(readingRegion).getByRole("button", { name: "生成命盘报告" })).toBeEnabled();
+  });
+
   it("loads paid entitlements from Supabase after sign in", async () => {
     const user = { id: "user-1", email: "qinyuneo@gmail.com" };
     const reportsOrderMock = vi.fn(async () => ({ data: [], error: null }));
