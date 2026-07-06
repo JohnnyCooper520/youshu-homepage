@@ -36,8 +36,8 @@ describe("deepseek-smoke CLI", () => {
     const annual = JSON.parse(await readFile(`${outputDir}/annual-prompt.json`, "utf8"));
     const question = JSON.parse(await readFile(`${outputDir}/question-prompt.json`, "utf8"));
 
-    expect(bazi.messages[1].content).toContain("命盘报告");
-    expect(annual.messages[1].content).toContain("今年运势解读");
+    expect(bazi.messages[1].content).toContain("个人结构报告");
+    expect(annual.messages[1].content).toContain("年度节奏报告");
     expect(question.messages[1].content).toContain("Should I change jobs?");
     expect(question.language).toBe("en");
   });

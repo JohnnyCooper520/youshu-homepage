@@ -15,7 +15,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-async function testUnlock(user, productName = "命盘报告") {
+async function testUnlock(user, productName = "个人结构报告") {
   const purchaseRegion = screen.getByRole("region", { name: "购买选择" });
   await user.click(within(purchaseRegion).getByRole("button", { name: `测试开通：${productName}` }));
 }
@@ -25,36 +25,36 @@ describe("Youshu homepage", () => {
     render(<App />);
 
     expect(screen.getByRole("heading", { name: "有数" })).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "首页主视觉" })).getByText("命盘有数，选择有光")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "首页主视觉" })).getByText("先看格局，再看选择。心里有数，路就不乱。")).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "首页主视觉" })).getByText("心中有数，选择有光")).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "首页主视觉" })).getByText("先看结构，再看选择。心里有数，路就不乱。")).toBeInTheDocument();
     expect(screen.queryByText(/AI/)).not.toBeInTheDocument();
     expect(screen.getByLabelText("旋转阴阳动效")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "我的报告" })).toBeInTheDocument();
-    expect(screen.getByText("先行洞察")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "先行洞察" })).getByText("先起一盘，看你此刻的气口。")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "先行洞察" })).queryByRole("link", { name: "看命盘关键词" })).not.toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "先行洞察" })).queryByRole("link", { name: "看三项服务" })).not.toBeInTheDocument();
-    expect(screen.queryByText("生成先行洞察")).not.toBeInTheDocument();
-    expect(screen.getAllByText("命盘报告").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("问事解惑").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("今年运势解读").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("结构校准")).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "结构校准" })).getByText("先把信息放准，再看当下方向。")).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "结构校准" })).queryByRole("link", { name: "看结构关键词" })).not.toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "结构校准" })).queryByRole("link", { name: "看三项服务" })).not.toBeInTheDocument();
+    expect(screen.queryByText("生成结构校准")).not.toBeInTheDocument();
+    expect(screen.getAllByText("个人结构报告").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("一事分析").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("年度节奏报告").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("年度会员").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("人民币 ¥29.9")).toHaveLength(2);
     expect(screen.getByText("人民币 ¥199")).toBeInTheDocument();
     expect(screen.getByText("人民币 ¥299/年")).toBeInTheDocument();
     expect(screen.queryByText(/美元约/)).not.toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "购买选择" })).getByLabelText("购买项目")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("今年运势 · 起盘日起算")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("起盘日起，向后看完整 12 个月。")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("起盘日起 · 向后完整 12 个月")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("未来十二月")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("单次解读与全年会员，都在这里选。")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("先看眼前，再看一年里的转折。")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getAllByRole("link", { name: "看今年运势" })).toHaveLength(2);
+    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("年度节奏 · 生成日起算")).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("生成日起，向后看完整 12 个月。")).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("生成日起 · 向后完整 12 个月")).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("后续十二月")).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("单次报告与年度会员，都在这里选。")).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("先看眼前，再看一年里的节奏。")).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "购买选择" })).getAllByRole("link", { name: "看年度节奏" })).toHaveLength(2);
     expect(within(screen.getByRole("region", { name: "购买选择" })).getAllByRole("link", { name: "开通年度会员" })).toHaveLength(2);
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByRole("link", { name: "生成命盘报告" })).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByRole("link", { name: "生成问事解惑" })).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByRole("button", { name: "测试开通：命盘报告" })).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "购买选择" })).getByRole("link", { name: "生成个人结构报告" })).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "购买选择" })).getByRole("link", { name: "生成一事分析" })).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "购买选择" })).getByRole("button", { name: "测试开通：个人结构报告" })).toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "购买选择" })).getByRole("button", { name: "测试开通：年度会员" })).toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "购买选择" })).queryByText("春季蓄势")).not.toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("报告区间")).toBeInTheDocument();
@@ -69,7 +69,7 @@ describe("Youshu homepage", () => {
     expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("12 期")).toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "购买选择" })).queryByText("完整分析")).not.toBeInTheDocument();
     expect(screen.getByText("为什么值得信任")).toBeInTheDocument();
-    expect(screen.queryByText("用一段先行洞察校准命盘倾向；若它贴近你的处境，再进入完整命盘、问事分析或年度路径。")).not.toBeInTheDocument();
+    expect(screen.queryByText("用一段结构校准校准个人结构倾向；若它贴近你的处境，再进入完整个人结构、一事分析或年度路径。")).not.toBeInTheDocument();
     expect(screen.getByText("内容仅供自我认知、情绪整理和选择参考，不构成医疗、法律、投资、心理治疗或其他专业建议。")).toBeInTheDocument();
     expect(screen.getByText(/北京一叶泛舟文化科技有限公司/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "服务条款" })).toBeInTheDocument();
@@ -105,7 +105,7 @@ describe("Youshu homepage", () => {
     await user.selectOptions(screen.getByLabelText("想看的方向"), "感情关系");
 
     expect(screen.getByLabelText("想看的方向")).toHaveValue("relationship");
-    expect(screen.queryByText("有数 · 命盘关键词")).not.toBeInTheDocument();
+    expect(screen.queryByText("有数 · 结构关键词")).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "慢热深情，先立边界" })).not.toBeInTheDocument();
     expect(screen.queryByText("后面的判断，留给深度报告慢慢展开")).not.toBeInTheDocument();
   });
@@ -113,32 +113,32 @@ describe("Youshu homepage", () => {
   it("switches the entry form by product before generation", async () => {
     const user = userEvent.setup();
     const { container } = render(<App />);
-    const readingRegion = screen.getByRole("region", { name: "先行洞察" });
+    const readingRegion = screen.getByRole("region", { name: "结构校准" });
     const modeSwitcher = within(readingRegion).getByLabelText("选择服务");
     const birthForm = container.querySelector(".birth-form");
 
-    expect(within(modeSwitcher).getByRole("button", { name: /命盘报告/ })).toHaveAttribute("aria-pressed", "true");
-    expect(within(readingRegion).queryByLabelText("想问的事")).not.toBeInTheDocument();
-    expect(within(readingRegion).getByRole("button", { name: "生成命盘报告" })).toBeInTheDocument();
-    expect(within(readingRegion).getByRole("button", { name: "生成命盘报告" })).toBeDisabled();
+    expect(within(modeSwitcher).getByRole("button", { name: /个人结构报告/ })).toHaveAttribute("aria-pressed", "true");
+    expect(within(readingRegion).queryByLabelText("想分析的事")).not.toBeInTheDocument();
+    expect(within(readingRegion).getByRole("button", { name: "生成个人结构报告" })).toBeInTheDocument();
+    expect(within(readingRegion).getByRole("button", { name: "生成个人结构报告" })).toBeDisabled();
     expect(within(readingRegion).getByText("这一项还未开通")).toBeInTheDocument();
-    expect(within(birthForm).getByRole("button", { name: "生成命盘报告" })).toBeInTheDocument();
+    expect(within(birthForm).getByRole("button", { name: "生成个人结构报告" })).toBeInTheDocument();
 
-    await user.click(within(modeSwitcher).getByRole("button", { name: /今年运势/ }));
+    await user.click(within(modeSwitcher).getByRole("button", { name: /年度节奏/ }));
 
-    expect(within(modeSwitcher).getByRole("button", { name: /今年运势/ })).toHaveAttribute("aria-pressed", "true");
-    expect(within(readingRegion).getByText("从起盘日起，向后看完整 12 个月。")).toBeInTheDocument();
-    expect(within(readingRegion).queryByLabelText("想问的事")).not.toBeInTheDocument();
-    expect(within(readingRegion).getByRole("button", { name: "生成今年运势" })).toBeInTheDocument();
+    expect(within(modeSwitcher).getByRole("button", { name: /年度节奏/ })).toHaveAttribute("aria-pressed", "true");
+    expect(within(readingRegion).getByText("从生成日起，向后看完整 12 个月。")).toBeInTheDocument();
+    expect(within(readingRegion).queryByLabelText("想分析的事")).not.toBeInTheDocument();
+    expect(within(readingRegion).getByRole("button", { name: "生成年度节奏" })).toBeInTheDocument();
     expect(within(readingRegion).getByText("这一项还未开通")).toBeInTheDocument();
 
-    await user.click(within(modeSwitcher).getByRole("button", { name: /问事解惑/ }));
+    await user.click(within(modeSwitcher).getByRole("button", { name: /一事分析/ }));
 
-    expect(within(modeSwitcher).getByRole("button", { name: /问事解惑/ })).toHaveAttribute("aria-pressed", "true");
+    expect(within(modeSwitcher).getByRole("button", { name: /一事分析/ })).toHaveAttribute("aria-pressed", "true");
     expect(within(readingRegion).getByText("把一件具体的事拆清趋势、风险和下一步。")).toBeInTheDocument();
-    expect(within(readingRegion).getByLabelText("想问的事")).toBeInTheDocument();
+    expect(within(readingRegion).getByLabelText("想分析的事")).toBeInTheDocument();
     expect(within(readingRegion).getByPlaceholderText("例如：接下来半年适合换工作吗？")).toBeInTheDocument();
-    expect(within(readingRegion).getByRole("button", { name: "生成问事解惑" })).toBeInTheDocument();
+    expect(within(readingRegion).getByRole("button", { name: "生成一事分析" })).toBeInTheDocument();
     expect(within(readingRegion).getByText("这一项还未开通")).toBeInTheDocument();
   });
 
@@ -148,15 +148,15 @@ describe("Youshu homepage", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
-    const readingRegion = screen.getByRole("region", { name: "先行洞察" });
-    expect(within(readingRegion).getByRole("button", { name: "生成命盘报告" })).toBeDisabled();
+    const readingRegion = screen.getByRole("region", { name: "结构校准" });
+    expect(within(readingRegion).getByRole("button", { name: "生成个人结构报告" })).toBeDisabled();
     expect(within(readingRegion).getByText("这一项还未开通")).toBeInTheDocument();
 
-    await testUnlock(user, "命盘报告");
+    await testUnlock(user, "个人结构报告");
 
     expect(within(readingRegion).getByText("已开通，可生成")).toBeInTheDocument();
     expect(within(readingRegion).getByText("剩余 1 次")).toBeInTheDocument();
-    expect(within(readingRegion).getByRole("button", { name: "生成命盘报告" })).toBeEnabled();
+    expect(within(readingRegion).getByRole("button", { name: "生成个人结构报告" })).toBeEnabled();
   });
 
   it("lets testers open the current reading directly from the form", async () => {
@@ -164,13 +164,13 @@ describe("Youshu homepage", () => {
     window.history.pushState({}, "", "/?test=1");
     render(<App />);
 
-    const readingRegion = screen.getByRole("region", { name: "先行洞察" });
-    expect(within(readingRegion).getByRole("button", { name: "生成命盘报告" })).toBeDisabled();
+    const readingRegion = screen.getByRole("region", { name: "结构校准" });
+    expect(within(readingRegion).getByRole("button", { name: "生成个人结构报告" })).toBeDisabled();
 
     await user.click(within(readingRegion).getByRole("button", { name: "测试开通当前服务" }));
 
     expect(within(readingRegion).getByText("已开通，可生成")).toBeInTheDocument();
-    expect(within(readingRegion).getByRole("button", { name: "生成命盘报告" })).toBeEnabled();
+    expect(within(readingRegion).getByRole("button", { name: "生成个人结构报告" })).toBeEnabled();
   });
 
   it("loads paid entitlements from Supabase after sign in", async () => {
@@ -203,10 +203,10 @@ describe("Youshu homepage", () => {
 
     render(<App />);
 
-    const readingRegion = screen.getByRole("region", { name: "先行洞察" });
+    const readingRegion = screen.getByRole("region", { name: "结构校准" });
     expect(await within(readingRegion).findByText("已开通，可生成")).toBeInTheDocument();
     expect(within(readingRegion).getByText("剩余 1 次")).toBeInTheDocument();
-    expect(within(readingRegion).getByRole("button", { name: "生成命盘报告" })).toBeEnabled();
+    expect(within(readingRegion).getByRole("button", { name: "生成个人结构报告" })).toBeEnabled();
     expect(entitlementsSelectMock).toHaveBeenCalledWith("product_key,included_quantity,used_quantity,status,expires_at");
   });
 
@@ -216,15 +216,15 @@ describe("Youshu homepage", () => {
 
     await testUnlock(user, "年度会员");
 
-    const readingRegion = screen.getByRole("region", { name: "先行洞察" });
+    const readingRegion = screen.getByRole("region", { name: "结构校准" });
     const modeSwitcher = within(readingRegion).getByLabelText("选择服务");
     expect(within(readingRegion).getByText("年度会员已包含")).toBeInTheDocument();
 
-    await user.click(within(modeSwitcher).getByRole("button", { name: /问事解惑/ }));
+    await user.click(within(modeSwitcher).getByRole("button", { name: /一事分析/ }));
 
     expect(within(readingRegion).getByText("年度会员已包含")).toBeInTheDocument();
     expect(within(readingRegion).getByText("剩余 12 次")).toBeInTheDocument();
-    expect(within(readingRegion).getByRole("button", { name: "生成问事解惑" })).toBeEnabled();
+    expect(within(readingRegion).getByRole("button", { name: "生成一事分析" })).toBeEnabled();
   });
 
   it("switches the web page between simplified Chinese, traditional Chinese, and English", async () => {
@@ -240,18 +240,18 @@ describe("Youshu homepage", () => {
     await user.selectOptions(languageSelect, "zh-TW");
 
     expect(screen.getByRole("link", { name: "我的報告" })).toBeInTheDocument();
-    expect(screen.getByText("命盤有數，選擇有光")).toBeInTheDocument();
-    expect(screen.getAllByText("命盤報告").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("心中有數，選擇有光")).toBeInTheDocument();
+    expect(screen.getAllByText("個人結構報告").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("人民幣 ¥199")).toBeInTheDocument();
     expect(screen.queryByText(/美元約/)).not.toBeInTheDocument();
 
     await user.selectOptions(languageSelect, "en");
 
     expect(screen.getByRole("link", { name: "My reports" })).toBeInTheDocument();
-    expect(screen.getByText("A clear chart, a clearer choice.")).toBeInTheDocument();
+    expect(screen.getByText("A clear structure, a calmer choice.")).toBeInTheDocument();
     expect(screen.queryByText(/AI/)).not.toBeInTheDocument();
-    expect(screen.getAllByText("Bazi Report").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("Annual Outlook").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Personal Structure Report").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Annual Rhythm Report").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("USD $28")).toBeInTheDocument();
     expect(screen.queryByText(/RMB/)).not.toBeInTheDocument();
   });
@@ -272,7 +272,7 @@ describe("Youshu homepage", () => {
           JSON.stringify({
             ok: true,
             type: "bazi",
-            content: "# 命盘报告\n先知己。",
+            content: "# 个人结构报告\n先知己。",
             paipan: {
               pillars: {
                 year: { value: "丁卯" },
@@ -290,14 +290,14 @@ describe("Youshu homepage", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
-    await testUnlock(user, "命盘报告");
-    await user.click(screen.getByRole("button", { name: "生成命盘报告" }));
+    await testUnlock(user, "个人结构报告");
+    await user.click(screen.getByRole("button", { name: "生成个人结构报告" }));
 
     expect(window.location.pathname).toBe("/report");
-    expect(screen.getByRole("heading", { name: "命盘报告", level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "个人结构报告", level: 1 })).toBeInTheDocument();
     expect(await screen.findByText("丁卯 · 癸丑 · 戊辰 · 戊午")).toBeInTheDocument();
     expect(screen.getByText("报告已成")).toBeInTheDocument();
-    expect(within(screen.getByLabelText("生成结果")).getByRole("heading", { name: "命盘报告", level: 2 })).toBeInTheDocument();
+    expect(within(screen.getByLabelText("生成结果")).getByRole("heading", { name: "个人结构报告", level: 2 })).toBeInTheDocument();
     expect(screen.getByText("先知己。")).toBeInTheDocument();
     expect(screen.queryByText("后面的判断，留给深度报告慢慢展开")).not.toBeInTheDocument();
     expect(document.querySelector(".generated-report pre")).not.toBeInTheDocument();
@@ -320,7 +320,7 @@ describe("Youshu homepage", () => {
         JSON.stringify({
           ok: true,
           type: "bazi",
-          content: "# 命盘报告\n先知己。\n\n## 用力方式\n先稳住节奏。",
+          content: "# 个人结构报告\n先知己。\n\n## 用力方式\n先稳住节奏。",
           paipan: {
             pillars: {
               year: { value: "丁卯" },
@@ -336,18 +336,18 @@ describe("Youshu homepage", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
-    await testUnlock(user, "命盘报告");
-    await user.click(screen.getByRole("button", { name: "生成命盘报告" }));
+    await testUnlock(user, "个人结构报告");
+    await user.click(screen.getByRole("button", { name: "生成个人结构报告" }));
     await screen.findByText("报告已成");
     await user.click(screen.getByRole("link", { name: "我的报告" }));
 
     expect(window.location.pathname).toBe("/reports");
     expect(screen.getByRole("heading", { name: "我的报告" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /命盘报告/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /个人结构报告/ })).toBeInTheDocument();
     expect(screen.getByText("1988/01/14 · 长春")).toBeInTheDocument();
     expect(screen.getByText("先知己。")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /命盘报告/ }));
+    await user.click(screen.getByRole("button", { name: /个人结构报告/ }));
 
     expect(window.location.pathname).toBe("/report");
     expect(window.location.search).toMatch(/id=/);
@@ -362,7 +362,7 @@ describe("Youshu homepage", () => {
         JSON.stringify({
           ok: true,
           type: "bazi",
-          content: "# 命盘报告\n**先知己**，再谈选择。\n\n## 用力方式\n- 先稳住节奏\n1. 再看取舍",
+          content: "# 个人结构报告\n**先知己**，再谈选择。\n\n## 用力方式\n- 先稳住节奏\n1. 再看取舍",
           paipan: {
             pillars: {
               year: { value: "丁卯" },
@@ -378,8 +378,8 @@ describe("Youshu homepage", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
-    await testUnlock(user, "命盘报告");
-    await user.click(screen.getByRole("button", { name: "生成命盘报告" }));
+    await testUnlock(user, "个人结构报告");
+    await user.click(screen.getByRole("button", { name: "生成个人结构报告" }));
 
     const reportCard = await screen.findByLabelText("生成结果");
     expect(reportCard).not.toHaveTextContent("**");
@@ -394,7 +394,7 @@ describe("Youshu homepage", () => {
         id: "annual-1",
         type: "annual",
         title: "生成结果",
-        content: "# 今年运势\n先看眼前。",
+        content: "# 年度节奏\n先看眼前。",
         createdAt: "2026-06-26T10:30:00.000Z",
         birthDate: "1988-01-14",
         birthTime: "11:25",
@@ -406,7 +406,7 @@ describe("Youshu homepage", () => {
         id: "question-1",
         type: "question",
         title: "生成结果",
-        content: "# 问事解惑\n此事宜稳。",
+        content: "# 一事分析\n此事宜稳。",
         createdAt: "2026-06-26T09:30:00.000Z",
         birthDate: "1988-01-14",
         birthTime: "11:25",
@@ -419,7 +419,7 @@ describe("Youshu homepage", () => {
         id: "bazi-1",
         type: "bazi",
         title: "生成结果",
-        content: "# 命盘报告\n先知己。",
+        content: "# 个人结构报告\n先知己。",
         createdAt: "2026-06-26T08:30:00.000Z",
         birthDate: "1988-01-14",
         birthTime: "11:25",
@@ -436,15 +436,15 @@ describe("Youshu homepage", () => {
 
     expect(screen.getByRole("heading", { name: "我的报告" })).toBeInTheDocument();
     expect(screen.getByText("3 份报告")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /今年运势/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /问事解惑/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /命盘报告/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /年度节奏/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /一事分析/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /个人结构报告/ })).toBeInTheDocument();
     expect(screen.getByText("接下来半年适合换工作吗？")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /问事解惑/ }));
+    await user.click(screen.getByRole("button", { name: /一事分析/ }));
 
     expect(window.location.pathname).toBe("/report");
-    expect(screen.getAllByText("问事解惑").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("一事分析").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("生成于")).toBeInTheDocument();
     expect(screen.getByText("2026/06/26 17:30")).toBeInTheDocument();
     expect(screen.getByText("1988/01/14 · 11:25 · 长春")).toBeInTheDocument();
@@ -499,7 +499,7 @@ describe("Youshu homepage", () => {
         JSON.stringify({
           ok: true,
           type: "bazi",
-          content: "# 命盘报告\n先知己。",
+          content: "# 个人结构报告\n先知己。",
           paipan: {
             pillars: {
               year: { value: "丁卯" },
@@ -515,8 +515,8 @@ describe("Youshu homepage", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
-    await testUnlock(user, "命盘报告");
-    await user.click(screen.getByRole("button", { name: "生成命盘报告" }));
+    await testUnlock(user, "个人结构报告");
+    await user.click(screen.getByRole("button", { name: "生成个人结构报告" }));
     await screen.findByText("报告已成");
 
     expect(insertMock).toHaveBeenCalledWith([
@@ -524,7 +524,7 @@ describe("Youshu homepage", () => {
         user_id: "user-1",
         report_type: "bazi",
         title: "生成结果",
-        report_payload: expect.objectContaining({ content: "# 命盘报告\n先知己。" }),
+        report_payload: expect.objectContaining({ content: "# 个人结构报告\n先知己。" }),
       }),
     ]);
   });
@@ -540,8 +540,8 @@ describe("Youshu homepage", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
-    await testUnlock(user, "命盘报告");
-    await user.click(screen.getByRole("button", { name: "生成命盘报告" }));
+    await testUnlock(user, "个人结构报告");
+    await user.click(screen.getByRole("button", { name: "生成个人结构报告" }));
 
     expect(await screen.findByRole("heading", { name: "有数报告", level: 1 })).toBeInTheDocument();
     expect(screen.getByText("服务端模型配置正在调整，请稍后再试或联系客服。")).toBeInTheDocument();
@@ -555,7 +555,7 @@ describe("Youshu homepage", () => {
         JSON.stringify({
           ok: true,
           type: "bazi",
-          content: "# 命盘报告\n先知己。",
+          content: "# 个人结构报告\n先知己。",
           paipan: {
             pillars: {
               year: { value: "丁卯" },
@@ -571,15 +571,15 @@ describe("Youshu homepage", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
-    await testUnlock(user, "命盘报告");
-    await user.click(screen.getByRole("button", { name: "生成命盘报告" }));
-    await screen.findByRole("heading", { name: "命盘报告", level: 1 });
+    await testUnlock(user, "个人结构报告");
+    await user.click(screen.getByRole("button", { name: "生成个人结构报告" }));
+    await screen.findByRole("heading", { name: "个人结构报告", level: 1 });
     await user.click(screen.getByRole("button", { name: "回到首页" }));
 
     expect(window.location.pathname).toBe("/");
     expect(screen.queryByRole("heading", { name: "报告已生成" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "打开报告页" })).not.toBeInTheDocument();
-    expect(screen.queryByText("有数 · 命盘关键词")).not.toBeInTheDocument();
+    expect(screen.queryByText("有数 · 结构关键词")).not.toBeInTheDocument();
     expect(screen.queryByText("先知己。")).not.toBeInTheDocument();
   });
 
@@ -595,11 +595,11 @@ describe("Youshu homepage", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
-    await testUnlock(user, "命盘报告");
-    await user.click(screen.getByRole("button", { name: "生成命盘报告" }));
+    await testUnlock(user, "个人结构报告");
+    await user.click(screen.getByRole("button", { name: "生成个人结构报告" }));
 
-    expect(screen.getByText("正在起盘")).toBeInTheDocument();
-    expect(screen.getByText("先定四柱，再把话说清。")).toBeInTheDocument();
+    expect(screen.getByText("正在生成")).toBeInTheDocument();
+    expect(screen.getByText("先定出生信息，再把话说清。")).toBeInTheDocument();
     expect(screen.queryByText("后面的判断，留给深度报告慢慢展开")).not.toBeInTheDocument();
 
     resolveRequest(
@@ -607,7 +607,7 @@ describe("Youshu homepage", () => {
         JSON.stringify({
           ok: true,
           type: "bazi",
-          content: "# 命盘报告\n先知己。",
+          content: "# 个人结构报告\n先知己。",
           paipan: {
             pillars: {
               year: { value: "丁卯" },
@@ -632,7 +632,7 @@ describe("Youshu homepage", () => {
           JSON.stringify({
             ok: true,
             type: "annual",
-            content: "# Annual Outlook",
+            content: "# Annual Rhythm Report",
             paipan: {
               pillars: {
                 year: { value: "丁卯" },
@@ -651,11 +651,11 @@ describe("Youshu homepage", () => {
     render(<App />);
 
     await user.selectOptions(screen.getByLabelText("语言 / Language"), "en");
-    const readingRegion = screen.getByRole("region", { name: "First insight" });
+    const readingRegion = screen.getByRole("region", { name: "Structure Check" });
     const modeSwitcher = within(readingRegion).getByLabelText("Choose a service");
-    await user.click(within(modeSwitcher).getByRole("button", { name: /Annual Outlook/ }));
-    await user.click(within(screen.getByRole("region", { name: "Purchase options" })).getByRole("button", { name: "Test unlock: Annual Outlook" }));
-    await user.click(screen.getByRole("button", { name: "Generate annual outlook" }));
+    await user.click(within(modeSwitcher).getByRole("button", { name: /Annual Rhythm Report/ }));
+    await user.click(within(screen.getByRole("region", { name: "Purchase options" })).getByRole("button", { name: "Test unlock: Annual Rhythm Report" }));
+    await user.click(screen.getByRole("button", { name: "Generate annual rhythm report" }));
 
     expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({
       type: "annual",

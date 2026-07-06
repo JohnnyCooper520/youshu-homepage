@@ -6,13 +6,13 @@ brand
 
 ## Users
 
-Younger Chinese-speaking consumers who are at a decision point in work, relationships, money, or personal direction. They are curious about Eastern metaphysics but want language that feels modern, useful, and emotionally precise rather than theatrical or superstitious.
+Younger Chinese-speaking consumers who are at a decision point in work, relationships, money, or personal direction. They are curious about Eastern culture but want language that feels modern, useful, and emotionally precise rather than theatrical or superstitious.
 
 Primary use context: a user sees a short-form post or shared result card, lands on the web page, enters birth information, and wants a quick sense of "what kind of pattern am I in, and what should I pay attention to next?"
 
 ## Product Purpose
 
-有数 is an Eastern metaphysics AI life-advisor brand. It turns deterministic birth-chart calculation and advisor-reviewed interpretation rules into readable AI guidance: personality patterns, stage trends, decision prompts, and concrete next-step suggestions.
+有数 is an Eastern culture AI life-advisor brand. It turns deterministic birth-structure calculation and advisor-reviewed interpretation rules into readable AI guidance: personality patterns, stage trends, decision prompts, and concrete next-step suggestions.
 
 The product should help users feel more clear, not more dependent. Success means the first free result feels screenshot-worthy, the paid report feels specific enough to trust, and the brand earns repeat usage without fear tactics or "guaranteed accuracy" claims.
 

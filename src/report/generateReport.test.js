@@ -25,8 +25,8 @@ describe("generateReport", () => {
       createChat,
     });
 
-    expect(createChat.mock.calls[0][0].messages[1].content).toContain("命盘报告");
-    expect(createChat.mock.calls[1][0].messages[1].content).toContain("今年运势解读");
+    expect(createChat.mock.calls[0][0].messages[1].content).toContain("个人结构报告");
+    expect(createChat.mock.calls[1][0].messages[1].content).toContain("年度节奏报告");
     expect(createChat.mock.calls[1][0].messages[1].content).toContain("使用繁體中文");
     expect(createChat.mock.calls[2][0].messages[1].content).toContain("Should I change jobs?");
     expect(createChat.mock.calls[2][0].messages[1].content).toContain("Write the answer in English");

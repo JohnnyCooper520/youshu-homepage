@@ -75,31 +75,31 @@ function normalizeInput(body) {
 function mockContentFor(type, language) {
   if (language === "en") {
     if (type === "annual") {
-      return "# Local Mock Annual Outlook\nThis is a local test report. It lets you test saving, opening, and archive behavior without a model key.\n\n## Next Twelve Months\nFirst steady the near field, then read the turning points.";
+      return "# Local Mock Annual Rhythm Report\nThis is a local test report. It lets you test saving, opening, and archive behavior without a model key.\n\n## Next Twelve Months\nFirst steady the near field, then read the turning points.";
     }
     if (type === "question") {
-      return "# Local Mock Question Reading\nThis is a local test report. It lets you test saving, opening, and archive behavior without a model key.\n\n## One Matter\nKeep the question concrete. The next step becomes easier to see.";
+      return "# Local Mock One-Matter Analysis\nThis is a local test report. It lets you test saving, opening, and archive behavior without a model key.\n\n## One Matter\nKeep the question concrete. The next step becomes easier to see.";
     }
-    return "# Local Mock Bazi Report\nThis is a local test report. It lets you test saving, opening, and archive behavior without a model key.\n\n## Base Pattern\nKnow the ground first; then choose with less noise.";
+    return "# Local Mock Personal Structure Report\nThis is a local test report. It lets you test saving, opening, and archive behavior without a model key.\n\n## Base Pattern\nKnow the ground first; then choose with less noise.";
   }
 
   if (language === "zh-TW") {
     if (type === "annual") {
-      return "# 本地測試報告 · 今年運勢\n這是一份本地測試報告，用來測試生成、歸檔和再次打開，不會消耗模型額度。\n\n## 未來十二月\n先穩眼前，再看一年裡的轉折。";
+      return "# 本地測試報告 · 年度節奏\n這是一份本地測試報告，用來測試生成、歸檔和再次打開，不會消耗模型額度。\n\n## 未來十二月\n先穩眼前，再看一年裡的轉折。";
     }
     if (type === "question") {
-      return "# 本地測試報告 · 問事解惑\n這是一份本地測試報告，用來測試生成、歸檔和再次打開，不會消耗模型額度。\n\n## 此事一問\n問題越具體，下一步越容易落地。";
+      return "# 本地測試報告 · 一事分析\n這是一份本地測試報告，用來測試生成、歸檔和再次打開，不會消耗模型額度。\n\n## 此事一問\n問題越具體，下一步越容易落地。";
     }
-    return "# 本地測試報告 · 命盤報告\n這是一份本地測試報告，用來測試生成、歸檔和再次打開，不會消耗模型額度。\n\n## 命盤底色\n先看清自己的底色，再談選擇。";
+    return "# 本地測試報告 · 個人結構報告\n這是一份本地測試報告，用來測試生成、歸檔和再次打開，不會消耗模型額度。\n\n## 個人結構底色\n先看清自己的底色，再談選擇。";
   }
 
   if (type === "annual") {
-    return "# 本地测试报告 · 今年运势\n这是一份本地测试报告，用来测试生成、归档和再次打开，不会消耗模型额度。\n\n## 未来十二月\n先稳眼前，再看一年里的转折。";
+    return "# 本地测试报告 · 年度节奏\n这是一份本地测试报告，用来测试生成、归档和再次打开，不会消耗模型额度。\n\n## 未来十二月\n先稳眼前，再看一年里的转折。";
   }
   if (type === "question") {
-    return "# 本地测试报告 · 问事解惑\n这是一份本地测试报告，用来测试生成、归档和再次打开，不会消耗模型额度。\n\n## 此事一问\n问题越具体，下一步越容易落地。";
+    return "# 本地测试报告 · 一事分析\n这是一份本地测试报告，用来测试生成、归档和再次打开，不会消耗模型额度。\n\n## 此事一问\n问题越具体，下一步越容易落地。";
   }
-  return "# 本地测试报告 · 命盘报告\n这是一份本地测试报告，用来测试生成、归档和再次打开，不会消耗模型额度。\n\n## 命盘底色\n先看清自己的底色，再谈选择。";
+  return "# 本地测试报告 · 个人结构报告\n这是一份本地测试报告，用来测试生成、归档和再次打开，不会消耗模型额度。\n\n## 个人结构底色\n先看清自己的底色，再谈选择。";
 }
 
 function isPaidAlipayTrade(fields) {

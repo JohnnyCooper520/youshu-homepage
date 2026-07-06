@@ -7,7 +7,7 @@ describe("reportStore", () => {
       data: [
         {
           id: "row-1",
-          report_payload: { id: "report-1", type: "bazi", content: "# 命盘报告\n先知己。" },
+          report_payload: { id: "report-1", type: "bazi", content: "# 个人结构报告\n先知己。" },
           created_at: "2026-07-03T00:00:00.000Z",
         },
       ],
@@ -23,13 +23,13 @@ describe("reportStore", () => {
     expect(selectMock).toHaveBeenCalledWith("*");
     expect(eqMock).toHaveBeenCalledWith("user_id", "user-1");
     expect(orderMock).toHaveBeenCalledWith("created_at", { ascending: false });
-    expect(reports).toEqual([{ id: "report-1", type: "bazi", content: "# 命盘报告\n先知己。" }]);
+    expect(reports).toEqual([{ id: "report-1", type: "bazi", content: "# 个人结构报告\n先知己。" }]);
   });
 
   it("saves a report payload for the signed-in user", async () => {
     const insertMock = vi.fn(async () => ({ error: null }));
     const client = { from: vi.fn(() => ({ insert: insertMock })) };
-    const report = { id: "report-1", type: "annual", title: "生成结果", content: "# 今年运势" };
+    const report = { id: "report-1", type: "annual", title: "生成结果", content: "# 年度节奏" };
 
     await saveCloudReport(client, { id: "user-1" }, report);
 

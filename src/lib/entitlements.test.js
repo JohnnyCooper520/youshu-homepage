@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { consumeEntitlement, getModeAccess, grantProduct, mergeEntitlements } from "./entitlements.js";
 
 describe("entitlements", () => {
-  it("grants a single bazi report and consumes one use after generation", () => {
+  it("grants a single personal structure report and consumes one use after generation", () => {
     const opened = grantProduct(undefined, "bazi", "2026-07-04T00:00:00.000Z");
 
     expect(getModeAccess(opened, "bazi")).toMatchObject({

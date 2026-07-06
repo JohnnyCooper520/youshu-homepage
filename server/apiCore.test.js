@@ -66,9 +66,9 @@ describe("apiCore", () => {
     });
   });
 
-  it("generates a bazi report from birth data through DeepSeek", async () => {
+  it("generates a personal structure report from birth data through DeepSeek", async () => {
     const createChat = vi.fn().mockResolvedValue({
-      content: "# 命盘报告\n先知己。",
+      content: "# 个人结构报告\n先知己。",
       usage: { total_tokens: 88 },
     });
     const handler = createApiHandler({
@@ -91,20 +91,20 @@ describe("apiCore", () => {
     expect(response.status).toBe(200);
     expect(json.type).toBe("bazi");
     expect(json.paipan.pillars.day.value).toBe("戊辰");
-    expect(json.content).toContain("命盘报告");
+    expect(json.content).toContain("个人结构报告");
     expect(createChat).toHaveBeenCalledWith(
       expect.objectContaining({
         apiKey: "sk-env",
         messages: expect.arrayContaining([
           expect.objectContaining({ role: "system" }),
-          expect.objectContaining({ content: expect.stringContaining("命盘报告") }),
+          expect.objectContaining({ content: expect.stringContaining("个人结构报告") }),
         ]),
       }),
     );
   });
 
-  it("generates annual outlook and question answer with separate prompt intent", async () => {
-    const createChat = vi.fn().mockResolvedValueOnce({ content: "# 今年运势", usage: {} }).mockResolvedValueOnce({
+  it("generates annual rhythm report and question answer with separate prompt intent", async () => {
+    const createChat = vi.fn().mockResolvedValueOnce({ content: "# 年度节奏", usage: {} }).mockResolvedValueOnce({
       content: "此事宜稳。",
       usage: {},
     });
@@ -133,7 +133,7 @@ describe("apiCore", () => {
       }),
     );
 
-    expect(createChat.mock.calls[0][0].messages[1].content).toContain("今年运势解读");
+    expect(createChat.mock.calls[0][0].messages[1].content).toContain("年度节奏报告");
     expect(createChat.mock.calls[0][0].messages[1].content).toContain("使用繁體中文");
     expect(createChat.mock.calls[1][0].messages[1].content).toContain("Should I change jobs?");
     expect(createChat.mock.calls[1][0].messages[1].content).toContain("Write the answer in English");

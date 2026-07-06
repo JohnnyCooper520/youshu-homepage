@@ -17,11 +17,11 @@ const paipanResult = {
 };
 
 describe("reportPrompts", () => {
-  it("builds a bazi report framework with product-specific sections and safety rules", () => {
+  it("builds a personal structure report framework with product-specific sections and safety rules", () => {
     const messages = buildBaziReportMessages(paipanResult, { language: "zh-CN" });
     const joined = messages.map((message) => message.content).join("\n");
 
-    expect(joined).toContain("命盘报告");
+    expect(joined).toContain("个人结构报告");
     expect(joined).toContain("开篇总断");
     expect(joined).toContain("性格底色");
     expect(joined).toContain("不承诺发财、复合、升职");
@@ -29,11 +29,11 @@ describe("reportPrompts", () => {
     expect(joined).toContain('"value": "戊辰"');
   });
 
-  it("builds an annual outlook framework with twelve-month rhythm and review cadence", () => {
+  it("builds an annual rhythm report framework with twelve-month rhythm and review cadence", () => {
     const messages = buildReportMessages("annual", paipanResult, { language: "zh-TW" });
     const joined = messages.map((message) => message.content).join("\n");
 
-    expect(joined).toContain("今年运势解读");
+    expect(joined).toContain("年度节奏报告");
     expect(joined).toContain("未来 12 个月总览");
     expect(joined).toContain("月度节奏表");
     expect(joined).toContain("每月回看");

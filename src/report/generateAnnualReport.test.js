@@ -4,7 +4,7 @@ import { generateAnnualReport } from "./generateAnnualReport.js";
 describe("generateAnnualReport", () => {
   it("builds annual report messages and sends them to the chat client", async () => {
     const createChat = vi.fn().mockResolvedValue({
-      content: "# 今年运势解读",
+      content: "# 年度节奏报告",
       usage: { total_tokens: 88 },
     });
 
@@ -28,6 +28,6 @@ describe("generateAnnualReport", () => {
         ],
       }),
     );
-    expect(result.content).toBe("# 今年运势解读");
+    expect(result.content).toBe("# 年度节奏报告");
   });
 });

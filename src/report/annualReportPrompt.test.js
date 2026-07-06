@@ -27,7 +27,7 @@ describe("buildAnnualReportMessages", () => {
     expect(messages[1].content).toContain("每月回看");
     expect(messages[1].content).toContain("不要每个月都说好");
     expect(messages[1]).toMatchObject({ role: "user" });
-    expect(messages[1].content).toContain("今年运势解读");
+    expect(messages[1].content).toContain("年度节奏报告");
     expect(messages[1].content).toContain('"birth_date": "1988-01-14"');
     expect(messages[1].content).toContain('"value": "戊辰"');
     expect(messages[1].content).toContain("Markdown");
