@@ -57,7 +57,7 @@ describe("Youshu homepage", () => {
     expect(within(screen.getByRole("region", { name: "购买选择" })).getByRole("button", { name: "测试开通：命盘报告" })).toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "购买选择" })).getByRole("button", { name: "测试开通：年度会员" })).toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "购买选择" })).queryByText("春季蓄势")).not.toBeInTheDocument();
-    expect(screen.getByText("近守远换")).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("报告区间")).toBeInTheDocument();
     expect(screen.queryByText("流年十二月解读")).not.toBeInTheDocument();
     expect(screen.queryByText("上半年蓄势，下半年换挡")).not.toBeInTheDocument();
     expect(screen.getAllByText("年度会员").length).toBeGreaterThanOrEqual(1);
@@ -76,7 +76,7 @@ describe("Youshu homepage", () => {
     expect(screen.getByRole("link", { name: "隐私政策" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "退款政策" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "联系我们" })).toBeInTheDocument();
-    expect(screen.getAllByRole("region")).toHaveLength(6);
+    expect(screen.getAllByRole("region")).toHaveLength(4);
   });
 
   it("opens legal pages with company, support, and refund rules", async () => {

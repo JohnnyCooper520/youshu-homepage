@@ -85,6 +85,8 @@ const copy = {
     generatingText: "先定四柱，再把话说清。",
     generatingSteps: ["校准出生信息", "推演命盘结构", "整理报告重点"],
     generatedTitle: "生成结果",
+    reportVerdict: "总断",
+    reportHighlights: "要点",
     reportReady: "报告已成",
     reportPillars: "四柱",
     reportFootnote: "以下内容基于确定性排盘与有数规则生成，仅作选择参考。",
@@ -309,6 +311,8 @@ const copy = {
     generatingText: "先定四柱，再把話說清。",
     generatingSteps: ["校準出生資訊", "推演命盤結構", "整理報告重點"],
     generatedTitle: "生成結果",
+    reportVerdict: "總斷",
+    reportHighlights: "要點",
     reportReady: "報告已成",
     reportPillars: "四柱",
     reportFootnote: "以下內容基於確定性排盤與有數規則生成，僅作選擇參考。",
@@ -533,6 +537,8 @@ const copy = {
     generatingText: "First fix the pillars, then make the words usable.",
     generatingSteps: ["Check birth data", "Map the chart structure", "Shape the report"],
     generatedTitle: "Generated result",
+    reportVerdict: "Main reading",
+    reportHighlights: "Highlights",
     reportReady: "Report ready",
     reportPillars: "Pillars",
     reportFootnote: "Generated from deterministic chart calculation and Youshu guidance rules. Use as decision support.",
@@ -752,11 +758,7 @@ function renderInlineMarkdown(text) {
   return parts.length ? parts : text;
 }
 
-function ReportBody({ content }) {
-  if (!content) {
-    return null;
-  }
-
+function parseReportSections(content) {
   const sections = [];
   let current = { heading: "", blocks: [] };
 
@@ -797,26 +799,116 @@ function ReportBody({ content }) {
     sections.push(current);
   }
 
-  return (
-    <div className="report-body">
-      {sections.map((section, sectionIndex) => (
-        <section className="report-block" key={`${section.heading}-${sectionIndex}`}>
-          {section.heading ? <h4>{section.heading}</h4> : null}
-          {section.blocks.map((block, blockIndex) => {
-            if (block.type === "list") {
-              return (
-                <ul key={`${section.heading}-list-${blockIndex}`}>
-                  {block.items.map((item, itemIndex) => (
-                    <li key={`${section.heading}-item-${blockIndex}-${itemIndex}`}>{renderInlineMarkdown(item)}</li>
-                  ))}
-                </ul>
-              );
-            }
+  return sections;
+}
 
-            return <p key={`${section.heading}-${blockIndex}`}>{renderInlineMarkdown(block.text)}</p>;
-          })}
+function getBlockText(block) {
+  if (!block) {
+    return "";
+  }
+
+  if (block.type === "list") {
+    return block.items[0] || "";
+  }
+
+  return block.text || "";
+}
+
+function firstMeaningfulText(sections) {
+  for (const section of sections) {
+    for (const block of section.blocks) {
+      const rawText = getBlockText(block);
+      if (stripMarkdownMarkers(rawText)) {
+        return rawText;
+      }
+    }
+  }
+  return "";
+}
+
+function firstMeaningfulLocator(sections) {
+  for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex += 1) {
+    const section = sections[sectionIndex];
+    for (let blockIndex = 0; blockIndex < section.blocks.length; blockIndex += 1) {
+      const text = stripMarkdownMarkers(getBlockText(section.blocks[blockIndex]));
+      if (text) {
+        return { sectionIndex, blockIndex };
+      }
+    }
+  }
+  return null;
+}
+
+function getDisplayReportSections(sections, openingLocator) {
+  return sections
+    .map((section, sectionIndex) => {
+      const blocks = section.blocks.filter((block, blockIndex) => {
+        if (openingLocator?.sectionIndex === sectionIndex && openingLocator?.blockIndex === blockIndex) {
+          return false;
+        }
+
+        return Boolean(stripMarkdownMarkers(getBlockText(block)));
+      });
+
+      return { ...section, blocks };
+    })
+    .filter((section) => section.blocks.length > 0);
+}
+
+function ReportBody({ content, t }) {
+  if (!content) {
+    return null;
+  }
+
+  const sections = parseReportSections(content);
+  const openingText = firstMeaningfulText(sections);
+  const openingLocator = firstMeaningfulLocator(sections);
+  const displaySections = getDisplayReportSections(sections, openingLocator);
+  const featuredSections = displaySections.slice(0, 3);
+
+  return (
+    <div className="report-body report-scroll">
+      {openingText ? (
+        <section className="report-verdict">
+          <span>{t.reportVerdict}</span>
+          <p>{renderInlineMarkdown(openingText)}</p>
         </section>
-      ))}
+      ) : null}
+
+      {featuredSections.length ? (
+        <div className="report-triad" aria-label={t.reportHighlights}>
+          {featuredSections.map((section, sectionIndex) => (
+            <article key={`feature-${section.heading}-${sectionIndex}`}>
+              <span>{String(sectionIndex + 1).padStart(2, "0")}</span>
+              <h4>{section.heading || "要点"}</h4>
+            </article>
+          ))}
+        </div>
+      ) : null}
+
+      <div className="report-chapters">
+        {displaySections.map((section, sectionIndex) => (
+          <section className="report-block" key={`${section.heading}-${sectionIndex}`}>
+            <div className="chapter-mark">{String(sectionIndex + 1).padStart(2, "0")}</div>
+            <div>
+              {section.heading ? <h4>{section.heading}</h4> : null}
+              {section.blocks.map((block, blockIndex) => {
+                if (block.type === "list") {
+                  return (
+                    <ul key={`${section.heading}-list-${blockIndex}`}>
+                      {block.items.map((item, itemIndex) => (
+                        <li key={`${section.heading}-item-${blockIndex}-${itemIndex}`}>{renderInlineMarkdown(item)}</li>
+                      ))}
+                    </ul>
+                  );
+                }
+
+                return <p key={`${section.heading}-${blockIndex}`}>{renderInlineMarkdown(block.text)}</p>;
+              })}
+            </div>
+          </section>
+        ))}
+      </div>
     </div>
   );
 }
@@ -1311,7 +1403,7 @@ function ReportPage({ t, report, onBackHome }) {
                   </p>
                 ) : null}
               </header>
-              <ReportBody content={report.content} />
+              <ReportBody content={report.content} t={t} />
               <p className="report-footnote">{t.reportFootnote}</p>
               <p className="report-footnote">{t.footerDisclaimer}</p>
             </>
@@ -1748,9 +1840,8 @@ export default function App() {
             {isGenerating ? (
               <div className="insight-stage" id="reading-result" aria-live="polite">
                 <article className="loading-report" aria-label={t.generating}>
-                  <div className="loading-oracle" aria-hidden="true">
-                    <span />
-                    <i />
+                  <div className="loading-yinyang" aria-hidden="true">
+                    <YinYangOrb label="" />
                   </div>
                   <div>
                     <h3>{t.generating}</h3>
@@ -1768,7 +1859,7 @@ export default function App() {
         </section>
 
         <section className="product-section" id="products" aria-label={t.productsRegion} role="region">
-          <div className="section-copy narrow">
+          <div className="section-copy narrow product-intro">
             <p className="kicker">{t.productKicker}</p>
             <h2>{t.productTitle}</h2>
           </div>
@@ -1818,7 +1909,7 @@ export default function App() {
               })}
             </div>
 
-            <div className="service-detail-grid">
+            <div className="service-detail-grid compact-service-detail">
               <article className="service-feature annual-detail">
                 <div className="service-feature-copy">
                   <span className="service-label">{t.annualLabel}</span>
@@ -1861,23 +1952,7 @@ export default function App() {
           </div>
         </section>
 
-        <section className="sample-report" aria-label={t.sampleRegion} role="region">
-          <div className="section-copy narrow">
-            <p className="kicker">{t.sampleKicker}</p>
-            <h2>{t.sampleTitle}</h2>
-          </div>
-          <div className="preview-grid">
-            {t.previews.map(([title, visible, locked]) => (
-              <article key={title}>
-                <span>{title}</span>
-                <h3>{visible}</h3>
-                <p>{locked}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="method" id="method" aria-label={t.methodRegion} role="region">
+        <section className="method compact-method" id="method" aria-label={t.methodRegion} role="region">
           <div className="section-copy narrow">
             <p className="kicker">{t.methodKicker}</p>
             <h2>{t.methodTitle}</h2>
@@ -1889,15 +1964,6 @@ export default function App() {
                 <p>{text}</p>
               </article>
             ))}
-          </div>
-        </section>
-
-        <section className="closing" id="account" aria-label={t.closingRegion} role="region">
-          <p>{t.closingText}</p>
-          <h2>{t.closingTitle}</h2>
-          <div className="hero-actions center">
-            <a className="primary-btn" href="#reading">{t.backToReading}</a>
-            <a className="text-btn" href="#products">{t.viewProducts}</a>
           </div>
         </section>
       </main>
