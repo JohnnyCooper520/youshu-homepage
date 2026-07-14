@@ -24,13 +24,14 @@ describe("buildAnnualReportMessages", () => {
     expect(messages[0]).toMatchObject({ role: "system" });
     expect(messages[0].content).toContain("不承诺发财、复合、升职");
     expect(messages[0].content).toContain("文化参考和决策辅助");
-    expect(messages[1].content).toContain("每月回看");
-    expect(messages[1].content).toContain("不要每个月都说好");
+    expect(messages[1].content).toContain("十二月回看");
+    expect(messages[1].content).toContain("不写按月流水账");
+    expect(messages[1].content).toContain("一致性锚点");
     expect(messages[1]).toMatchObject({ role: "user" });
     expect(messages[1].content).toContain("年度节奏报告");
     expect(messages[1].content).toContain('"birth_date": "1988-01-14"');
     expect(messages[1].content).toContain('"value": "戊辰"');
-    expect(messages[1].content).toContain("Markdown");
+    expect(messages[0].content).toContain("Markdown");
   });
 
   it("supports simplified Chinese, traditional Chinese, and English report output", () => {

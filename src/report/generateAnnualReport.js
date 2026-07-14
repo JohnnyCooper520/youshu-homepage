@@ -8,6 +8,7 @@ export async function generateAnnualReport({
   temperature,
   maxTokens,
   language,
+  coreProfile,
 } = {}) {
   if (!paipanResult || typeof paipanResult !== "object") {
     throw new Error("paipanResult is required");
@@ -17,6 +18,7 @@ export async function generateAnnualReport({
     type: "annual",
     paipanResult,
     language,
+    coreProfile,
     model,
     createChat: (options) =>
       createChat({

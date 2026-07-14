@@ -22,21 +22,23 @@ describe("reportPrompts", () => {
     const joined = messages.map((message) => message.content).join("\n");
 
     expect(joined).toContain("个人结构报告");
-    expect(joined).toContain("开篇总断");
-    expect(joined).toContain("性格底色");
+    expect(joined).toContain("开篇判断");
+    expect(joined).toContain("结构底色");
+    expect(joined).toContain("下一步只保留 3 条以内");
     expect(joined).toContain("不承诺发财、复合、升职");
-    expect(joined).toContain("每一节必须给出可执行建议");
+    expect(joined).toContain("一致性锚点");
     expect(joined).toContain('"value": "戊辰"');
   });
 
-  it("builds an annual rhythm report framework with twelve-month rhythm and review cadence", () => {
+  it("builds an annual rhythm report framework around a few useful windows", () => {
     const messages = buildReportMessages("annual", paipanResult, { language: "zh-TW" });
     const joined = messages.map((message) => message.content).join("\n");
 
     expect(joined).toContain("年度节奏报告");
-    expect(joined).toContain("未来 12 个月总览");
-    expect(joined).toContain("月度节奏表");
-    expect(joined).toContain("每月回看");
+    expect(joined).toContain("眼前三月");
+    expect(joined).toContain("半年转折");
+    expect(joined).toContain("十二月回看");
+    expect(joined).toContain("不写按月流水账");
     expect(joined).toContain("使用繁體中文");
   });
 
@@ -49,8 +51,8 @@ describe("reportPrompts", () => {
     const joined = messages.map((message) => message.content).join("\n");
 
     expect(joined).toContain("Should I change jobs?");
-    expect(joined).toContain("一句判断");
-    expect(joined).toContain("风险边界");
+    expect(joined).toContain("The judgment");
+    expect(joined).toContain("Risk boundary");
     expect(joined).toContain("不替用户做绝对决定");
     expect(joined).toContain("Write the answer in English");
   });

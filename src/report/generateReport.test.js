@@ -33,8 +33,24 @@ describe("generateReport", () => {
   });
 
   it("uses shorter generation settings for question reports", () => {
-    expect(modelOptionsForReport("question")).toEqual({ temperature: 0.68, maxTokens: 1800 });
-    expect(modelOptionsForReport("annual")).toEqual({ temperature: 0.72, maxTokens: 5200 });
+    expect(modelOptionsForReport("question")).toEqual({ temperature: 0.58, maxTokens: 1400 });
+    expect(modelOptionsForReport("bazi")).toEqual({ temperature: 0.58, maxTokens: 2200 });
+    expect(modelOptionsForReport("annual")).toEqual({ temperature: 0.58, maxTokens: 2600 });
+  });
+
+  it("uses a saved core profile as an internal consistency anchor", async () => {
+    const createChat = vi.fn().mockResolvedValue({ content: "ok", usage: {} });
+
+    await generateReport({
+      type: "question",
+      paipanResult,
+      question: "Should I change jobs?",
+      coreProfile: "结构底色：稳住节奏，比急着证明自己更有用。",
+      createChat,
+    });
+
+    expect(createChat.mock.calls[0][0].messages[1].content).toContain("既有核心画像");
+    expect(createChat.mock.calls[0][0].messages[1].content).toContain("稳住节奏");
   });
 
   it("requires a concrete question for question reports", async () => {

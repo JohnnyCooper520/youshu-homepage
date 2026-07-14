@@ -297,7 +297,7 @@ describe("Youshu homepage", () => {
     expect(screen.getByRole("heading", { name: "个人结构报告", level: 1 })).toBeInTheDocument();
     expect(await screen.findByText("丁卯 · 癸丑 · 戊辰 · 戊午")).toBeInTheDocument();
     expect(screen.getByText("报告已成")).toBeInTheDocument();
-    expect(within(screen.getByLabelText("生成结果")).getByRole("heading", { name: "个人结构报告", level: 2 })).toBeInTheDocument();
+    expect(within(screen.getByLabelText("生成结果")).getByText("先知己")).toBeInTheDocument();
     expect(screen.getByText("先知己。")).toBeInTheDocument();
     expect(screen.queryByText("后面的判断，留给深度报告慢慢展开")).not.toBeInTheDocument();
     expect(document.querySelector(".generated-report pre")).not.toBeInTheDocument();
@@ -436,19 +436,19 @@ describe("Youshu homepage", () => {
 
     expect(screen.getByRole("heading", { name: "我的报告" })).toBeInTheDocument();
     expect(screen.getByText("3 份报告")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /年度节奏/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /一事分析/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /个人结构报告/ })).toBeInTheDocument();
+    const archive = screen.getByRole("region", { name: "报告归档" });
+    expect(within(archive).getByRole("button", { name: /年度节奏.*先看眼前/ })).toBeInTheDocument();
+    expect(within(archive).getByRole("button", { name: /一事分析.*此事宜稳/ })).toBeInTheDocument();
+    expect(within(archive).getByRole("button", { name: /个人结构报告.*先知己/ })).toBeInTheDocument();
     expect(screen.getByText("接下来半年适合换工作吗？")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /一事分析/ }));
+    await user.click(within(archive).getByRole("button", { name: /一事分析.*此事宜稳/ }));
 
     expect(window.location.pathname).toBe("/report");
     expect(screen.getAllByText("一事分析").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("生成于")).toBeInTheDocument();
-    expect(screen.getByText("2026/06/26 17:30")).toBeInTheDocument();
-    expect(screen.getByText("1988/01/14 · 11:25 · 长春")).toBeInTheDocument();
-    expect(screen.getByText("事业机会")).toBeInTheDocument();
+    expect(screen.getByText(/生成于 2026\/06\/26 17:30/)).toBeInTheDocument();
+    expect(screen.getByText(/出生信息 1988\/01\/14.*长春/)).toBeInTheDocument();
+    expect(screen.getByText(/关注方向.*事业机会/)).toBeInTheDocument();
     expect(screen.getByText("接下来半年适合换工作吗？")).toBeInTheDocument();
   });
 

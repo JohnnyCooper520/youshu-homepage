@@ -75,31 +75,31 @@ function normalizeInput(body) {
 function mockContentFor(type, language) {
   if (language === "en") {
     if (type === "annual") {
-      return "# Local Mock Annual Rhythm Report\nThis is a local test report. It lets you test saving, opening, and archive behavior without a model key.\n\n## Next Twelve Months\nFirst steady the near field, then read the turning points.";
+      return "# Annual Rhythm Report\nA local test report for saving, opening, and archive behavior without a model key.\n\n## Opening judgment\nFirst steady the near field, then read the turning points.\n\n## The year's center of gravity\nKeep the work that can compound, and leave room around choices that still need time.\n\n## The next three months\nUse the next stretch to clarify priorities before adding commitments.\n\n## Suggested move\n- Finish one important loose end.\n- Revisit the decision after new information arrives.";
     }
     if (type === "question") {
-      return "# Local Mock One-Matter Analysis\nThis is a local test report. It lets you test saving, opening, and archive behavior without a model key.\n\n## One Matter\nKeep the question concrete. The next step becomes easier to see.";
+      return "# One-Matter Analysis\nA local test report for saving, opening, and archive behavior without a model key.\n\n## The judgment\nKeep the question concrete and the next step becomes easier to see.\n\n## The situation\nDo not rush a decision before the practical conditions are clear.\n\n## Suggested move\n- Check one key condition.\n- Set a date to revisit the choice.";
     }
-    return "# Local Mock Personal Structure Report\nThis is a local test report. It lets you test saving, opening, and archive behavior without a model key.\n\n## Base Pattern\nKnow the ground first; then choose with less noise.";
+    return "# Personal Structure Report\nA local test report for saving, opening, and archive behavior without a model key.\n\n## Opening judgment\nKnow the ground first; then choose with less noise.\n\n## Core pattern\nSteadiness works better when it is paired with a clear boundary.\n\n## How to apply effort\nChoose fewer directions and return to them consistently.\n\n## Next step\n- Name the one thing worth protecting this week.\n- Let the next decision wait for one useful signal.";
   }
 
   if (language === "zh-TW") {
     if (type === "annual") {
-      return "# 本地測試報告 · 年度節奏\n這是一份本地測試報告，用來測試生成、歸檔和再次打開，不會消耗模型額度。\n\n## 未來十二月\n先穩眼前，再看一年裡的轉折。";
+      return "# 年度節奏報告\n這是一份本地測試報告，用來測試生成、歸檔和再次打開，不會消耗模型額度。\n\n## 開篇判斷\n先穩眼前，再看一年裡的轉折。\n\n## 這一年的重心\n先守住能累積的事，再為新的選擇留一點空間。\n\n## 眼前三月\n先把先後看清，不急著同時做完所有事。\n\n## 取捨建議\n- 整理一件長期拖著的事。\n- 在新訊息出現後再回看選擇。";
     }
     if (type === "question") {
-      return "# 本地測試報告 · 一事分析\n這是一份本地測試報告，用來測試生成、歸檔和再次打開，不會消耗模型額度。\n\n## 此事一問\n問題越具體，下一步越容易落地。";
+      return "# 一事分析\n這是一份本地測試報告，用來測試生成、歸檔和再次打開，不會消耗模型額度。\n\n## 這件事的判斷\n問題越具體，下一步越容易落地。\n\n## 形勢\n先看清現實條件，再決定要不要加快。\n\n## 建議推進\n- 確認一個關鍵條件。\n- 給這件事留一個回看的日期。";
     }
-    return "# 本地測試報告 · 個人結構報告\n這是一份本地測試報告，用來測試生成、歸檔和再次打開，不會消耗模型額度。\n\n## 個人結構底色\n先看清自己的底色，再談選擇。";
+    return "# 個人結構報告\n這是一份本地測試報告，用來測試生成、歸檔和再次打開，不會消耗模型額度。\n\n## 開篇判斷\n先看清自己的底色，再談選擇。\n\n## 結構底色\n穩住節奏，比急著證明自己更有用。\n\n## 用力方向\n把注意力放在能持續累積的事情上。\n\n## 下一步\n- 寫下這週最值得守住的一件事。\n- 等一個有效訊號後再做新決定。";
   }
 
   if (type === "annual") {
-    return "# 本地测试报告 · 年度节奏\n这是一份本地测试报告，用来测试生成、归档和再次打开，不会消耗模型额度。\n\n## 未来十二月\n先稳眼前，再看一年里的转折。";
+    return "# 年度节奏报告\n这是一份本地测试报告，用来测试生成、归档和再次打开，不会消耗模型额度。\n\n## 开篇判断\n先稳眼前，再看一年里的转折。\n\n## 这一年的重心\n先守住能积累的事，再为新的选择留一点空间。\n\n## 眼前三月\n先把先后看清，不急着同时做完所有事。\n\n## 取舍建议\n- 整理一件长期拖着的事。\n- 在新信息出现后再回看选择。";
   }
   if (type === "question") {
-    return "# 本地测试报告 · 一事分析\n这是一份本地测试报告，用来测试生成、归档和再次打开，不会消耗模型额度。\n\n## 此事一问\n问题越具体，下一步越容易落地。";
+    return "# 一事分析\n这是一份本地测试报告，用来测试生成、归档和再次打开，不会消耗模型额度。\n\n## 这件事的判断\n问题越具体，下一步越容易落地。\n\n## 形势\n先看清现实条件，再决定要不要加快。\n\n## 建议推进\n- 确认一个关键条件。\n- 给这件事留一个回看的日期。";
   }
-  return "# 本地测试报告 · 个人结构报告\n这是一份本地测试报告，用来测试生成、归档和再次打开，不会消耗模型额度。\n\n## 个人结构底色\n先看清自己的底色，再谈选择。";
+  return "# 个人结构报告\n这是一份本地测试报告，用来测试生成、归档和再次打开，不会消耗模型额度。\n\n## 开篇判断\n先看清自己的底色，再谈选择。\n\n## 结构底色\n稳住节奏，比急着证明自己更有用。\n\n## 用力方向\n把注意力放在能持续积累的事情上。\n\n## 下一步\n- 写下这周最值得守住的一件事。\n- 等一个有效信号后再做新决定。";
 }
 
 function isPaidAlipayTrade(fields) {
@@ -194,6 +194,7 @@ export function createApiHandler({
           language: body.language || "zh-CN",
           question: body.question,
           focus: body.focus,
+          coreProfile: body.coreProfile,
           createChat: (options) => createChat({ apiKey: key.apiKey, ...options }),
         });
 

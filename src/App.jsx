@@ -3,6 +3,7 @@ import { consumeEntitlement, getModeAccess, getProductStatus, grantProduct, merg
 import { loadCloudEntitlements } from "./lib/cloudEntitlements.js";
 import { getSupabaseClient } from "./lib/supabaseClient.js";
 import { loadCloudReports, saveCloudReport } from "./lib/reportStore.js";
+import { reportPromptVersion } from "./report/profileAnchor.js";
 
 const languageOptions = [
   { value: "zh-CN", label: "简体中文" },
@@ -87,13 +88,14 @@ const copy = {
     generatedTitle: "生成结果",
     reportVerdict: "总断",
     reportHighlights: "要点",
+    reportOutline: "报告目录",
     reportReady: "报告已成",
     reportPillars: "出生信息",
     reportFootnote: "以下内容基于确定性结构化分析与有数规则生成，仅作选择参考。",
     reportPageRegion: "报告详情",
     reportPageKicker: "我的报告",
     reportPageTitle: "这份报告，单独慢慢看。",
-    reportPageText: "首页负责生成，报告页负责沉下来看判断。日后接入账号后，这里会进入你的历史报告。",
+    reportPageText: "这份报告按你的信息归档，适合隔一段时间再回来读。",
     reportBackHome: "回到首页",
     noReportTitle: "还没有可查看的报告",
     noReportText: "先回首页生成一份报告，完成后会自动来到这里。",
@@ -102,10 +104,13 @@ const copy = {
     reportFocusInfo: "关注方向",
     reportQuestionInfo: "具体事项",
     reportsPageRegion: "报告归档",
-    reportsPageKicker: "我的报告",
+    reportsPageKicker: "报告归档",
     reportsPageTitle: "我的报告",
     reportsPageText: "生成过的个人结构、一事和年度节奏，都会归在这里。日后再看，不必从头来过。",
     reportsCount: "份报告",
+    reportFiltersLabel: "按报告类型筛选",
+    reportFilters: { all: "全部", bazi: "个人结构", annual: "年度节奏", question: "一事分析" },
+    reportFilterEmpty: "这一类报告还没有归档。",
     reportsEmptyTitle: "这里还没有报告",
     reportsEmptyText: "先生成一份报告，完成后会自动归档到这里。",
     reportOpenAction: "打开报告",
@@ -313,13 +318,14 @@ const copy = {
     generatedTitle: "生成結果",
     reportVerdict: "總斷",
     reportHighlights: "要點",
+    reportOutline: "報告目錄",
     reportReady: "報告已成",
     reportPillars: "出生資訊",
     reportFootnote: "以下內容基於確定性結構化分析與有數規則生成，僅作選擇參考。",
     reportPageRegion: "報告詳情",
     reportPageKicker: "我的報告",
     reportPageTitle: "這份報告，單獨慢慢看。",
-    reportPageText: "首頁負責生成，報告頁負責沉下來看判斷。日後接入帳號後，這裡會進入你的歷史報告。",
+    reportPageText: "這份報告會依你的資訊歸檔，適合隔一段時間再回來讀。",
     reportBackHome: "回到首頁",
     noReportTitle: "還沒有可查看的報告",
     noReportText: "先回首頁生成一份報告，完成後會自動來到這裡。",
@@ -328,10 +334,13 @@ const copy = {
     reportFocusInfo: "關注方向",
     reportQuestionInfo: "具體事項",
     reportsPageRegion: "報告歸檔",
-    reportsPageKicker: "我的報告",
+    reportsPageKicker: "報告歸檔",
     reportsPageTitle: "我的報告",
     reportsPageText: "生成過的個人結構、一事和年度節奏，都會歸在這裡。日後再看，不必從頭來過。",
     reportsCount: "份報告",
+    reportFiltersLabel: "按報告類型篩選",
+    reportFilters: { all: "全部", bazi: "個人結構", annual: "年度節奏", question: "一事分析" },
+    reportFilterEmpty: "這一類報告還沒有歸檔。",
     reportsEmptyTitle: "這裡還沒有報告",
     reportsEmptyText: "先生成一份報告，完成後會自動歸檔到這裡。",
     reportOpenAction: "打開報告",
@@ -539,13 +548,14 @@ const copy = {
     generatedTitle: "Generated result",
     reportVerdict: "Main reading",
     reportHighlights: "Highlights",
+    reportOutline: "Report outline",
     reportReady: "Report ready",
     reportPillars: "Birth fields",
     reportFootnote: "Generated from deterministic structure calculation and Youshu guidance rules. Use as decision support.",
     reportPageRegion: "Report detail",
     reportPageKicker: "My report",
     reportPageTitle: "A full report deserves its own page.",
-    reportPageText: "The homepage opens the structure. The report page is where the reading can breathe. Once accounts are connected, this becomes report history.",
+    reportPageText: "This reading is archived with your information, ready to return to when the timing is right.",
     reportBackHome: "Back home",
     noReportTitle: "No report yet",
     noReportText: "Return home and open a structure first. The report will appear here after generation.",
@@ -554,10 +564,13 @@ const copy = {
     reportFocusInfo: "Focus",
     reportQuestionInfo: "Question",
     reportsPageRegion: "Report archive",
-    reportsPageKicker: "My reports",
+    reportsPageKicker: "Report archive",
     reportsPageTitle: "My reports",
     reportsPageText: "Generated structures, questions, and annual rhythm reports return here. Next time, you do not start from zero.",
     reportsCount: "reports",
+    reportFiltersLabel: "Filter by report type",
+    reportFilters: { all: "All", bazi: "Structure", annual: "Annual rhythm", question: "One matter" },
+    reportFilterEmpty: "There are no archived reports in this category yet.",
     reportsEmptyTitle: "No saved reports yet",
     reportsEmptyText: "Open a structure first. The report will be saved here after generation.",
     reportOpenAction: "Open report",
@@ -864,7 +877,6 @@ function ReportBody({ content, t }) {
   const openingText = firstMeaningfulText(sections);
   const openingLocator = firstMeaningfulLocator(sections);
   const displaySections = getDisplayReportSections(sections, openingLocator);
-  const featuredSections = displaySections.slice(0, 3);
 
   return (
     <div className="report-body report-scroll">
@@ -875,20 +887,23 @@ function ReportBody({ content, t }) {
         </section>
       ) : null}
 
-      {featuredSections.length ? (
-        <div className="report-triad" aria-label={t.reportHighlights}>
-          {featuredSections.map((section, sectionIndex) => (
-            <article key={`feature-${section.heading}-${sectionIndex}`}>
-              <span>{String(sectionIndex + 1).padStart(2, "0")}</span>
-              <h4>{section.heading || "要点"}</h4>
-            </article>
-          ))}
-        </div>
+      {displaySections.length ? (
+        <nav className="report-outline" aria-label={t.reportOutline}>
+          <span>{t.reportOutline}</span>
+          <div>
+            {displaySections.map((section, sectionIndex) => (
+              <a href={`#report-section-${sectionIndex}`} key={`outline-${section.heading}-${sectionIndex}`}>
+                <b>{String(sectionIndex + 1).padStart(2, "0")}</b>
+                {section.heading || t.reportHighlights}
+              </a>
+            ))}
+          </div>
+        </nav>
       ) : null}
 
       <div className="report-chapters">
         {displaySections.map((section, sectionIndex) => (
-          <section className="report-block" key={`${section.heading}-${sectionIndex}`}>
+          <section className="report-block" id={`report-section-${sectionIndex}`} key={`${section.heading}-${sectionIndex}`}>
             <div className="chapter-mark">{String(sectionIndex + 1).padStart(2, "0")}</div>
             <div>
               {section.heading ? <h4>{section.heading}</h4> : null}
@@ -1047,6 +1062,28 @@ function getReportSummary(content) {
   return summaryLine ? stripMarkdownMarkers(summaryLine) : "";
 }
 
+function buildConsistencyProfile(content) {
+  const sections = parseReportSections(content);
+  const openingLocator = firstMeaningfulLocator(sections);
+  const displaySections = getDisplayReportSections(sections, openingLocator);
+  const opening = stripMarkdownMarkers(firstMeaningfulText(sections));
+  const points = displaySections.slice(0, 3).map((section) => {
+    const detail = stripMarkdownMarkers(getBlockText(section.blocks[0]));
+    return detail ? `${section.heading || "判断"}：${detail}` : "";
+  });
+
+  return [opening, ...points].filter(Boolean).join("\n").slice(0, 900);
+}
+
+function getLatestCoreProfile(reports) {
+  const latestProfileReport = reports.find((savedReport) => savedReport.type === "bazi" && savedReport.content);
+  if (!latestProfileReport) {
+    return "";
+  }
+
+  return latestProfileReport.consistencyProfile || buildConsistencyProfile(latestProfileReport.content);
+}
+
 function buildArchivedReport(report, context) {
   const createdAt = new Date().toISOString();
 
@@ -1060,6 +1097,8 @@ function buildArchivedReport(report, context) {
     focus: context.focus,
     question: context.question,
     summary: getReportSummary(report.content),
+    consistencyProfile: buildConsistencyProfile(report.content),
+    promptVersion: reportPromptVersion,
   };
 }
 
@@ -1275,6 +1314,10 @@ function ReportsPage({
   onMagicLink,
   onSignOut,
 }) {
+  const [activeFilter, setActiveFilter] = useState("all");
+  const reportTypes = ["all", "bazi", "annual", "question"];
+  const filteredReports = activeFilter === "all" ? reports : reports.filter((savedReport) => savedReport.type === activeFilter);
+
   return (
     <main className="report-page reports-page">
       <section className="report-hero reports-hero" aria-label={t.reportsPageRegion} role="region">
@@ -1301,37 +1344,55 @@ function ReportsPage({
           {reports.length ? (
             <>
               <div className="report-archive-head">
-                <span>
-                  {reports.length} {t.reportsCount}
-                </span>
-                <p>{t.reportsPageText}</p>
-              </div>
-              <div className="report-list">
-                {reports.map((savedReport) => {
-                  const reportType = getReportTypeLabel(savedReport, t);
-                  const birthLine = [formatArchiveDate(savedReport.birthDate), savedReport.birthPlace].filter(Boolean).join(" · ");
-                  const createdAt = formatReportDateTime(savedReport.createdAt, savedReport.language || "zh-CN");
-                  const context = getReportArchiveContext(savedReport, t);
-
-                  return (
+                <div>
+                  <span>
+                    {reports.length} {t.reportsCount}
+                  </span>
+                </div>
+                <div className="report-filter" role="group" aria-label={t.reportFiltersLabel}>
+                  {reportTypes.map((type) => (
                     <button
-                      className={`report-list-item report-type-${savedReport.type || "unknown"}`}
+                      className={activeFilter === type ? "is-active" : ""}
                       type="button"
-                      key={savedReport.id}
-                      onClick={() => onOpenReport(savedReport)}
+                      key={type}
+                      aria-pressed={activeFilter === type}
+                      onClick={() => setActiveFilter(type)}
                     >
-                      <span>{reportType}</span>
-                      <strong>{savedReport.summary || reportType}</strong>
-                      <p>{context}</p>
-                      <div className="report-list-meta">
-                        {birthLine ? <small>{birthLine}</small> : null}
-                        {createdAt ? <small>{createdAt}</small> : null}
-                      </div>
-                      <em>{t.reportOpenAction}</em>
+                      {t.reportFilters[type]}
                     </button>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
+              {filteredReports.length ? (
+                <div className="report-list">
+                  {filteredReports.map((savedReport) => {
+                    const reportType = getReportTypeLabel(savedReport, t);
+                    const birthLine = [formatArchiveDate(savedReport.birthDate), savedReport.birthPlace].filter(Boolean).join(" · ");
+                    const createdAt = formatReportDateTime(savedReport.createdAt, savedReport.language || "zh-CN");
+                    const context = getReportArchiveContext(savedReport, t);
+
+                    return (
+                      <button
+                        className={`report-list-item report-type-${savedReport.type || "unknown"}`}
+                        type="button"
+                        key={savedReport.id}
+                        onClick={() => onOpenReport(savedReport)}
+                      >
+                        <span>{reportType}</span>
+                        <strong>{savedReport.summary || reportType}</strong>
+                        <p>{context}</p>
+                        <div className="report-list-meta">
+                          {birthLine ? <small>{birthLine}</small> : null}
+                          {createdAt ? <small>{createdAt}</small> : null}
+                        </div>
+                        <em>{t.reportOpenAction}</em>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="report-filter-empty">{t.reportFilterEmpty}</p>
+              )}
             </>
           ) : (
             <div className="empty-report">
@@ -1351,9 +1412,9 @@ function ReportPage({ t, report, onBackHome }) {
   const birthInfo = formatBirthInfo(report);
 
   return (
-    <main className="report-page" lang={report?.language || undefined}>
+    <main className="report-page report-detail-page" lang={report?.language || undefined}>
       <section className="report-hero" aria-label={t.reportPageRegion} role="region">
-        <div className="report-hero-copy">
+        <div className="report-hero-copy report-detail-intro">
           <p className="kicker">{t.reportPageKicker}</p>
           <h1>{report ? reportType : t.noReportTitle}</h1>
           <p>{report ? t.reportPageText : t.noReportText}</p>
@@ -1361,7 +1422,7 @@ function ReportPage({ t, report, onBackHome }) {
             {t.reportBackHome}
           </button>
         </div>
-        <article className="generated-report report-page-card" aria-label={t.generatedTitle}>
+        <article className={`generated-report report-page-card report-type-${report?.type || "unknown"}`} aria-label={t.generatedTitle}>
           {report ? (
             <>
               <header className="report-heading">
@@ -1369,33 +1430,12 @@ function ReportPage({ t, report, onBackHome }) {
                   <span>{t.reportReady}</span>
                   <em>{getReportTypeEyebrow(report, t)}</em>
                 </div>
-                <h2>{reportType}</h2>
-                <div className="report-detail-grid">
-                  {generatedAt ? (
-                    <p>
-                      <span>{t.reportGeneratedAt}</span>
-                      <strong>{generatedAt}</strong>
-                    </p>
-                  ) : null}
-                  {birthInfo ? (
-                    <p>
-                      <span>{t.reportBirthInfo}</span>
-                      <strong>{birthInfo}</strong>
-                    </p>
-                  ) : null}
-                  {report.focus ? (
-                    <p>
-                      <span>{t.reportFocusInfo}</span>
-                      <strong>{report.focus}</strong>
-                    </p>
-                  ) : null}
-                  {report.question ? (
-                    <p className="wide">
-                      <span>{t.reportQuestionInfo}</span>
-                      <strong>{report.question}</strong>
-                    </p>
-                  ) : null}
+                <div className="report-context-line">
+                  {generatedAt ? <span>{t.reportGeneratedAt} {generatedAt}</span> : null}
+                  {birthInfo ? <span>{t.reportBirthInfo} {birthInfo}</span> : null}
+                  {report.focus ? <span>{t.reportFocusInfo} {report.focus}</span> : null}
                 </div>
+                {report.question ? <p className="report-question"><span>{t.reportQuestionInfo}</span>{report.question}</p> : null}
                 {report.paipan ? (
                   <p className="report-meta">
                     <strong>{t.reportPillars}</strong>
@@ -1632,6 +1672,7 @@ export default function App() {
       return;
     }
 
+    const coreProfile = getLatestCoreProfile(reports);
     setIsGenerating(true);
     setReport(null);
     try {
@@ -1647,6 +1688,7 @@ export default function App() {
           birthPlace,
           focus: t.readings[focus].option,
           question,
+          coreProfile,
         }),
       });
       const json = await response.json();

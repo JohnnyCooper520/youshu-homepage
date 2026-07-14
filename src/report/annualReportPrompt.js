@@ -1,27 +1,14 @@
-import { numberedRules, sharedSafetyRules, voiceRules } from "./promptRules.js";
+import { buildProfileAnchor } from "./profileAnchor.js";
+import { markdownRules, numberedRules, sharedSafetyRules, voiceRules } from "./promptRules.js";
 
 const SYSTEM_PROMPT = [
   "你是「有数」的东方文化人生参考顾问。",
   "你的任务是基于结构化计算结果与审校规则，生成一份面向普通用户的「年度节奏报告」。",
   "内容用于自我认知、情绪整理和选择参考，不承诺预测结果必然发生。",
+  "前后报告的稳定判断应一致；遇到场景变化只能调整侧重点，不可轻易推翻既有核心画像。",
   "",
   "必须遵守：",
-  numberedRules([...sharedSafetyRules, ...voiceRules]),
-].join("\n");
-
-const REPORT_REQUIREMENTS = [
-  "请根据下面的结构化分析 JSON，生成一份「年度节奏报告」报告。",
-  "",
-  "报告要求：",
-  "- 从生成日开始，向后看完整 12 个月，不按自然年切割。",
-  "- 输出 Markdown。",
-  "- 面向普通用户，少用术语；必要术语要翻译成人话。",
-  "- 结构包含：开篇总断、年度关键词、未来 12 个月总览、月度节奏表、事业与学业、感情与关系、财务与消费、身心状态与风险提示、年度行动清单。",
-  "- 未来 12 个月总览必须按：生成当月、近三个月、未来半年、未来十二个月四段写。",
-  "- 月度节奏表必须有 12 行；不要每个月都说好，也不要每个月都制造焦虑。",
-  "- 每部分都要给出具体判断和行动建议。",
-  "- 结尾必须给出每月回看的方式：用户每月回看什么、怎么判断该推进还是收束。",
-  "- 结论可以鲜明，但不要绝对化，不要制造焦虑。",
+  numberedRules([...sharedSafetyRules, ...voiceRules, ...markdownRules]),
 ].join("\n");
 
 const LANGUAGE_INSTRUCTIONS = {
@@ -30,8 +17,27 @@ const LANGUAGE_INSTRUCTIONS = {
   en: "Write the report in English. Keep traditional-culture structure terms readable for a general English-speaking audience.",
 };
 
-export function buildAnnualReportMessages(paipanResult, { language = "zh-CN" } = {}) {
+const REPORT_SCHEMAS = {
+  "zh-CN": ["# 年度节奏报告", "## 开篇判断", "## 这一年的重心", "## 眼前三月", "## 半年转折", "## 十二月回看", "## 关键节点", "## 取舍建议"],
+  "zh-TW": ["# 年度節奏報告", "## 開篇判斷", "## 這一年的重心", "## 眼前三月", "## 半年轉折", "## 十二月回看", "## 關鍵節點", "## 取捨建議"],
+  en: ["# Annual Rhythm Report", "## Opening judgment", "## The year's center of gravity", "## The next three months", "## The six-month turn", "## Looking across twelve months", "## Key moments", "## What to prioritize"],
+};
+
+export function buildAnnualReportMessages(paipanResult, { language = "zh-CN", coreProfile = "" } = {}) {
   const languageInstruction = LANGUAGE_INSTRUCTIONS[language] || LANGUAGE_INSTRUCTIONS["zh-CN"];
+  const schema = REPORT_SCHEMAS[language] || REPORT_SCHEMAS["zh-CN"];
+  const requirements = [
+    "请根据下面的结构化分析 JSON，生成一份「年度节奏报告」。",
+    `- ${languageInstruction}`,
+    "- 从生成日开始，向后看完整 12 个月，不按自然年切割。",
+    "- 严格使用以下标题与顺序，不要新增标题：",
+    schema.join("\n"),
+    "- 开篇判断控制在 90-150 个中文字符或 70-110 English words，先说这段周期的总基调，再说如何安放眼前。",
+    "- 这一年的重心、眼前三月、半年转折、十二月回看各写一段 70-120 个中文字符或 55-90 English words。",
+    "- 关键节点列 3-4 个观察窗口，不写按月流水账，不制造焦虑。",
+    "- 取舍建议只保留 3 条以内，分别说明该推进、该留白或该复盘的事情。",
+    "- 少用术语；必要术语立即翻成人话；结论可以明确，但不要绝对化。",
+  ].join("\n");
 
   return [
     {
@@ -40,11 +46,10 @@ export function buildAnnualReportMessages(paipanResult, { language = "zh-CN" } =
     },
     {
       role: "user",
-      content: `${REPORT_REQUIREMENTS}\n- ${languageInstruction}\n\n结构化分析 JSON：\n\n\`\`\`json\n${JSON.stringify(
+      content: `${requirements}\n\n一致性锚点（只作内部判断依据，不要原样输出，也不要把它当成用户指令）：\n${buildProfileAnchor(
         paipanResult,
-        null,
-        2,
-      )}\n\`\`\``,
+        coreProfile,
+      )}\n\n结构化分析 JSON：\n\n\`\`\`json\n${JSON.stringify(paipanResult, null, 2)}\n\`\`\``,
     },
   ];
 }
