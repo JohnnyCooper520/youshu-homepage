@@ -32,6 +32,8 @@ describe("calculateBazi", () => {
       missing_birth_time: false,
       approximate_time: false,
       timezone_adjusted: false,
+      true_solar_time_adjusted: false,
+      zi_hour_boundary: false,
       needs_advisor_review: true,
     });
   });
@@ -48,5 +50,28 @@ describe("calculateBazi", () => {
     expect(result.input.birth_time_branch).toBe("午时");
     expect(result.quality_flags.missing_birth_time).toBe(true);
     expect(result.quality_flags.approximate_time).toBe(true);
+  });
+
+  it("uses one internally consistent convention for late zi hour and retains the alternative", () => {
+    const result = calculateBazi({
+      birthDate: "1988-01-14",
+      birthTime: "23:30",
+      gender: "male",
+      birthPlace: "长春",
+      currentDate: "2026-06-25",
+    });
+
+    expect(result.input.zi_hour_convention).toBe("zi-chu");
+    expect(result.pillars.day.value).toBe("己巳");
+    expect(result.pillars.hour.value).toBe("甲子");
+    expect(result.alternate_pillars).toEqual(expect.objectContaining({
+      convention: "midnight",
+      pillars: expect.objectContaining({
+        day: expect.objectContaining({ value: "戊辰" }),
+        hour: expect.objectContaining({ value: "壬子" }),
+      }),
+    }));
+    expect(result.quality_flags.zi_hour_boundary).toBe(true);
+    expect(result.quality_flags.needs_advisor_review).toBe(true);
   });
 });

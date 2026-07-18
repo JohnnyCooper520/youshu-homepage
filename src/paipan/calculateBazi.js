@@ -1,6 +1,11 @@
 import lunar from "lunar-javascript";
 
-const { Solar } = lunar;
+const { LunarUtil, Solar } = lunar;
+
+const ZI_HOUR_CONVENTIONS = {
+  ZI_CHU: "zi-chu",
+  MIDNIGHT: "midnight",
+};
 
 const BRANCH_TO_TIME = {
   子: "子时",
@@ -86,20 +91,78 @@ function buildPillar(value, tenGod, hiddenStems, wuxing, extra = {}) {
   };
 }
 
+function getZiHourConvention(input) {
+  return input.ziHourConvention === ZI_HOUR_CONVENTIONS.MIDNIGHT
+    ? ZI_HOUR_CONVENTIONS.MIDNIGHT
+    : ZI_HOUR_CONVENTIONS.ZI_CHU;
+}
+
+function getSectForConvention(convention) {
+  return convention === ZI_HOUR_CONVENTIONS.MIDNIGHT ? 2 : 1;
+}
+
+function getHourPillar(eightChar, lunarDate) {
+  const timeZhi = lunarDate.getTimeZhi();
+  const timeZhiIndex = lunarDate.getTimeZhiIndex();
+  const timeGanIndex = (eightChar.getDayGanIndex() % 5 * 2 + timeZhiIndex) % 10;
+  const timeGan = LunarUtil.GAN[timeGanIndex + 1];
+  const value = `${timeGan}${timeZhi}`;
+
+  return buildPillar(
+    value,
+    LunarUtil.SHI_SHEN[`${eightChar.getDayGan()}${timeGan}`],
+    LunarUtil.ZHI_HIDE_GAN[timeZhi],
+    `${LunarUtil.WU_XING_GAN[timeGan]}${LunarUtil.WU_XING_ZHI[timeZhi]}`,
+  );
+}
+
+function calculatePillars(lunarDate, convention) {
+  const eightChar = lunarDate.getEightChar();
+  eightChar.setSect(getSectForConvention(convention));
+
+  return {
+    year: buildPillar(
+      eightChar.getYear(),
+      eightChar.getYearShiShenGan(),
+      eightChar.getYearHideGan(),
+      eightChar.getYearWuXing(),
+    ),
+    month: buildPillar(
+      eightChar.getMonth(),
+      eightChar.getMonthShiShenGan(),
+      eightChar.getMonthHideGan(),
+      eightChar.getMonthWuXing(),
+    ),
+    day: buildPillar(
+      eightChar.getDay(),
+      eightChar.getDayShiShenGan(),
+      eightChar.getDayHideGan(),
+      eightChar.getDayWuXing(),
+      { day_master: eightChar.getDayGan() },
+    ),
+    hour: getHourPillar(eightChar, lunarDate),
+  };
+}
+
 export function calculateBazi(input) {
   const missingBirthTime = !input.birthTime;
   const [year, month, day] = parseDate(input.birthDate);
   const [hour, minute, second] = parseTime(input.birthTime);
+  const ziHourBoundary = hour === 23;
+  const ziHourConvention = getZiHourConvention(input);
   const solar = Solar.fromYmdHms(year, month, day, hour, minute, second);
   const lunarDate = solar.getLunar();
-  const eightChar = lunarDate.getEightChar();
-  const birthTimeBranch = BRANCH_TO_TIME[eightChar.getTimeZhi()] || "";
+  const pillars = calculatePillars(lunarDate, ziHourConvention);
+  const birthTimeBranch = BRANCH_TO_TIME[pillars.hour.branch] || "";
   const wuxing = [
-    eightChar.getYearWuXing(),
-    eightChar.getMonthWuXing(),
-    eightChar.getDayWuXing(),
-    eightChar.getTimeWuXing(),
+    pillars.year.wuxing,
+    pillars.month.wuxing,
+    pillars.day.wuxing,
+    pillars.hour.wuxing,
   ];
+  const alternateConvention = ziHourConvention === ZI_HOUR_CONVENTIONS.ZI_CHU
+    ? ZI_HOUR_CONVENTIONS.MIDNIGHT
+    : ZI_HOUR_CONVENTIONS.ZI_CHU;
 
   return {
     input: {
@@ -110,35 +173,14 @@ export function calculateBazi(input) {
       birth_time_branch: birthTimeBranch,
       birth_place: input.birthPlace || "",
       timezone: input.timezone || "Asia/Shanghai",
+      zi_hour_convention: ziHourConvention,
       current_date: input.currentDate || new Date().toISOString().slice(0, 10),
     },
-    pillars: {
-      year: buildPillar(
-        eightChar.getYear(),
-        eightChar.getYearShiShenGan(),
-        eightChar.getYearHideGan(),
-        eightChar.getYearWuXing(),
-      ),
-      month: buildPillar(
-        eightChar.getMonth(),
-        eightChar.getMonthShiShenGan(),
-        eightChar.getMonthHideGan(),
-        eightChar.getMonthWuXing(),
-      ),
-      day: buildPillar(
-        eightChar.getDay(),
-        eightChar.getDayShiShenGan(),
-        eightChar.getDayHideGan(),
-        eightChar.getDayWuXing(),
-        { day_master: eightChar.getDayGan() },
-      ),
-      hour: buildPillar(
-        eightChar.getTime(),
-        eightChar.getTimeShiShenGan(),
-        eightChar.getTimeHideGan(),
-        eightChar.getTimeWuXing(),
-      ),
-    },
+    pillars,
+    alternate_pillars: ziHourBoundary ? {
+      convention: alternateConvention,
+      pillars: calculatePillars(lunarDate, alternateConvention),
+    } : null,
     elements: countElements(wuxing),
     current_cycle: {
       dayun: "",
@@ -150,6 +192,8 @@ export function calculateBazi(input) {
       missing_birth_time: missingBirthTime,
       approximate_time: missingBirthTime,
       timezone_adjusted: false,
+      true_solar_time_adjusted: false,
+      zi_hour_boundary: ziHourBoundary,
       needs_advisor_review: true,
     },
   };
