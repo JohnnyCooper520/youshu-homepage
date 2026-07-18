@@ -184,20 +184,17 @@ describe("Youshu homepage", () => {
       "youshu:entitlements",
       JSON.stringify({ purchases: { annual: true }, remaining: { annual: 0 }, updatedAt: "2026-07-18T00:00:00.000Z" }),
     );
-    window.history.pushState({}, "", "/?test=1");
+    window.history.pushState({}, "", "/?test=1&mode=annual");
     render(<App />);
 
     const readingRegion = screen.getByRole("region", { name: "结构校准" });
     const modeSwitcher = within(readingRegion).getByLabelText("选择服务");
 
+    expect(within(modeSwitcher).getByRole("button", { name: /年度节奏/ })).toHaveAttribute("aria-pressed", "true");
     expect(within(readingRegion).getByText("测试通道已开启")).toBeInTheDocument();
     expect(within(readingRegion).getByText("可直接生成真实报告，本次测试不消耗正式权益。")).toBeInTheDocument();
-    expect(within(readingRegion).getByRole("button", { name: "生成个人结构报告" })).toBeEnabled();
-    expect(within(readingRegion).queryByRole("button", { name: "测试开通当前服务" })).not.toBeInTheDocument();
-
-    await user.click(within(modeSwitcher).getByRole("button", { name: /年度节奏/ }));
-
     expect(within(readingRegion).getByRole("button", { name: "生成年度节奏" })).toBeEnabled();
+    expect(within(readingRegion).queryByRole("button", { name: "测试开通当前服务" })).not.toBeInTheDocument();
     expect(within(readingRegion).queryByText("已用完")).not.toBeInTheDocument();
 
     await user.click(within(readingRegion).getByRole("button", { name: "生成年度节奏" }));

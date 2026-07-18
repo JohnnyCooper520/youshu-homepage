@@ -1145,7 +1145,19 @@ function isDirectTestAccessMode() {
     return false;
   }
 
-  return new URLSearchParams(window.location.search).get("test") === "1";
+  const hostname = window.location.hostname;
+  const isLocalDevelopment =
+    import.meta.env.MODE !== "test" && (hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1");
+  return isLocalDevelopment || new URLSearchParams(window.location.search).get("test") === "1";
+}
+
+function getInitialEntryMode() {
+  if (typeof window === "undefined") {
+    return "bazi";
+  }
+
+  const requestedMode = new URLSearchParams(window.location.search).get("mode");
+  return entryModeIds.includes(requestedMode) ? requestedMode : "bazi";
 }
 
 function friendlyApiError(rawError, t) {
@@ -1485,7 +1497,7 @@ export default function App() {
   const [gender, setGender] = useState("male");
   const [birthPlace, setBirthPlace] = useState("长春");
   const [question, setQuestion] = useState("");
-  const [entryMode, setEntryMode] = useState("bazi");
+  const [entryMode, setEntryMode] = useState(getInitialEntryMode);
   const [entitlements, setEntitlements] = useState(getStoredEntitlements);
   const [reports, setReports] = useState(getStoredReports);
   const [report, setReport] = useState(getStoredReport);
@@ -1638,10 +1650,22 @@ export default function App() {
     updateEntitlements((currentEntitlements) => consumeEntitlement(currentEntitlements, entryMode));
   }
 
+  function selectEntryMode(modeId) {
+    setEntryMode(modeId);
+    if (!directTestAccessEnabled) {
+      return;
+    }
+
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set("mode", modeId);
+    window.history.replaceState({}, "", `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`);
+  }
+
   function navigate(path) {
     const nextUrl = new URL(path, window.location.origin);
     if (directTestAccessEnabled) {
       nextUrl.searchParams.set("test", "1");
+      nextUrl.searchParams.set("mode", entryMode);
     }
     window.history.pushState({}, "", `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`);
     setPage(getCurrentPage());
@@ -1833,7 +1857,7 @@ export default function App() {
                     type="button"
                     aria-pressed={entryMode === modeId}
                     key={modeId}
-                    onClick={() => setEntryMode(modeId)}
+                    onClick={() => selectEntryMode(modeId)}
                   >
                     <span>{mode.eyebrow}</span>
                     <strong>{mode.title}</strong>
@@ -1964,7 +1988,7 @@ export default function App() {
                         href={isMembership ? "#membership" : "#reading"}
                         onClick={() => {
                           if (!isMembership) {
-                            setEntryMode(product.key);
+                            selectEntryMode(product.key);
                           }
                         }}
                       >
