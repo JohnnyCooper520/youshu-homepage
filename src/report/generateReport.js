@@ -1,9 +1,9 @@
 import { createDeepSeekChat } from "../llm/deepseekClient.js";
 import { buildReportMessages } from "./reportPrompts.js";
 
-const QUESTION_MAX_TOKENS = 1400;
-const BAZI_MAX_TOKENS = 2200;
-const ANNUAL_MAX_TOKENS = 2600;
+const QUESTION_MAX_TOKENS = 2200;
+const BAZI_MAX_TOKENS = 3000;
+const ANNUAL_MAX_TOKENS = 3600;
 
 export function modelOptionsForReport(type) {
   const maxTokens = type === "question" ? QUESTION_MAX_TOKENS : type === "annual" ? ANNUAL_MAX_TOKENS : BAZI_MAX_TOKENS;

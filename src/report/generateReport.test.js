@@ -16,7 +16,7 @@ describe("generateReport", () => {
     const createChat = vi.fn().mockResolvedValue({ content: "ok", usage: {} });
 
     await generateReport({ type: "bazi", paipanResult, createChat });
-    await generateReport({ type: "annual", paipanResult, language: "zh-TW", createChat });
+    await generateReport({ type: "annual", paipanResult, language: "zh-TW", focus: "事業機會", createChat });
     await generateReport({
       type: "question",
       paipanResult,
@@ -28,14 +28,15 @@ describe("generateReport", () => {
     expect(createChat.mock.calls[0][0].messages[1].content).toContain("个人结构报告");
     expect(createChat.mock.calls[1][0].messages[1].content).toContain("年度节奏报告");
     expect(createChat.mock.calls[1][0].messages[1].content).toContain("使用繁體中文");
+    expect(createChat.mock.calls[1][0].messages[1].content).toContain("事業機會");
     expect(createChat.mock.calls[2][0].messages[1].content).toContain("Should I change jobs?");
     expect(createChat.mock.calls[2][0].messages[1].content).toContain("Write the answer in English");
   });
 
-  it("uses shorter generation settings for question reports", () => {
-    expect(modelOptionsForReport("question")).toEqual({ temperature: 0.58, maxTokens: 1400 });
-    expect(modelOptionsForReport("bazi")).toEqual({ temperature: 0.58, maxTokens: 2200 });
-    expect(modelOptionsForReport("annual")).toEqual({ temperature: 0.58, maxTokens: 2600 });
+  it("reserves enough generation space for contextual reports", () => {
+    expect(modelOptionsForReport("question")).toEqual({ temperature: 0.58, maxTokens: 2200 });
+    expect(modelOptionsForReport("bazi")).toEqual({ temperature: 0.58, maxTokens: 3000 });
+    expect(modelOptionsForReport("annual")).toEqual({ temperature: 0.58, maxTokens: 3600 });
   });
 
   it("uses a saved core profile as an internal consistency anchor", async () => {

@@ -1,4 +1,4 @@
-export const reportPromptVersion = "report-v2";
+export const reportPromptVersion = "report-v3";
 
 const elementLabels = {
   wood: "木",

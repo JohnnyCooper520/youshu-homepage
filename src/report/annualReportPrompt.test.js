@@ -18,13 +18,17 @@ const paipanResult = {
 
 describe("buildAnnualReportMessages", () => {
   it("builds guarded annual report messages from paipan JSON", () => {
-    const messages = buildAnnualReportMessages(paipanResult);
+    const messages = buildAnnualReportMessages(paipanResult, { focus: "事业机会" });
 
     expect(messages).toHaveLength(2);
     expect(messages[0]).toMatchObject({ role: "system" });
     expect(messages[0].content).toContain("不承诺发财、复合、升职");
     expect(messages[0].content).toContain("文化参考和决策辅助");
     expect(messages[1].content).toContain("十二月回看");
+    expect(messages[1].content).toContain("你正处在什么位置");
+    expect(messages[1].content).toContain("你最关心的事");
+    expect(messages[1].content).toContain("用户当前最关心的主题：事业机会");
+    expect(messages[1].content).toContain("2-3 个可核对的现实表现");
     expect(messages[1].content).toContain("不写按月流水账");
     expect(messages[1].content).toContain("一致性锚点");
     expect(messages[1]).toMatchObject({ role: "user" });
