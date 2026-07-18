@@ -163,6 +163,8 @@ const copy = {
     simulateUnlockAria: "测试开通：{product}",
     testUnlockCurrent: "测试开通当前服务",
     testUnlockHint: "测试入口，仅本地或测试链接显示。",
+    testAccessReady: "测试通道已开启",
+    testAccessHint: "可直接生成真实报告，本次测试不消耗正式权益。",
     entitlementActive: "已开通",
     entitlementIncluded: "会员已含",
     entitlementLocked: "未开通",
@@ -393,6 +395,8 @@ const copy = {
     simulateUnlockAria: "測試開通：{product}",
     testUnlockCurrent: "測試開通目前服務",
     testUnlockHint: "測試入口，僅本地或測試連結顯示。",
+    testAccessReady: "測試通道已開啟",
+    testAccessHint: "可直接生成真實報告，本次測試不消耗正式權益。",
     entitlementActive: "已開通",
     entitlementIncluded: "會員已含",
     entitlementLocked: "未開通",
@@ -623,6 +627,8 @@ const copy = {
     simulateUnlockAria: "Test unlock: {product}",
     testUnlockCurrent: "Test unlock current reading",
     testUnlockHint: "Test entry, shown only locally or through a test link.",
+    testAccessReady: "Test access is open",
+    testAccessHint: "Generate real reports directly. Test runs do not use paid access.",
     entitlementActive: "Opened",
     entitlementIncluded: "Member access",
     entitlementLocked: "Locked",
@@ -1134,6 +1140,14 @@ function isTestUnlockMode() {
   return isLocalHost || new URLSearchParams(window.location.search).get("test") === "1";
 }
 
+function isDirectTestAccessMode() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return new URLSearchParams(window.location.search).get("test") === "1";
+}
+
 function friendlyApiError(rawError, t) {
   if (!rawError) {
     return t.apiErrors.default;
@@ -1152,6 +1166,9 @@ function fillTemplate(template, values) {
 }
 
 function getAccessTitle(access, t) {
+  if (access.unlocked && access.source === "test") {
+    return t.testAccessReady;
+  }
   if (access.unlocked && access.source === "membership") {
     return t.entitlementMemberReady;
   }
@@ -1479,13 +1496,16 @@ export default function App() {
   const [authStatus, setAuthStatus] = useState("");
   const t = copy[language];
   const activeEntry = t.entryModes[entryMode];
-  const activeAccess = getModeAccess(entitlements, entryMode);
+  const testUnlockEnabled = isTestUnlockMode();
+  const directTestAccessEnabled = isDirectTestAccessMode();
+  const activeAccess = directTestAccessEnabled
+    ? { unlocked: true, source: "test", remaining: null }
+    : getModeAccess(entitlements, entryMode);
   const featuredProduct = t.products[2];
   const purchaseOptions = [...t.products, t.annualMembership];
   const cloudEnabled = Boolean(supabaseClient);
   const reportIdFromUrl = typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("id");
   const displayedReport = reportIdFromUrl ? reports.find((savedReport) => savedReport.id === reportIdFromUrl) || report : report;
-  const testUnlockEnabled = isTestUnlockMode();
 
   useEffect(() => {
     function handlePopState() {
@@ -1572,7 +1592,7 @@ export default function App() {
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: directTestAccessEnabled ? `${window.location.origin}/?test=1` : window.location.origin,
       },
     });
     setAuthStatus(error ? t.authError : "");
@@ -1587,7 +1607,7 @@ export default function App() {
     const { error } = await supabaseClient.auth.signInWithOtp({
       email: authEmail.trim(),
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: directTestAccessEnabled ? `${window.location.origin}/?test=1` : window.location.origin,
       },
     });
     setAuthStatus(error ? t.authError : t.authCheckEmail);
@@ -1619,7 +1639,11 @@ export default function App() {
   }
 
   function navigate(path) {
-    window.history.pushState({}, "", path);
+    const nextUrl = new URL(path, window.location.origin);
+    if (directTestAccessEnabled) {
+      nextUrl.searchParams.set("test", "1");
+    }
+    window.history.pushState({}, "", `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`);
     setPage(getCurrentPage());
     if (!window.navigator.userAgent.includes("jsdom")) {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1667,7 +1691,9 @@ export default function App() {
   }
 
   async function generate() {
-    const nextAccess = getModeAccess(entitlements, entryMode);
+    const nextAccess = directTestAccessEnabled
+      ? { unlocked: true, source: "test", remaining: null }
+      : getModeAccess(entitlements, entryMode);
     if (!nextAccess.unlocked) {
       return;
     }
@@ -1703,7 +1729,9 @@ export default function App() {
         language,
         type: entryMode,
       });
-      consumeCurrentEntitlement();
+      if (!directTestAccessEnabled) {
+        consumeCurrentEntitlement();
+      }
     } catch (error) {
       storeAndOpenReport({ title: t.generationErrorTitle, content: friendlyApiError(error.message, t), language }, { archive: false });
     } finally {
@@ -1859,12 +1887,14 @@ export default function App() {
                 <span>{t.entitlementStatusLabel}</span>
                 <strong>{getAccessTitle(activeAccess, t)}</strong>
                 <p>
-                  {activeAccess.unlocked
+                  {activeAccess.source === "test"
+                    ? t.testAccessHint
+                    : activeAccess.unlocked
                     ? fillTemplate(t.entitlementRemaining, { count: activeAccess.remaining })
                     : t.entitlementLockedText}
                 </p>
               </aside>
-              {testUnlockEnabled ? (
+              {testUnlockEnabled && !directTestAccessEnabled ? (
                 <div className="test-unlock-panel">
                   <button type="button" onClick={() => openTestEntitlement(entryMode)}>
                     {t.testUnlockCurrent}
@@ -1940,7 +1970,7 @@ export default function App() {
                       >
                         {product.action}
                       </a>
-                      {testUnlockEnabled ? (
+                      {testUnlockEnabled && !directTestAccessEnabled ? (
                         <button type="button" aria-label={unlockLabel} onClick={() => openTestEntitlement(product.key)}>
                           {t.simulateUnlock}
                         </button>

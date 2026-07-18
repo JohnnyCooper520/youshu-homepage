@@ -159,18 +159,54 @@ describe("Youshu homepage", () => {
     expect(within(readingRegion).getByRole("button", { name: "生成个人结构报告" })).toBeEnabled();
   });
 
-  it("lets testers open the current reading directly from the form", async () => {
+  it("keeps the explicit test link open after a reading has been used", async () => {
     const user = userEvent.setup();
+    const fetchMock = vi.fn(async () =>
+      new Response(
+        JSON.stringify({
+          ok: true,
+          type: "annual",
+          content: "# 年度节奏报告\n先看眼前，再看一年里的转折。",
+          paipan: {
+            pillars: {
+              year: { value: "丁卯" },
+              month: { value: "癸丑" },
+              day: { value: "戊辰" },
+              hour: { value: "戊午" },
+            },
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    window.localStorage.setItem(
+      "youshu:entitlements",
+      JSON.stringify({ purchases: { annual: true }, remaining: { annual: 0 }, updatedAt: "2026-07-18T00:00:00.000Z" }),
+    );
     window.history.pushState({}, "", "/?test=1");
     render(<App />);
 
     const readingRegion = screen.getByRole("region", { name: "结构校准" });
-    expect(within(readingRegion).getByRole("button", { name: "生成个人结构报告" })).toBeDisabled();
+    const modeSwitcher = within(readingRegion).getByLabelText("选择服务");
 
-    await user.click(within(readingRegion).getByRole("button", { name: "测试开通当前服务" }));
-
-    expect(within(readingRegion).getByText("已开通，可生成")).toBeInTheDocument();
+    expect(within(readingRegion).getByText("测试通道已开启")).toBeInTheDocument();
+    expect(within(readingRegion).getByText("可直接生成真实报告，本次测试不消耗正式权益。")).toBeInTheDocument();
     expect(within(readingRegion).getByRole("button", { name: "生成个人结构报告" })).toBeEnabled();
+    expect(within(readingRegion).queryByRole("button", { name: "测试开通当前服务" })).not.toBeInTheDocument();
+
+    await user.click(within(modeSwitcher).getByRole("button", { name: /年度节奏/ }));
+
+    expect(within(readingRegion).getByRole("button", { name: "生成年度节奏" })).toBeEnabled();
+    expect(within(readingRegion).queryByText("已用完")).not.toBeInTheDocument();
+
+    await user.click(within(readingRegion).getByRole("button", { name: "生成年度节奏" }));
+
+    expect(await screen.findByText("报告已成")).toBeInTheDocument();
+    expect(window.location.pathname).toBe("/report");
+    expect(new URLSearchParams(window.location.search).get("test")).toBe("1");
+    expect(JSON.parse(window.localStorage.getItem("youshu:entitlements")).remaining.annual).toBe(0);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("loads paid entitlements from Supabase after sign in", async () => {
