@@ -19,12 +19,12 @@ describe("entitlements", () => {
     });
   });
 
-  it("grants annual membership quantities across all paid report modes", () => {
-    const opened = grantProduct(undefined, "membership", "2026-07-04T00:00:00.000Z");
+  it("keeps one-time purchases isolated to the selected report mode", () => {
+    const opened = grantProduct(undefined, "annual", "2026-07-04T00:00:00.000Z");
 
-    expect(getModeAccess(opened, "bazi")).toMatchObject({ unlocked: true, source: "membership", remaining: 1 });
-    expect(getModeAccess(opened, "annual")).toMatchObject({ unlocked: true, source: "membership", remaining: 1 });
-    expect(getModeAccess(opened, "question")).toMatchObject({ unlocked: true, source: "membership", remaining: 12 });
+    expect(getModeAccess(opened, "annual")).toMatchObject({ unlocked: true, source: "single", remaining: 1 });
+    expect(getModeAccess(opened, "bazi")).toMatchObject({ unlocked: false, source: "locked", remaining: 0 });
+    expect(getModeAccess(opened, "question")).toMatchObject({ unlocked: false, source: "locked", remaining: 0 });
   });
 
   it("merges cloud and local entitlements without double-counting the same product", () => {

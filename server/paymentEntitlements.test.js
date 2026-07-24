@@ -1,33 +1,22 @@
 import { describe, expect, it, vi } from "vitest";
 import { buildEntitlementRows, createSupabaseEntitlementStore } from "./paymentEntitlements.js";
 
-const membershipPayment = {
+const annualPayment = {
   provider: "alipay",
   orderId: "YS202607040099",
   providerTradeId: "2026070422000000000099",
   userId: "00000000-0000-4000-8000-000000000099",
-  productKey: "membership",
-  amount: "299.00",
+  productKey: "annual",
+  amount: "39.90",
 };
 
 describe("paymentEntitlements", () => {
-  it("expands annual membership payments into concrete product entitlements", () => {
-    const rows = buildEntitlementRows(membershipPayment, "2026-07-04T00:00:00.000Z");
+  it("creates one entitlement for a one-time annual report payment", () => {
+    const rows = buildEntitlementRows(annualPayment, "2026-07-04T00:00:00.000Z");
 
-    expect(rows).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ product_key: "membership", included_quantity: 1 }),
-        expect.objectContaining({ product_key: "bazi", included_quantity: 1 }),
-        expect.objectContaining({ product_key: "annual", included_quantity: 1 }),
-        expect.objectContaining({ product_key: "question", included_quantity: 12 }),
-        expect.objectContaining({ product_key: "monthly", included_quantity: 12 }),
-        expect.objectContaining({ product_key: "followup", included_quantity: 12 }),
-        expect.objectContaining({ product_key: "archive", included_quantity: 1 }),
-      ]),
-    );
-    expect(rows).toHaveLength(7);
+    expect(rows).toEqual([expect.objectContaining({ product_key: "annual", included_quantity: 1 })]);
     expect(rows[0]).toMatchObject({
-      user_id: membershipPayment.userId,
+      user_id: annualPayment.userId,
       status: "active",
       used_quantity: 0,
       source: "alipay",
@@ -47,7 +36,7 @@ describe("paymentEntitlements", () => {
       createSupabaseClient,
     });
 
-    await expect(store.recordPayment(membershipPayment)).resolves.toEqual({ inserted: 7 });
+    await expect(store.recordPayment(annualPayment)).resolves.toEqual({ inserted: 1 });
 
     expect(createSupabaseClient).toHaveBeenCalledWith(
       "https://example.supabase.co",
@@ -58,7 +47,7 @@ describe("paymentEntitlements", () => {
     );
     expect(from).toHaveBeenCalledWith("user_entitlements");
     expect(upsert).toHaveBeenCalledWith(
-      expect.arrayContaining([expect.objectContaining({ product_key: "membership" })]),
+      [expect.objectContaining({ product_key: "annual", included_quantity: 1 })],
       { onConflict: "order_id,product_key", ignoreDuplicates: true },
     );
   });

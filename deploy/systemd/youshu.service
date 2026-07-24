@@ -1,0 +1,24 @@
+[Unit]
+Description=Dongfang Youshu web and API service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=youshu
+Group=youshu
+WorkingDirectory=/opt/youshu/current
+EnvironmentFile=/etc/youshu/youshu.env
+ExecStart=/usr/bin/node server/production-server.js
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/youshu /var/log/youshu
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

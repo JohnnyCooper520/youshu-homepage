@@ -8,17 +8,6 @@ export const entitlementCatalog = {
   annual: {
     grants: { annual: 1 },
   },
-  membership: {
-    membership: true,
-    grants: {
-      bazi: 1,
-      annual: 1,
-      question: 12,
-      monthly: 12,
-      followup: 12,
-      archive: 1,
-    },
-  },
 };
 
 export function createEmptyEntitlements() {
@@ -87,8 +76,7 @@ export function grantProduct(currentEntitlements, productKey, updatedAt = new Da
 
   Object.entries(catalogItem.grants).forEach(([mode, amount]) => {
     const currentAmount = toCount(next.remaining[mode]);
-    const alreadyHasMembership = productKey === "membership" && current.purchases.membership;
-    next.remaining[mode] = alreadyHasMembership ? Math.max(currentAmount, amount) : currentAmount + amount;
+    next.remaining[mode] = currentAmount + amount;
   });
 
   return next;
@@ -97,12 +85,7 @@ export function grantProduct(currentEntitlements, productKey, updatedAt = new Da
 export function getModeAccess(currentEntitlements, mode) {
   const current = normalizeEntitlements(currentEntitlements);
   const remaining = toCount(current.remaining[mode]);
-  const membershipActive = Boolean(current.purchases.membership && remaining > 0);
   const singleActive = Boolean(remaining > 0);
-
-  if (membershipActive) {
-    return { unlocked: true, source: "membership", remaining };
-  }
 
   if (singleActive) {
     return { unlocked: true, source: "single", remaining };
@@ -113,14 +96,10 @@ export function getModeAccess(currentEntitlements, mode) {
 
 export function getProductStatus(currentEntitlements, productKey) {
   const current = normalizeEntitlements(currentEntitlements);
-  if (productKey === "membership") {
-    return current.purchases.membership ? "active" : "locked";
-  }
-
   const mode = productKey;
   const access = getModeAccess(current, mode);
   if (access.unlocked) {
-    return access.source === "membership" ? "included" : "active";
+    return "active";
   }
   return current.purchases[productKey] ? "used" : "locked";
 }

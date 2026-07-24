@@ -25,9 +25,6 @@ export function buildEntitlementRows(payment, now = new Date().toISOString()) {
   }
 
   const grants = { ...catalogItem.grants };
-  if (catalogItem.membership) {
-    grants.membership = 1;
-  }
 
   return Object.entries(grants).map(([productKey, quantity]) => ({
     user_id: payment.userId,

@@ -8,3 +8,5 @@ dist/
 .codex/
 .impeccable/
 .vite/
+.tmp-*.png
+youshu-release.tar.gz

@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App.jsx";
@@ -20,6 +20,13 @@ async function testUnlock(user, productName = "个人结构报告") {
   await user.click(within(purchaseRegion).getByRole("button", { name: `测试开通：${productName}` }));
 }
 
+async function fillBirthProfile(user) {
+  fireEvent.change(screen.getByLabelText("出生日期"), { target: { value: "1988-01-14" } });
+  fireEvent.change(screen.getByLabelText("出生时间"), { target: { value: "11:25" } });
+  await user.type(screen.getByLabelText("出生地"), "长春");
+  await user.selectOptions(screen.getByLabelText("性别"), "male");
+}
+
 describe("Youshu homepage", () => {
   it("presents a three-product premium landing page with account access", () => {
     render(<App />);
@@ -38,40 +45,42 @@ describe("Youshu homepage", () => {
     expect(screen.getAllByText("个人结构报告").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("一事分析").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("年度节奏报告").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("年度会员").length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText("年度会员")).not.toBeInTheDocument();
     expect(screen.getAllByText("人民币 ¥29.9")).toHaveLength(2);
-    expect(screen.getByText("人民币 ¥199")).toBeInTheDocument();
-    expect(screen.getByText("人民币 ¥299/年")).toBeInTheDocument();
+    expect(screen.getByText("人民币 ¥39.9")).toBeInTheDocument();
+    expect(screen.queryByText("人民币 ¥299/年")).not.toBeInTheDocument();
     expect(screen.queryByText(/美元约/)).not.toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByLabelText("购买项目")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("年度节奏 · 生成日起算")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("生成日起，向后看完整 12 个月。")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("生成日起 · 向后完整 12 个月")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("后续十二月")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("单次报告与年度会员，都在这里选。")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("先看眼前，再看一年里的节奏。")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getAllByRole("link", { name: "看年度节奏" })).toHaveLength(2);
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getAllByRole("link", { name: "开通年度会员" })).toHaveLength(2);
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByRole("link", { name: "生成个人结构报告" })).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByRole("link", { name: "生成一事分析" })).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByRole("button", { name: "测试开通：个人结构报告" })).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByRole("button", { name: "测试开通：年度会员" })).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).queryByText("春季蓄势")).not.toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("报告区间")).toBeInTheDocument();
+    const purchaseRegion = screen.getByRole("region", { name: "购买选择" });
+    expect(within(purchaseRegion).getByLabelText("购买项目")).toBeInTheDocument();
+    expect(document.querySelectorAll(".service-choice")).toHaveLength(3);
+    expect(within(purchaseRegion).getByText("三项单次服务，按需要选择。")).toBeInTheDocument();
+    expect(within(purchaseRegion).getByText("价格、交付和退款规则一次看清。支付完成后，报告自动生成并归入“我的报告”。")).toBeInTheDocument();
+    expect(within(purchaseRegion).getByText("年度节奏 · 生成日起算")).toBeInTheDocument();
+    expect(within(purchaseRegion).getByText("生成日起，向后看完整 12 个月。")).toBeInTheDocument();
+    expect(within(purchaseRegion).getByText("生成日起 · 向后完整 12 个月")).toBeInTheDocument();
+    expect(within(purchaseRegion).getByText("后续十二月")).toBeInTheDocument();
+    expect(within(purchaseRegion).getByText("先看眼前，再看一年里的节奏。")).toBeInTheDocument();
+    expect(within(purchaseRegion).getAllByRole("link", { name: "看年度节奏" })).toHaveLength(2);
+    expect(within(purchaseRegion).getByRole("link", { name: "生成个人结构报告" })).toBeInTheDocument();
+    expect(within(purchaseRegion).getByRole("link", { name: "生成一事分析" })).toBeInTheDocument();
+    expect(within(purchaseRegion).getByRole("button", { name: "测试开通：个人结构报告" })).toBeInTheDocument();
+    expect(within(purchaseRegion).getByRole("button", { name: "测试开通：年度节奏报告" })).toBeInTheDocument();
+    expect(within(purchaseRegion).queryByText("春季蓄势")).not.toBeInTheDocument();
+    expect(within(purchaseRegion).getByText("报告区间")).toBeInTheDocument();
+    expect(within(purchaseRegion).getAllByText("支付完成后约 2–5 分钟生成并归档")).toHaveLength(3);
+    expect(within(purchaseRegion).getAllByText("报告生成后 7 天内不满意可申请退款")).toHaveLength(3);
+    expect(within(purchaseRegion).getByText("下单不绕路，交付有记录。")).toBeInTheDocument();
+    expect(within(purchaseRegion).getByText("七日安心退款")).toBeInTheDocument();
     expect(screen.queryByText("流年十二月解读")).not.toBeInTheDocument();
     expect(screen.queryByText("上半年蓄势，下半年换挡")).not.toBeInTheDocument();
-    expect(screen.getAllByText("年度会员").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("年度会员 · 长期权益")).toBeInTheDocument();
-    expect(screen.getByText("常看的人，把判断养成自己的底气。")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByLabelText("年度会员包含")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getAllByText("1 份")).toHaveLength(2);
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getAllByText("12 次/年")).toHaveLength(2);
-    expect(within(screen.getByRole("region", { name: "购买选择" })).getByText("12 期")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "购买选择" })).queryByText("完整分析")).not.toBeInTheDocument();
     expect(screen.getByText("为什么值得信任")).toBeInTheDocument();
     expect(screen.queryByText("用一段结构校准校准个人结构倾向；若它贴近你的处境，再进入完整个人结构、一事分析或年度路径。")).not.toBeInTheDocument();
     expect(screen.getByText("内容仅供自我认知、情绪整理和选择参考，不构成医疗、法律、投资、心理治疗或其他专业建议。")).toBeInTheDocument();
     expect(screen.getByText(/北京一叶泛舟文化科技有限公司/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "京ICP备2026045183号-1" })).toHaveAttribute(
+      "href",
+      "https://beian.miit.gov.cn/",
+    );
     expect(screen.getByRole("link", { name: "服务条款" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "隐私政策" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "退款政策" })).toBeInTheDocument();
@@ -87,8 +96,8 @@ describe("Youshu homepage", () => {
 
     expect(window.location.pathname).toBe("/refund");
     expect(screen.getByRole("heading", { name: "退款政策" })).toBeInTheDocument();
-    expect(screen.getByText("原则上，报告一经生成或交付，不支持无理由退款。", { exact: false })).toBeInTheDocument();
-    expect(screen.getByText("重复扣款", { exact: false })).toBeInTheDocument();
+    expect(screen.getByText("每一份报告都享有七日安心退款。", { exact: false })).toBeInTheDocument();
+    expect(screen.getByText("对报告内容不满意，也可以在期限内提出申请。", { exact: false })).toBeInTheDocument();
 
     await user.click(screen.getByRole("link", { name: "联系我们" }));
 
@@ -98,9 +107,29 @@ describe("Youshu homepage", () => {
     expect(screen.getAllByText("北京一叶泛舟文化科技有限公司").length).toBeGreaterThanOrEqual(1);
   });
 
+  it("returns to the homepage from the top-left brand on subpages", async () => {
+    const user = userEvent.setup();
+    window.history.pushState({}, "", "/reports");
+    render(<App />);
+
+    expect(screen.getByRole("heading", { name: "我的报告" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("link", { name: "有数首页" }));
+
+    expect(window.location.pathname).toBe("/");
+    expect(screen.getByRole("heading", { name: "有数" })).toBeInTheDocument();
+  });
+
   it("keeps the idle reading entry focused on inputs instead of a demo result", async () => {
     const user = userEvent.setup();
     render(<App />);
+
+    expect(screen.getByLabelText("出生日期")).toHaveValue("");
+    expect(screen.getByLabelText("出生时间")).toHaveValue("");
+    expect(screen.getByLabelText("出生地")).toHaveValue("");
+    expect(screen.getByLabelText("性别")).toHaveValue("");
+    expect(screen.getByPlaceholderText("请输入出生城市")).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "请选择性别" })).toBeDisabled();
 
     await user.selectOptions(screen.getByLabelText("想看的方向"), "感情关系");
 
@@ -243,21 +272,24 @@ describe("Youshu homepage", () => {
     expect(entitlementsSelectMock).toHaveBeenCalledWith("product_key,included_quantity,used_quantity,status,expires_at");
   });
 
-  it("shows annual membership entitlements and unlocks all three report types for testing", async () => {
+  it("keeps each one-time product entitlement independent", async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await testUnlock(user, "年度会员");
+    await testUnlock(user, "年度节奏报告");
 
     const readingRegion = screen.getByRole("region", { name: "结构校准" });
     const modeSwitcher = within(readingRegion).getByLabelText("选择服务");
-    expect(within(readingRegion).getByText("年度会员已包含")).toBeInTheDocument();
+    await user.click(within(modeSwitcher).getByRole("button", { name: /年度节奏/ }));
+
+    expect(within(readingRegion).getByText("已开通，可生成")).toBeInTheDocument();
+    expect(within(readingRegion).getByText("剩余 1 次")).toBeInTheDocument();
+    expect(within(readingRegion).getByRole("button", { name: "生成年度节奏" })).toBeEnabled();
 
     await user.click(within(modeSwitcher).getByRole("button", { name: /一事分析/ }));
 
-    expect(within(readingRegion).getByText("年度会员已包含")).toBeInTheDocument();
-    expect(within(readingRegion).getByText("剩余 12 次")).toBeInTheDocument();
-    expect(within(readingRegion).getByRole("button", { name: "生成一事分析" })).toBeEnabled();
+    expect(within(readingRegion).getByText("这一项还未开通")).toBeInTheDocument();
+    expect(within(readingRegion).getByRole("button", { name: "生成一事分析" })).toBeDisabled();
   });
 
   it("switches the web page between simplified Chinese, traditional Chinese, and English", async () => {
@@ -275,7 +307,7 @@ describe("Youshu homepage", () => {
     expect(screen.getByRole("link", { name: "我的報告" })).toBeInTheDocument();
     expect(screen.getByText("心中有數，選擇有光")).toBeInTheDocument();
     expect(screen.getAllByText("個人結構報告").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("人民幣 ¥199")).toBeInTheDocument();
+    expect(screen.getByText("人民幣 ¥39.9")).toBeInTheDocument();
     expect(screen.queryByText(/美元約/)).not.toBeInTheDocument();
 
     await user.selectOptions(languageSelect, "en");
@@ -285,7 +317,7 @@ describe("Youshu homepage", () => {
     expect(screen.queryByText(/AI/)).not.toBeInTheDocument();
     expect(screen.getAllByText("Personal Structure Report").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Annual Rhythm Report").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("USD $28")).toBeInTheDocument();
+    expect(screen.getByText("USD $5.6")).toBeInTheDocument();
     expect(screen.queryByText(/RMB/)).not.toBeInTheDocument();
   });
 
@@ -323,6 +355,7 @@ describe("Youshu homepage", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
+    await fillBirthProfile(user);
     await testUnlock(user, "个人结构报告");
     await user.click(screen.getByRole("button", { name: "生成个人结构报告" }));
 
@@ -340,10 +373,66 @@ describe("Youshu homepage", () => {
       birthDate: "1988-01-14",
       birthTime: "11:25",
       birthPlace: "长春",
+      calendarType: "solar",
+      isLeapMonth: false,
+      useTrueSolarTime: false,
+      ziHourConvention: "zi-chu",
     });
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(fetchMock.mock.calls[0][0]).toBe("/api/generate");
     expect(fetchMock.mock.calls[0][1].body).not.toContain("sk-");
+  });
+
+  it("passes lunar-calendar and advanced calculation settings to report generation", async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi.fn(async () =>
+      new Response(
+        JSON.stringify({
+          ok: true,
+          type: "bazi",
+          content: "# 个人结构报告\n先把历法口径定准。",
+          paipan: {
+            pillars: {
+              year: { value: "己亥" },
+              month: { value: "丁丑" },
+              day: { value: "戊申" },
+              hour: { value: "戊午" },
+            },
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "农历" }));
+    await user.click(screen.getByLabelText("闰月"));
+    fireEvent.change(screen.getByLabelText("农历生日"), { target: { value: "2019-12-12" } });
+    fireEvent.change(screen.getByLabelText("出生时间"), { target: { value: "23:30" } });
+    await user.type(screen.getByLabelText("出生地"), "长春");
+    await user.selectOptions(screen.getByLabelText("性别"), "female");
+
+    await user.click(screen.getByText("排盘口径"));
+    await user.click(screen.getByLabelText(/使用真太阳时/));
+    fireEvent.change(screen.getByLabelText("出生地经度"), { target: { value: "125.32" } });
+    await user.selectOptions(screen.getByLabelText("子时换日"), "midnight");
+
+    await testUnlock(user, "个人结构报告");
+    await user.click(screen.getByRole("button", { name: "生成个人结构报告" }));
+
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({
+      type: "bazi",
+      birthDate: "2019-12-12",
+      birthTime: "23:30",
+      birthPlace: "长春",
+      calendarType: "lunar",
+      isLeapMonth: true,
+      useTrueSolarTime: true,
+      birthLongitude: 125.32,
+      ziHourConvention: "midnight",
+    });
+    expect(await screen.findByText("报告已成")).toBeInTheDocument();
   });
 
   it("saves generated reports under My reports and opens a saved detail", async () => {
@@ -369,6 +458,7 @@ describe("Youshu homepage", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
+    await fillBirthProfile(user);
     await testUnlock(user, "个人结构报告");
     await user.click(screen.getByRole("button", { name: "生成个人结构报告" }));
     await screen.findByText("报告已成");
@@ -493,6 +583,7 @@ describe("Youshu homepage", () => {
         onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
         signInWithOAuth: vi.fn(async () => ({ error: null })),
         signInWithOtp: vi.fn(async () => ({ error: null })),
+        verifyOtp: vi.fn(async () => ({ error: null })),
       },
     };
     render(<App />);
@@ -501,6 +592,21 @@ describe("Youshu homepage", () => {
 
     expect(screen.getByRole("heading", { name: "我的报告" })).toBeInTheDocument();
     expect(screen.getByText("登录后，报告会跟着你走。")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "手机号登录" })).toHaveAttribute("aria-selected", "true");
+
+    await user.type(screen.getByLabelText("中国大陆手机号"), "13800138000");
+    await user.click(screen.getByRole("button", { name: "获取验证码" }));
+
+    expect(window.__youshuSupabaseClient.auth.signInWithOtp).toHaveBeenCalledWith({ phone: "+8613800138000" });
+    await user.type(screen.getByLabelText("短信验证码"), "123456");
+    await user.click(screen.getByRole("button", { name: "登录并同步报告" }));
+    expect(window.__youshuSupabaseClient.auth.verifyOtp).toHaveBeenCalledWith({
+      phone: "+8613800138000",
+      token: "123456",
+      type: "sms",
+    });
+
+    await user.click(screen.getByRole("tab", { name: "邮箱登录" }));
     expect(screen.getByRole("button", { name: "Google 登录" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "发送登录链接" })).toBeInTheDocument();
   });

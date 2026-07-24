@@ -7,6 +7,7 @@
     "dev": "vite --host 127.0.0.1",
     "dev:mock": "node scripts/local-mock-dev.js",
     "build": "vite build",
+    "start": "node server/production-server.js",
     "preview": "vite preview --host 127.0.0.1",
     "test": "vitest",
     "api:dev": "node server/dev-server.js",

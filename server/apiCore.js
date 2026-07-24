@@ -64,10 +64,15 @@ async function readBody(request) {
 function normalizeInput(body) {
   return {
     calendarType: body.calendarType || "solar",
+    isLeapMonth: body.isLeapMonth === true,
     birthDate: body.birthDate,
     birthTime: body.birthTime,
     gender: body.gender || "",
     birthPlace: body.birthPlace || "",
+    birthLongitude: body.birthLongitude,
+    timezone: body.timezone || "Asia/Shanghai",
+    useTrueSolarTime: body.useTrueSolarTime === true,
+    ziHourConvention: body.ziHourConvention || "zi-chu",
     currentDate: new Date().toISOString().slice(0, 10),
   };
 }

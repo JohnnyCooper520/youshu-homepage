@@ -21,14 +21,16 @@ const maxStoredReports = 30;
 const companyNameZh = "北京一叶泛舟文化科技有限公司";
 const companyNameEn = "Beijing Yiye Fanzhou Culture Technology Co., Ltd.";
 const supportEmail = "qinyuneo@gmail.com";
+const icpNumber = "京ICP备2026045183号-1";
+const icpUrl = "https://beian.miit.gov.cn/";
 
 const copy = {
   "zh-CN": {
     brandHome: "有数首页",
     brandSmall: "东方文化人生参考",
     navLabel: "主导航",
-    nav: ["个人结构", "一事", "年度节奏", "会员", "方法"],
-    navHrefs: ["#reading", "#products", "#products", "#membership", "#method"],
+    nav: ["个人结构", "一事", "年度节奏", "购买", "方法"],
+    navHrefs: ["#reading", "#products", "#products", "#products", "#method"],
     account: "我的报告",
     heroRegion: "首页主视觉",
     heroSubtitle: "心中有数，选择有光",
@@ -77,7 +79,24 @@ const copy = {
       },
     },
     birthPlace: "出生地",
+    birthPlacePlaceholder: "请输入出生城市",
+    calendarType: "历法",
+    solarCalendar: "公历",
+    lunarCalendar: "农历",
+    lunarBirthDate: "农历生日",
+    lunarDatePlaceholder: "例如 1990-08-15",
+    leapMonth: "闰月",
+    paipanSettings: "排盘口径",
+    paipanSettingsHint: "默认按北京时间、子初换日；临近节气会提示复核。",
+    trueSolarTime: "使用真太阳时",
+    trueSolarTimeHint: "按出生地经度校正时刻，仅在你明确需要时开启。",
+    ziHourConvention: "子时换日",
+    ziHourAtStart: "23:00 起换日（默认）",
+    ziHourAtMidnight: "00:00 起换日",
+    birthLongitude: "出生地经度",
+    birthLongitudePlaceholder: "例如 125.32",
     gender: "性别",
+    genderPlaceholder: "请选择性别",
     male: "男",
     female: "女",
     questionLabel: "想分析的事",
@@ -119,6 +138,16 @@ const copy = {
     authText: "当前浏览器会先保存报告。登录后，可把报告留到云端，之后换设备也能找回。",
     authEmailLabel: "邮箱",
     authEmailPlaceholder: "you@example.com",
+    authPhoneTab: "手机号登录",
+    authEmailTab: "邮箱登录",
+    authPhoneLabel: "中国大陆手机号",
+    authPhonePlaceholder: "请输入 11 位手机号",
+    authPhoneCodeLabel: "短信验证码",
+    authPhoneCodePlaceholder: "6 位验证码",
+    authSendCode: "获取验证码",
+    authVerifyCode: "登录并同步报告",
+    authCodeSent: "验证码已发送，请查看短信。",
+    authOverseas: "海外用户",
     authGoogle: "Google 登录",
     authMagicLink: "发送登录链接",
     authSignedIn: "已登录",
@@ -139,24 +168,30 @@ const copy = {
     productsRegion: "购买选择",
     purchaseLabel: "购买项目",
     productKicker: "购买选择",
-    productTitle: "单次报告与年度会员，都在这里选。",
-    badges: { single: "单次", featured: "主推", member: "会员" },
+    productTitle: "三项单次服务，按需要选择。",
+    productSubtitle: "价格、交付和退款规则一次看清。支付完成后，报告自动生成并归入“我的报告”。",
+    badges: { single: "单次", featured: "主推" },
     prices: {
       basic: { cny: "人民币 ¥29.9", usd: "USD $4.2" },
-      annual: { cny: "人民币 ¥199", usd: "USD $28" },
-      membership: { cny: "人民币 ¥299/年", usd: "USD $42/year" },
+      annual: { cny: "人民币 ¥39.9", usd: "USD $5.6" },
     },
     products: [
       { key: "bazi", title: "个人结构报告", question: "先知己，再谈选择。", priceKey: "basic", action: "生成个人结构报告" },
       { key: "question", title: "一事分析", question: "事到眼前，先辨轻重。", priceKey: "basic", action: "生成一事分析" },
       { key: "annual", title: "年度节奏报告", question: "生成日起，向后看完整 12 个月。", priceKey: "annual", action: "看年度节奏" },
     ],
-    annualMembership: { key: "membership", title: "年度会员", question: "常看、常分析、常复盘，都归入一处。", priceKey: "membership", action: "开通年度会员" },
+    productDelivery: "支付完成后约 2–5 分钟生成并归档",
+    productRefund: "报告生成后 7 天内不满意可申请退款",
+    purchaseFlowLabel: "购买流程",
+    purchaseFlowTitle: "下单不绕路，交付有记录。",
+    purchaseFlowText: "每次只购买一项服务。支付、生成、归档与售后都对应同一订单。",
+    purchaseSteps: [["01", "选择服务", "确认本次需要的报告"], ["02", "核对资料", "出生信息与关注方向"], ["03", "完成支付", "订单状态实时记录"], ["04", "生成归档", "报告进入“我的报告”"]],
+    refundPromise: "七日安心退款",
+    refundPromiseText: "自报告生成并首次展示之日起 7 天内，如对内容不满意，可联系客服申请退款；核对订单后原路退回。",
     entitlementStatusLabel: "权益状态",
     entitlementLockedTitle: "这一项还未开通",
     entitlementLockedText: "可以先看页面里的判断样本；完整报告开通后生成。",
     entitlementReady: "已开通，可生成",
-    entitlementMemberReady: "年度会员已包含",
     entitlementRemaining: "剩余 {count} 次",
     entitlementUsedUp: "已用完",
     simulateUnlock: "测试开通",
@@ -166,7 +201,6 @@ const copy = {
     testAccessReady: "测试通道已开启",
     testAccessHint: "可直接生成真实报告，本次测试不消耗正式权益。",
     entitlementActive: "已开通",
-    entitlementIncluded: "会员已含",
     entitlementLocked: "未开通",
     annualLabel: "年度节奏 · 生成日起算",
     annualTitle: "先看眼前，再看一年里的节奏。",
@@ -175,11 +209,6 @@ const copy = {
     coverageLabel: "报告区间",
     coverageValue: "生成日起 · 向后完整 12 个月",
     annualTimeline: [["生成当月", "先整理眼前重点。"], ["近三个月", "看选择的先后。"], ["后续半年", "看节奏变化。"], ["后续十二月", "把重点收成一条线。"]],
-    memberLabel: "年度会员 · 长期权益",
-    memberTitle: "常看的人，把判断养成自己的底气。",
-    memberText: "会员不是另一套产品，而是把上面的解读、追问和归档合在一起。日后再问，不必从头来过。",
-    memberBenefitsLabel: "年度会员包含",
-    memberBenefits: [["个人结构报告", "1 份", "完整底层结构"], ["年度节奏", "1 份", "后续 12 个月"], ["一事分析", "12 次/年", "每月可分析"], ["月度提醒", "12 期", "按月更新"], ["专属追问", "12 次/年", "接着问清"], ["历史归档", "长期", "报告留存"]],
     sampleRegion: "产品预览样例",
     sampleKicker: "判断样本",
     sampleTitle: "话不必多，先说中要害。",
@@ -197,6 +226,7 @@ const copy = {
     footerDisclaimer: "内容仅供自我认知、情绪整理和选择参考，不构成医疗、法律、投资、心理治疗或其他专业建议。",
     footerAge: "建议 18 岁以上用户使用。",
     footerCompanyLabel: "运营主体",
+    footerIcpLabel: "ICP备案",
     footerSupportLabel: "客服邮箱",
     footerLinks: { terms: "服务条款", privacy: "隐私政策", refund: "退款政策", contact: "联系我们" },
     legalBackHome: "回到首页",
@@ -209,7 +239,7 @@ const copy = {
           ["服务性质", "有数提供基于传统文化结构、规则化解读与大模型生成的个人结构报告、一事分析和年度节奏参考。内容用于自我认知、情绪整理和选择辅助，不承诺预测结果必然发生。"],
           ["适用人群", "本服务建议 18 岁以上用户使用。若你正在处理医疗、法律、投资、心理危机或人身安全等高风险事项，请优先咨询合资格专业人士或当地紧急服务。"],
           ["用户责任", "你应提供相对准确的出生日期、出生时间、出生地和问题背景。若输入信息不准确，报告可能偏离你的实际情况。你也应自行判断是否采纳报告建议。"],
-          ["数字内容交付", "报告生成后即视为数字内容已交付。当前 P0 阶段可能通过网页会话保存报告，后续接入账户后会支持更稳定的历史归档。"],
+          ["数字内容交付", "付款成功后，系统通常会在 2–5 分钟内生成报告并归档至“我的报告”。报告生成即完成数字内容交付，但不影响本服务承诺的七日退款权益。"],
           ["禁止用途", "不得将本服务用于违法、骚扰、歧视、操纵他人、医疗诊断、金融承诺或其他高风险决策自动化。"],
           ["变更与联系", `我们可能根据产品测试情况调整页面、价格、权益和条款。如有问题，请联系 ${supportEmail}。`],
         ],
@@ -228,13 +258,13 @@ const copy = {
       },
       refund: {
         title: "退款政策",
-        intro: "东方文化报告属于按用户输入生成的数字内容。原则上，报告一经生成或交付，不支持无理由退款。",
+        intro: "每一份报告都享有七日安心退款。自报告生成并首次展示之日起 7 天内，如对内容不满意，可以申请退款。",
         sections: [
-          ["原则", "已生成、已展示或已发送的个人结构报告、一事分析、年度节奏报告，通常不予退款。购买前请确认服务性质为参考性数字内容。"],
-          ["可退款或补偿情形", "如发生重复扣款、付款成功但报告未生成、系统故障导致无法交付、明显错误订单，用户可在付款后 7 日内联系处理。我们会根据情况退款、补发或提供等值额度。"],
-          ["不支持退款情形", "因个人主观感受不符、对解读结论不满意、输入信息错误、已阅读后改变主意，通常不构成退款理由。"],
-          ["会员退款", "年度会员开通后，如已使用任一付费报告、分析额度或会员权益，原则上不支持全额退款。未使用且在 7 日内提出的异常订单可人工评估。"],
-          ["处理方式", `退款申请请发送至 ${supportEmail}，并提供付款邮箱、订单时间、购买项目和问题描述。`],
+          ["适用范围", "个人结构报告、一事分析和年度节奏报告均适用。对报告内容不满意，也可以在期限内提出申请。"],
+          ["申请期限", "退款期限从报告生成并首次展示之时起计算 7 个自然日。超过期限的申请，我们仍会核对系统故障、重复扣款等异常情况。"],
+          ["处理方式", `请发送退款申请至 ${supportEmail}，提供订单号、付款账号、购买项目和简要原因。核对订单后，款项原则上按原支付路径退回。`],
+          ["处理时效", "我们会尽量在 2 个工作日内受理。实际到账时间由支付机构和银行处理周期决定。"],
+          ["合理使用", "每个订单仅可退款一次。对于明显的批量套取内容、虚假订单、恶意重复退款或其他滥用行为，我们保留拒绝申请并暂停账户服务的权利。"],
         ],
       },
       contact: {
@@ -243,7 +273,7 @@ const copy = {
         sections: [
           ["客服邮箱", supportEmail],
           ["运营主体", companyNameZh],
-          ["服务范围", "个人结构报告、一事分析、年度节奏报告、年度会员与报告归档相关问题。"],
+          ["服务范围", "个人结构报告、一事分析、年度节奏报告、订单退款与报告归档相关问题。"],
           ["回复时间", "我们会尽量在 2 个工作日内回复。复杂订单、退款或隐私请求可能需要更多时间核对。"],
         ],
       },
@@ -259,8 +289,8 @@ const copy = {
     brandHome: "有數首頁",
     brandSmall: "東方文化人生參考",
     navLabel: "主導覽",
-    nav: ["個人結構", "一事", "年度節奏", "會員", "方法"],
-    navHrefs: ["#reading", "#products", "#products", "#membership", "#method"],
+    nav: ["個人結構", "一事", "年度節奏", "購買", "方法"],
+    navHrefs: ["#reading", "#products", "#products", "#products", "#method"],
     account: "我的報告",
     heroRegion: "首頁主視覺",
     heroSubtitle: "心中有數，選擇有光",
@@ -309,7 +339,24 @@ const copy = {
       },
     },
     birthPlace: "出生地",
+    birthPlacePlaceholder: "請輸入出生城市",
+    calendarType: "曆法",
+    solarCalendar: "公曆",
+    lunarCalendar: "農曆",
+    lunarBirthDate: "農曆生日",
+    lunarDatePlaceholder: "例如 1990-08-15",
+    leapMonth: "閏月",
+    paipanSettings: "排盤口徑",
+    paipanSettingsHint: "預設按北京時間、子初換日；臨近節氣會提示覆核。",
+    trueSolarTime: "使用真太陽時",
+    trueSolarTimeHint: "按出生地經度校正時刻，僅在你明確需要時開啟。",
+    ziHourConvention: "子時換日",
+    ziHourAtStart: "23:00 起換日（預設）",
+    ziHourAtMidnight: "00:00 起換日",
+    birthLongitude: "出生地經度",
+    birthLongitudePlaceholder: "例如 125.32",
     gender: "性別",
+    genderPlaceholder: "請選擇性別",
     male: "男",
     female: "女",
     questionLabel: "想分析的事",
@@ -351,6 +398,16 @@ const copy = {
     authText: "目前瀏覽器會先保存報告。登入後，可把報告留到雲端，之後換設備也能找回。",
     authEmailLabel: "信箱",
     authEmailPlaceholder: "you@example.com",
+    authPhoneTab: "手機號登入",
+    authEmailTab: "信箱登入",
+    authPhoneLabel: "中國大陸手機號",
+    authPhonePlaceholder: "請輸入 11 位手機號",
+    authPhoneCodeLabel: "簡訊驗證碼",
+    authPhoneCodePlaceholder: "6 位驗證碼",
+    authSendCode: "取得驗證碼",
+    authVerifyCode: "登入並同步報告",
+    authCodeSent: "驗證碼已發送，請查看簡訊。",
+    authOverseas: "海外使用者",
     authGoogle: "Google 登入",
     authMagicLink: "發送登入連結",
     authSignedIn: "已登入",
@@ -371,24 +428,30 @@ const copy = {
     productsRegion: "購買選擇",
     purchaseLabel: "購買項目",
     productKicker: "購買選擇",
-    productTitle: "單次報告與年度會員，都在這裡選。",
-    badges: { single: "單次", featured: "主推", member: "會員" },
+    productTitle: "三項單次服務，按需要選擇。",
+    productSubtitle: "價格、交付與退款規則一次看清。付款完成後，報告自動生成並歸入「我的報告」。",
+    badges: { single: "單次", featured: "主推" },
     prices: {
       basic: { cny: "人民幣 ¥29.9", usd: "USD $4.2" },
-      annual: { cny: "人民幣 ¥199", usd: "USD $28" },
-      membership: { cny: "人民幣 ¥299/年", usd: "USD $42/year" },
+      annual: { cny: "人民幣 ¥39.9", usd: "USD $5.6" },
     },
     products: [
       { key: "bazi", title: "個人結構報告", question: "先知己，再談選擇。", priceKey: "basic", action: "生成個人結構報告" },
       { key: "question", title: "一事分析", question: "事到眼前，先辨輕重。", priceKey: "basic", action: "生成一事分析" },
       { key: "annual", title: "年度節奏報告", question: "生成日起，向後看完整 12 個月。", priceKey: "annual", action: "看年度節奏" },
     ],
-    annualMembership: { key: "membership", title: "年度會員", question: "常看、常分析、常復盤，都歸入一處。", priceKey: "membership", action: "開通年度會員" },
+    productDelivery: "付款完成後約 2–5 分鐘生成並歸檔",
+    productRefund: "報告生成後 7 天內不滿意可申請退款",
+    purchaseFlowLabel: "購買流程",
+    purchaseFlowTitle: "下單不繞路，交付有記錄。",
+    purchaseFlowText: "每次只購買一項服務。付款、生成、歸檔與售後都對應同一訂單。",
+    purchaseSteps: [["01", "選擇服務", "確認本次需要的報告"], ["02", "核對資料", "出生資訊與關注方向"], ["03", "完成付款", "訂單狀態即時記錄"], ["04", "生成歸檔", "報告進入「我的報告」"]],
+    refundPromise: "七日安心退款",
+    refundPromiseText: "自報告生成並首次展示之日起 7 天內，如對內容不滿意，可聯絡客服申請退款；核對訂單後原路退回。",
     entitlementStatusLabel: "權益狀態",
     entitlementLockedTitle: "這一項尚未開通",
     entitlementLockedText: "可以先看頁面裡的判斷樣本；完整報告開通後生成。",
     entitlementReady: "已開通，可生成",
-    entitlementMemberReady: "年度會員已包含",
     entitlementRemaining: "剩餘 {count} 次",
     entitlementUsedUp: "已用完",
     simulateUnlock: "測試開通",
@@ -398,7 +461,6 @@ const copy = {
     testAccessReady: "測試通道已開啟",
     testAccessHint: "可直接生成真實報告，本次測試不消耗正式權益。",
     entitlementActive: "已開通",
-    entitlementIncluded: "會員已含",
     entitlementLocked: "未開通",
     annualLabel: "年度節奏 · 生成日起算",
     annualTitle: "先看眼前，再看一年裡的節奏。",
@@ -407,11 +469,6 @@ const copy = {
     coverageLabel: "報告區間",
     coverageValue: "生成日起 · 向後完整 12 個月",
     annualTimeline: [["生成當月", "先整理眼前重點。"], ["近三個月", "看選擇的先後。"], ["後續半年", "看節奏變化。"], ["後續十二月", "把重點收成一條線。"]],
-    memberLabel: "年度會員 · 長期權益",
-    memberTitle: "常看的人，把判斷養成自己的底氣。",
-    memberText: "會員不是另一套產品，而是把上面的解讀、追問和歸檔合在一起。日後再問，不必從頭來過。",
-    memberBenefitsLabel: "年度會員包含",
-    memberBenefits: [["個人結構報告", "1 份", "完整底層結構"], ["年度節奏", "1 份", "後續 12 個月"], ["一事分析", "12 次/年", "每月可分析"], ["月度提醒", "12 期", "按月更新"], ["專屬追問", "12 次/年", "接著問清"], ["歷史歸檔", "長期", "報告留存"]],
     sampleRegion: "產品預覽樣例",
     sampleKicker: "判斷樣本",
     sampleTitle: "話不必多，先說中要害。",
@@ -429,6 +486,7 @@ const copy = {
     footerDisclaimer: "內容僅供自我認知、情緒整理和選擇參考，不構成醫療、法律、投資、心理治療或其他專業建議。",
     footerAge: "建議 18 歲以上用戶使用。",
     footerCompanyLabel: "營運主體",
+    footerIcpLabel: "ICP備案",
     footerSupportLabel: "客服信箱",
     footerLinks: { terms: "服務條款", privacy: "隱私政策", refund: "退款政策", contact: "聯絡我們" },
     legalBackHome: "回到首頁",
@@ -441,7 +499,7 @@ const copy = {
           ["服務性質", "有數提供基於傳統文化結構、規則化解讀與大模型生成的個人結構報告、一事分析和年度節奏參考。內容用於自我認知、情緒整理和選擇輔助，不承諾預測結果必然發生。"],
           ["適用人群", "本服務建議 18 歲以上用戶使用。若你正在處理醫療、法律、投資、心理危機或人身安全等高風險事項，請優先諮詢合資格專業人士或當地緊急服務。"],
           ["用戶責任", "你應提供相對準確的出生日期、出生時間、出生地和問題背景。若輸入資訊不準確，報告可能偏離你的實際情況。你也應自行判斷是否採納報告建議。"],
-          ["數位內容交付", "報告生成後即視為數位內容已交付。當前 P0 階段可能透過網頁會話保存報告，後續接入帳戶後會支持更穩定的歷史歸檔。"],
+          ["數位內容交付", "付款成功後，報告通常會在 2–5 分鐘內生成並歸入「我的報告」。數位內容交付後仍適用本網站明示的七日安心退款規則。"],
           ["禁止用途", "不得將本服務用於違法、騷擾、歧視、操縱他人、醫療診斷、金融承諾或其他高風險決策自動化。"],
           ["變更與聯絡", `我們可能根據產品測試情況調整頁面、價格、權益和條款。如有問題，請聯絡 ${supportEmail}。`],
         ],
@@ -460,13 +518,12 @@ const copy = {
       },
       refund: {
         title: "退款政策",
-        intro: "個性化數位報告屬於按用戶輸入生成的數位內容。原則上，報告一經生成或交付，不支持無理由退款。",
+        intro: "我們希望你先放心使用，再決定是否留下。三項單次服務均提供報告生成後七日內不滿意退款。",
         sections: [
-          ["原則", "已生成、已展示或已發送的個人結構報告、一事分析、年度節奏報告，通常不予退款。購買前請確認服務性質為參考性數位內容。"],
-          ["可退款或補償情形", "如發生重複扣款、付款成功但報告未生成、系統故障導致無法交付、明顯錯誤訂單，用戶可在付款後 7 日內聯絡處理。我們會根據情況退款、補發或提供等值額度。"],
-          ["不支持退款情形", "因個人主觀感受不符、對解讀結論不滿意、輸入資訊錯誤、已閱讀後改變主意，通常不構成退款理由。"],
-          ["會員退款", "年度會員開通後，如已使用任一付費報告、分析額度或會員權益，原則上不支持全額退款。未使用且在 7 日內提出的異常訂單可人工評估。"],
-          ["處理方式", `退款申請請發送至 ${supportEmail}，並提供付款信箱、訂單時間、購買項目和問題描述。`],
+          ["適用範圍", "個人結構報告、一事分析、年度節奏報告均適用本規則。自報告生成並首次展示之日起 7 個自然日內，如對內容不滿意，可申請退款。"],
+          ["如何申請", `請發送郵件至 ${supportEmail}，提供帳戶、訂單時間、購買項目及簡要退款原因。我們會在 2 個工作日內確認受理。`],
+          ["退款方式", "核對訂單後，款項原則上按原支付路徑退回。支付管道的實際到帳時間以其處理進度為準。"],
+          ["異常情形", "如發生重複扣款、付款成功但未生成、系統故障等情況，我們會優先退款或重新交付。對短期內大量重複購買、生成後集中退款等明顯濫用情形，我們保留核驗和限制服務的權利。"],
         ],
       },
       contact: {
@@ -475,7 +532,7 @@ const copy = {
         sections: [
           ["客服信箱", supportEmail],
           ["營運主體", companyNameZh],
-          ["服務範圍", "個人結構報告、一事分析、年度節奏報告、年度會員與報告歸檔相關問題。"],
+          ["服務範圍", "個人結構報告、一事分析、年度節奏報告、訂單退款與報告歸檔相關問題。"],
           ["回覆時間", "我們會盡量在 2 個工作日內回覆。複雜訂單、退款或隱私請求可能需要更多時間核對。"],
         ],
       },
@@ -491,8 +548,8 @@ const copy = {
     brandHome: "Youshu home",
     brandSmall: "Eastern culture life reference",
     navLabel: "Main navigation",
-    nav: ["Structure", "Analyze", "Year rhythm", "Membership", "Method"],
-    navHrefs: ["#reading", "#products", "#products", "#membership", "#method"],
+    nav: ["Structure", "Analyze", "Year rhythm", "Purchase", "Method"],
+    navHrefs: ["#reading", "#products", "#products", "#products", "#method"],
     account: "My reports",
     heroRegion: "Hero",
     heroSubtitle: "A clear structure, a calmer choice.",
@@ -541,7 +598,24 @@ const copy = {
       },
     },
     birthPlace: "Birth place",
+    birthPlacePlaceholder: "Enter birth city",
+    calendarType: "Calendar",
+    solarCalendar: "Solar",
+    lunarCalendar: "Lunar",
+    lunarBirthDate: "Lunar birth date",
+    lunarDatePlaceholder: "Example: 1990-08-15",
+    leapMonth: "Leap month",
+    paipanSettings: "Calculation settings",
+    paipanSettingsHint: "Defaults to China Standard Time and day change at 23:00. Solar-term boundaries are flagged for review.",
+    trueSolarTime: "Use true solar time",
+    trueSolarTimeHint: "Correct the time by birthplace longitude. Enable only when this convention is intended.",
+    ziHourConvention: "Zi-hour day change",
+    ziHourAtStart: "At 23:00 (default)",
+    ziHourAtMidnight: "At 00:00",
+    birthLongitude: "Birth longitude",
+    birthLongitudePlaceholder: "Example: 125.32",
     gender: "Gender",
+    genderPlaceholder: "Select gender",
     male: "Male",
     female: "Female",
     questionLabel: "Question",
@@ -583,6 +657,16 @@ const copy = {
     authText: "This browser keeps reports first. After sign-in, reports can be saved to the cloud and recovered on another device.",
     authEmailLabel: "Email",
     authEmailPlaceholder: "you@example.com",
+    authPhoneTab: "Mobile sign-in",
+    authEmailTab: "Email sign-in",
+    authPhoneLabel: "Mainland China mobile number",
+    authPhonePlaceholder: "11-digit mobile number",
+    authPhoneCodeLabel: "SMS verification code",
+    authPhoneCodePlaceholder: "6-digit code",
+    authSendCode: "Send code",
+    authVerifyCode: "Sign in and sync reports",
+    authCodeSent: "Verification code sent. Check your messages.",
+    authOverseas: "Overseas users",
     authGoogle: "Continue with Google",
     authMagicLink: "Send sign-in link",
     authSignedIn: "Signed in",
@@ -603,24 +687,30 @@ const copy = {
     productsRegion: "Purchase options",
     purchaseLabel: "Purchase items",
     productKicker: "Purchase options",
-    productTitle: "Choose a single reading, or keep the whole year in one account.",
-    badges: { single: "single", featured: "recommended", member: "member" },
+    productTitle: "Three one-time services, chosen when you need them.",
+    productSubtitle: "Pricing, delivery, and refunds are clear before checkout. Each completed report is saved to My reports.",
+    badges: { single: "single", featured: "recommended" },
     prices: {
       basic: { cny: "RMB ¥29.9", usd: "USD $4.2" },
-      annual: { cny: "RMB ¥199", usd: "USD $28" },
-      membership: { cny: "RMB ¥299/year", usd: "USD $42/year" },
+      annual: { cny: "RMB ¥39.9", usd: "USD $5.6" },
     },
     products: [
       { key: "bazi", title: "Personal Structure Report", question: "Know yourself before you choose.", priceKey: "basic", action: "Generate personal structure report" },
       { key: "question", title: "One-Matter Analysis", question: "When the matter arrives, weigh it first.", priceKey: "basic", action: "Generate one-matter analysis" },
       { key: "annual", title: "Annual Rhythm Report", question: "From the reading date, look across the next 12 months.", priceKey: "annual", action: "Read annual rhythm report" },
     ],
-    annualMembership: { key: "membership", title: "Annual Membership", question: "For people who read, ask, and revisit often.", priceKey: "membership", action: "Start membership" },
+    productDelivery: "Generated and archived in about 2–5 minutes after payment",
+    productRefund: "7-day dissatisfaction refund after generation",
+    purchaseFlowLabel: "How purchase works",
+    purchaseFlowTitle: "Know the price before paying; keep the report after delivery.",
+    purchaseFlowText: "Choose one service at a time. The order, access, delivery, and refund status remain visible in your account.",
+    purchaseSteps: [["01", "Choose a service", "Confirm the report you need"], ["02", "Check the details", "Birth data and reading focus"], ["03", "Complete payment", "The order status is recorded"], ["04", "Generate and archive", "The report enters My reports"]],
+    refundPromise: "7-day satisfaction promise",
+    refundPromiseText: "Within 7 calendar days after a report is generated and first displayed, you may request a refund if you are dissatisfied. After the order is verified, the refund returns through the original payment method.",
     entitlementStatusLabel: "Access status",
     entitlementLockedTitle: "This reading is not opened yet",
     entitlementLockedText: "Preview the sample judgments first. The full report generates after access is opened.",
     entitlementReady: "Opened, ready to generate",
-    entitlementMemberReady: "Included in membership",
     entitlementRemaining: "{count} left",
     entitlementUsedUp: "Used",
     simulateUnlock: "Test unlock",
@@ -630,7 +720,6 @@ const copy = {
     testAccessReady: "Test access is open",
     testAccessHint: "Generate real reports directly. Test runs do not use paid access.",
     entitlementActive: "Opened",
-    entitlementIncluded: "Member access",
     entitlementLocked: "Locked",
     annualLabel: "Annual rhythm · from generation date",
     annualTitle: "Read what is near, then the rhythm of the year.",
@@ -639,11 +728,6 @@ const copy = {
     coverageLabel: "Report range",
     coverageValue: "From reading date · full next 12 months",
     annualTimeline: [["Current month", "Settle the immediate priorities."], ["Next three months", "See the order of choices."], ["Next half year", "Watch the rhythm change."], ["Full twelve months", "Gather the priorities into one line."]],
-    memberLabel: "Annual membership · long-term access",
-    memberTitle: "Return often, and judgment becomes steadier.",
-    memberText: "Membership is not another product. It keeps the readings, follow-ups, and archive together, so the next question does not start from zero.",
-    memberBenefitsLabel: "Annual membership includes",
-    memberBenefits: [["Personal Structure Report", "1", "full base structure"], ["Annual Rhythm Report", "1", "next 12 months"], ["One-Matter Analysis", "12/year", "monthly analysis"], ["Monthly Notes", "12 issues", "updated monthly"], ["Follow-up", "12/year", "ask further"], ["Archive", "long-term", "reports saved"]],
     sampleRegion: "Product samples",
     sampleKicker: "Reading samples",
     sampleTitle: "Few words. The point first.",
@@ -661,6 +745,7 @@ const copy = {
     footerDisclaimer: "Content is for self-reflection, emotional organization, and decision support only. It is not medical, legal, financial, psychotherapy, or other professional advice.",
     footerAge: "Recommended for users aged 18 and above.",
     footerCompanyLabel: "Operator",
+    footerIcpLabel: "ICP filing",
     footerSupportLabel: "Support",
     footerLinks: { terms: "Terms", privacy: "Privacy", refund: "Refunds", contact: "Contact" },
     legalBackHome: "Back home",
@@ -673,7 +758,7 @@ const copy = {
           ["Service nature", "Youshu provides personal structure reports, one-matter analysis, and annual rhythm references generated from traditional-culture structures, interpretation rules, and large language model output. The content supports self-insight and decision-making; it does not guarantee that any predicted event will happen."],
           ["Who should use it", "The service is recommended for users aged 18 and above. For medical, legal, investment, mental health crisis, personal safety, or other high-risk matters, consult a qualified professional or local emergency service first."],
           ["Your responsibility", "You should provide reasonably accurate birth date, birth time, birth place, and question context. Inaccurate input may affect the report. You remain responsible for deciding whether and how to use any suggestion."],
-          ["Digital delivery", "Once a report is generated, the digital content is considered delivered. In this P0 stage, reports may be kept in the browser session; after accounts are connected, report history will be stored more reliably."],
+          ["Digital delivery", "After payment, a report is normally generated within 2–5 minutes and saved to My reports. The stated 7-day satisfaction refund remains available after digital delivery."],
           ["Prohibited use", "Do not use the service for unlawful activity, harassment, discrimination, manipulation, medical diagnosis, financial promises, or automated high-risk decisions."],
           ["Changes and contact", `We may update pages, pricing, benefits, and terms as the product test evolves. Questions can be sent to ${supportEmail}.`],
         ],
@@ -692,13 +777,12 @@ const copy = {
       },
       refund: {
         title: "Refund Policy",
-        intro: "Youshu readings are personalized digital content generated from user input. In general, once a report is generated or delivered, it is not eligible for a no-reason refund.",
+        intro: "We want you to use the report with confidence before deciding to keep it. All three one-time services include a 7-day dissatisfaction refund after generation.",
         sections: [
-          ["General rule", "Generated, displayed, or delivered personal structure reports, one-matter analysis, and annual rhythm reports are usually non-refundable. Please confirm that the service is reference-based digital content before purchase."],
-          ["Refund or remedy cases", "If there is duplicate payment, successful payment without report generation, a system failure that prevents delivery, or an obviously mistaken order, contact us within 7 days. We may refund, regenerate, or provide equivalent credit depending on the case."],
-          ["Non-refundable cases", "A mismatch with personal expectations, disagreement with interpretation, incorrect user input, or changing your mind after reading the report usually does not qualify for a refund."],
-          ["Membership refunds", "After annual membership is activated, if any paid report, question quota, or member benefit has been used, full refunds are generally not available. Unused abnormal orders reported within 7 days may be reviewed manually."],
-          ["How to request", `Send refund requests to ${supportEmail} with payment email, order time, purchased item, and a short description of the issue.`],
+          ["Coverage", "Personal Structure Reports, One-Matter Analysis, and Annual Rhythm Reports are covered. You may request a refund within 7 calendar days after the report is generated and first displayed if you are dissatisfied."],
+          ["How to request", `Email ${supportEmail} with your account, order time, purchased item, and a brief reason. We will acknowledge the request within 2 business days.`],
+          ["Refund method", "After order verification, approved refunds are returned through the original payment method. Actual arrival time depends on the payment provider."],
+          ["Exceptions and abuse", "Duplicate charges, successful payments without generation, and delivery failures are prioritized for refund or redelivery. We may verify and restrict service where repeated purchases and concentrated refund requests indicate clear abuse."],
         ],
       },
       contact: {
@@ -707,7 +791,7 @@ const copy = {
         sections: [
           ["Support email", supportEmail],
           ["Operator", companyNameEn],
-          ["Service scope", "Personal structure reports, one-matter analysis, annual rhythm reports, annual membership, and report archive questions."],
+          ["Service scope", "Personal structure reports, one-matter analysis, annual rhythm reports, order refunds, and report archive questions."],
           ["Response time", "We try to reply within 2 business days. Complex order, refund, or privacy requests may take longer to verify."],
         ],
       },
@@ -1100,6 +1184,11 @@ function buildArchivedReport(report, context) {
     birthDate: context.birthDate,
     birthTime: context.birthTime,
     birthPlace: context.birthPlace,
+    calendarType: context.calendarType,
+    isLeapMonth: context.isLeapMonth,
+    useTrueSolarTime: context.useTrueSolarTime,
+    birthLongitude: context.birthLongitude,
+    ziHourConvention: context.ziHourConvention,
     focus: context.focus,
     question: context.question,
     summary: getReportSummary(report.content),
@@ -1177,12 +1266,20 @@ function fillTemplate(template, values) {
   return Object.entries(values).reduce((text, [key, value]) => text.replace(`{${key}}`, String(value)), template);
 }
 
+function normalizeChinaPhone(value) {
+  const digits = value.replace(/\D/g, "");
+  if (/^1\d{10}$/.test(digits)) {
+    return `+86${digits}`;
+  }
+  if (/^861\d{10}$/.test(digits)) {
+    return `+${digits}`;
+  }
+  return "";
+}
+
 function getAccessTitle(access, t) {
   if (access.unlocked && access.source === "test") {
     return t.testAccessReady;
-  }
-  if (access.unlocked && access.source === "membership") {
-    return t.entitlementMemberReady;
   }
   if (access.unlocked) {
     return t.entitlementReady;
@@ -1194,9 +1291,6 @@ function getAccessTitle(access, t) {
 }
 
 function getProductStatusLabel(status, t) {
-  if (status === "included") {
-    return t.entitlementIncluded;
-  }
   if (status === "active") {
     return t.entitlementActive;
   }
@@ -1258,12 +1352,18 @@ function SiteFooter({ t, navigate }) {
       <div className="footer-meta">
         <p>{t.footerDisclaimer}</p>
         <p>{t.footerAge}</p>
-        <p>
-          {t.footerCompanyLabel}：{companyName}
-        </p>
-        <p>
-          {t.footerSupportLabel}：<a href={`mailto:${supportEmail}`}>{supportEmail}</a>
-        </p>
+            <p>
+              {t.footerCompanyLabel}：{companyName}
+            </p>
+            <p>
+              {t.footerIcpLabel}：
+              <a href={icpUrl} target="_blank" rel="noreferrer">
+                {icpNumber}
+              </a>
+            </p>
+            <p>
+              {t.footerSupportLabel}：<a href={`mailto:${supportEmail}`}>{supportEmail}</a>
+            </p>
       </div>
     </footer>
   );
@@ -1287,7 +1387,26 @@ function getReportArchiveContext(report, t) {
   return report?.focus || t.entryModes.bazi.summary;
 }
 
-function AuthPanel({ t, cloudEnabled, user, email, status, onEmailChange, onGoogleSignIn, onMagicLink, onSignOut }) {
+function AuthPanel({
+  t,
+  cloudEnabled,
+  user,
+  authMethod,
+  phone,
+  phoneCode,
+  phoneOtpSent,
+  email,
+  status,
+  onAuthMethodChange,
+  onPhoneChange,
+  onPhoneCodeChange,
+  onSendPhoneCode,
+  onVerifyPhoneCode,
+  onEmailChange,
+  onGoogleSignIn,
+  onMagicLink,
+  onSignOut,
+}) {
   if (!cloudEnabled) {
     return <p className="auth-note">{t.authUnavailable}</p>;
   }
@@ -1297,7 +1416,7 @@ function AuthPanel({ t, cloudEnabled, user, email, status, onEmailChange, onGoog
       <div className="auth-panel signed-in">
         <div>
           <span>{t.authSignedIn}</span>
-          <strong>{user.email}</strong>
+          <strong>{user.email || user.phone}</strong>
         </div>
         <button type="button" onClick={onSignOut}>
           {t.authSignOut}
@@ -1313,16 +1432,78 @@ function AuthPanel({ t, cloudEnabled, user, email, status, onEmailChange, onGoog
         <p>{t.authText}</p>
       </div>
       <div className="auth-actions">
-        <button type="button" onClick={onGoogleSignIn}>
-          {t.authGoogle}
-        </button>
-        <label>
-          {t.authEmailLabel}
-          <input value={email} onChange={(event) => onEmailChange(event.target.value)} placeholder={t.authEmailPlaceholder} />
-        </label>
-        <button type="button" onClick={onMagicLink}>
-          {t.authMagicLink}
-        </button>
+        <div className="auth-method-tabs" role="tablist" aria-label={t.authTitle}>
+          <button
+            className={authMethod === "phone" ? "is-active" : ""}
+            type="button"
+            role="tab"
+            aria-selected={authMethod === "phone"}
+            onClick={() => onAuthMethodChange("phone")}
+          >
+            {t.authPhoneTab}
+          </button>
+          <button
+            className={authMethod === "email" ? "is-active" : ""}
+            type="button"
+            role="tab"
+            aria-selected={authMethod === "email"}
+            onClick={() => onAuthMethodChange("email")}
+          >
+            {t.authEmailTab}
+          </button>
+        </div>
+        {authMethod === "phone" ? (
+          <div className="auth-form auth-phone-form">
+            <label>
+              {t.authPhoneLabel}
+              <input
+                inputMode="tel"
+                autoComplete="tel"
+                value={phone}
+                onChange={(event) => onPhoneChange(event.target.value)}
+                placeholder={t.authPhonePlaceholder}
+              />
+            </label>
+            {phoneOtpSent ? (
+              <label>
+                {t.authPhoneCodeLabel}
+                <input
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={phoneCode}
+                  onChange={(event) => onPhoneCodeChange(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                  placeholder={t.authPhoneCodePlaceholder}
+                />
+              </label>
+            ) : null}
+            <button type="button" onClick={phoneOtpSent ? onVerifyPhoneCode : onSendPhoneCode}>
+              {phoneOtpSent ? t.authVerifyCode : t.authSendCode}
+            </button>
+          </div>
+        ) : (
+          <div className="auth-form auth-email-form">
+            <label>
+              {t.authEmailLabel}
+              <input
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(event) => onEmailChange(event.target.value)}
+                placeholder={t.authEmailPlaceholder}
+              />
+            </label>
+            <button type="button" onClick={onMagicLink}>
+              {t.authMagicLink}
+            </button>
+          </div>
+        )}
+        <div className="auth-overseas">
+          <span>{t.authOverseas}</span>
+          <button type="button" onClick={onGoogleSignIn}>
+            {t.authGoogle}
+          </button>
+        </div>
       </div>
       {status ? <p className="auth-note">{status}</p> : null}
     </div>
@@ -1336,8 +1517,17 @@ function ReportsPage({
   onBackHome,
   cloudEnabled,
   cloudUser,
+  authMethod,
+  authPhone,
+  authPhoneCode,
+  phoneOtpSent,
   authEmail,
   authStatus,
+  onAuthMethodChange,
+  onAuthPhoneChange,
+  onAuthPhoneCodeChange,
+  onSendPhoneCode,
+  onVerifyPhoneCode,
   onAuthEmailChange,
   onGoogleSignIn,
   onMagicLink,
@@ -1363,8 +1553,17 @@ function ReportsPage({
             t={t}
             cloudEnabled={cloudEnabled}
             user={cloudUser}
+            authMethod={authMethod}
+            phone={authPhone}
+            phoneCode={authPhoneCode}
+            phoneOtpSent={phoneOtpSent}
             email={authEmail}
             status={authStatus}
+            onAuthMethodChange={onAuthMethodChange}
+            onPhoneChange={onAuthPhoneChange}
+            onPhoneCodeChange={onAuthPhoneCodeChange}
+            onSendPhoneCode={onSendPhoneCode}
+            onVerifyPhoneCode={onVerifyPhoneCode}
             onEmailChange={onAuthEmailChange}
             onGoogleSignIn={onGoogleSignIn}
             onMagicLink={onMagicLink}
@@ -1492,10 +1691,15 @@ export default function App() {
   const supabaseClient = getSupabaseClient();
   const [language, setLanguage] = useState("zh-CN");
   const [focus, setFocus] = useState("career");
-  const [birthDate, setBirthDate] = useState("1988-01-14");
-  const [birthTime, setBirthTime] = useState("11:25");
-  const [gender, setGender] = useState("male");
-  const [birthPlace, setBirthPlace] = useState("长春");
+  const [birthDate, setBirthDate] = useState("");
+  const [birthTime, setBirthTime] = useState("");
+  const [gender, setGender] = useState("");
+  const [birthPlace, setBirthPlace] = useState("");
+  const [calendarType, setCalendarType] = useState("solar");
+  const [isLeapMonth, setIsLeapMonth] = useState(false);
+  const [useTrueSolarTime, setUseTrueSolarTime] = useState(false);
+  const [birthLongitude, setBirthLongitude] = useState("");
+  const [ziHourConvention, setZiHourConvention] = useState("zi-chu");
   const [question, setQuestion] = useState("");
   const [entryMode, setEntryMode] = useState(getInitialEntryMode);
   const [entitlements, setEntitlements] = useState(getStoredEntitlements);
@@ -1504,6 +1708,10 @@ export default function App() {
   const [page, setPage] = useState(getCurrentPage);
   const [isGenerating, setIsGenerating] = useState(false);
   const [cloudUser, setCloudUser] = useState(null);
+  const [authMethod, setAuthMethod] = useState("phone");
+  const [authPhone, setAuthPhone] = useState("");
+  const [authPhoneCode, setAuthPhoneCode] = useState("");
+  const [phoneOtpSent, setPhoneOtpSent] = useState(false);
   const [authEmail, setAuthEmail] = useState("");
   const [authStatus, setAuthStatus] = useState("");
   const t = copy[language];
@@ -1514,7 +1722,7 @@ export default function App() {
     ? { unlocked: true, source: "test", remaining: null }
     : getModeAccess(entitlements, entryMode);
   const featuredProduct = t.products[2];
-  const purchaseOptions = [...t.products, t.annualMembership];
+  const purchaseOptions = t.products;
   const cloudEnabled = Boolean(supabaseClient);
   const reportIdFromUrl = typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("id");
   const displayedReport = reportIdFromUrl ? reports.find((savedReport) => savedReport.id === reportIdFromUrl) || report : report;
@@ -1625,6 +1833,38 @@ export default function App() {
     setAuthStatus(error ? t.authError : t.authCheckEmail);
   }
 
+  async function sendPhoneCode() {
+    const phone = normalizeChinaPhone(authPhone);
+    if (!supabaseClient || !phone) {
+      setAuthStatus(t.authError);
+      return;
+    }
+
+    const { error } = await supabaseClient.auth.signInWithOtp({ phone });
+    if (error) {
+      setAuthStatus(t.authError);
+      return;
+    }
+    setPhoneOtpSent(true);
+    setAuthStatus(t.authCodeSent);
+  }
+
+  async function verifyPhoneCode() {
+    const phone = normalizeChinaPhone(authPhone);
+    const token = authPhoneCode.replace(/\D/g, "");
+    if (!supabaseClient || !phone || !/^\d{6}$/.test(token)) {
+      setAuthStatus(t.authError);
+      return;
+    }
+
+    const { error } = await supabaseClient.auth.verifyOtp({
+      phone,
+      token,
+      type: "sms",
+    });
+    setAuthStatus(error ? t.authError : "");
+  }
+
   async function signOut() {
     if (!supabaseClient) {
       return;
@@ -1692,6 +1932,11 @@ export default function App() {
         birthDate,
         birthTime,
         birthPlace,
+        calendarType,
+        isLeapMonth,
+        useTrueSolarTime,
+        birthLongitude,
+        ziHourConvention,
         focus: t.readings[focus].option,
         question,
       });
@@ -1736,6 +1981,11 @@ export default function App() {
           birthTime,
           gender,
           birthPlace,
+          calendarType,
+          isLeapMonth,
+          useTrueSolarTime,
+          birthLongitude: birthLongitude ? Number(birthLongitude) : undefined,
+          ziHourConvention,
           focus: t.readings[focus].option,
           question,
           coreProfile,
@@ -1766,7 +2016,19 @@ export default function App() {
   return (
     <>
       <header className="site-header">
-        <a className="brand" href="#top" aria-label={t.brandHome}>
+        <a
+          className={`brand${page === "home" ? "" : " brand-back"}`}
+          href={page === "home" ? "#top" : "/"}
+          aria-label={t.brandHome}
+          onClick={(event) => {
+            if (page === "home") {
+              return;
+            }
+            event.preventDefault();
+            navigate("/");
+          }}
+        >
+          {page === "home" ? null : <span className="brand-back-icon" aria-hidden="true">←</span>}
           <span className="brand-mark">有</span>
           <span>
             <strong>有数</strong>
@@ -1814,8 +2076,25 @@ export default function App() {
           onBackHome={() => navigate("/#reading")}
           cloudEnabled={cloudEnabled}
           cloudUser={cloudUser}
+          authMethod={authMethod}
+          authPhone={authPhone}
+          authPhoneCode={authPhoneCode}
+          phoneOtpSent={phoneOtpSent}
           authEmail={authEmail}
           authStatus={authStatus}
+          onAuthMethodChange={(method) => {
+            setAuthMethod(method);
+            setAuthStatus("");
+          }}
+          onAuthPhoneChange={(value) => {
+            setAuthPhone(value);
+            setPhoneOtpSent(false);
+            setAuthPhoneCode("");
+            setAuthStatus("");
+          }}
+          onAuthPhoneCodeChange={setAuthPhoneCode}
+          onSendPhoneCode={sendPhoneCode}
+          onVerifyPhoneCode={verifyPhoneCode}
           onAuthEmailChange={setAuthEmail}
           onGoogleSignIn={signInWithGoogle}
           onMagicLink={sendMagicLink}
@@ -1868,9 +2147,88 @@ export default function App() {
             </div>
 
             <form className={`birth-form ${entryMode === "question" ? "with-question" : ""}`}>
+              <div className="calendar-toolbar">
+                <fieldset className="calendar-switcher">
+                  <legend>{t.calendarType}</legend>
+                  <div>
+                    <button
+                      type="button"
+                      aria-pressed={calendarType === "solar"}
+                      onClick={() => {
+                        setCalendarType("solar");
+                        setIsLeapMonth(false);
+                      }}
+                    >
+                      {t.solarCalendar}
+                    </button>
+                    <button
+                      type="button"
+                      aria-pressed={calendarType === "lunar"}
+                      onClick={() => setCalendarType("lunar")}
+                    >
+                      {t.lunarCalendar}
+                    </button>
+                  </div>
+                </fieldset>
+                {calendarType === "lunar" ? (
+                  <label className="inline-check">
+                    <input
+                      type="checkbox"
+                      checked={isLeapMonth}
+                      onChange={(event) => setIsLeapMonth(event.target.checked)}
+                    />
+                    <span>{t.leapMonth}</span>
+                  </label>
+                ) : null}
+                <details className="paipan-settings">
+                  <summary>{t.paipanSettings}</summary>
+                  <div className="paipan-settings-panel">
+                    <p>{t.paipanSettingsHint}</p>
+                    <label className="inline-check">
+                      <input
+                        type="checkbox"
+                        checked={useTrueSolarTime}
+                        onChange={(event) => setUseTrueSolarTime(event.target.checked)}
+                      />
+                      <span>
+                        <strong>{t.trueSolarTime}</strong>
+                        <em>{t.trueSolarTimeHint}</em>
+                      </span>
+                    </label>
+                    {useTrueSolarTime ? (
+                      <label>
+                        {t.birthLongitude}
+                        <input
+                          type="number"
+                          min="-180"
+                          max="180"
+                          step="0.01"
+                          value={birthLongitude}
+                          onChange={(event) => setBirthLongitude(event.target.value)}
+                          placeholder={t.birthLongitudePlaceholder}
+                        />
+                      </label>
+                    ) : null}
+                    <label>
+                      {t.ziHourConvention}
+                      <select value={ziHourConvention} onChange={(event) => setZiHourConvention(event.target.value)}>
+                        <option value="zi-chu">{t.ziHourAtStart}</option>
+                        <option value="midnight">{t.ziHourAtMidnight}</option>
+                      </select>
+                    </label>
+                  </div>
+                </details>
+              </div>
               <label>
-                {t.birthDate}
-                <input type="date" value={birthDate} onChange={(event) => setBirthDate(event.target.value)} />
+                {calendarType === "lunar" ? t.lunarBirthDate : t.birthDate}
+                <input
+                  type={calendarType === "lunar" ? "text" : "date"}
+                  inputMode={calendarType === "lunar" ? "numeric" : undefined}
+                  pattern={calendarType === "lunar" ? "\\d{4}-\\d{2}-\\d{2}" : undefined}
+                  placeholder={calendarType === "lunar" ? t.lunarDatePlaceholder : undefined}
+                  value={birthDate}
+                  onChange={(event) => setBirthDate(event.target.value)}
+                />
               </label>
               <label>
                 {t.birthTime}
@@ -1878,16 +2236,23 @@ export default function App() {
               </label>
               <label>
                 {t.birthPlace}
-                <input value={birthPlace} onChange={(event) => setBirthPlace(event.target.value)} />
+                <input
+                  value={birthPlace}
+                  onChange={(event) => setBirthPlace(event.target.value)}
+                  placeholder={t.birthPlacePlaceholder}
+                />
               </label>
               <label>
                 {t.gender}
                 <select value={gender} onChange={(event) => setGender(event.target.value)}>
+                  <option value="" disabled>
+                    {t.genderPlaceholder}
+                  </option>
                   <option value="male">{t.male}</option>
                   <option value="female">{t.female}</option>
                 </select>
               </label>
-              <label>
+              <label className="focus-field">
                 {activeEntry.focusLabel}
                 <select value={focus} onChange={(event) => setFocus(event.target.value)}>
                   {focusIds.map((item) => (
@@ -1958,6 +2323,7 @@ export default function App() {
           <div className="section-copy narrow product-intro">
             <p className="kicker">{t.productKicker}</p>
             <h2>{t.productTitle}</h2>
+            <p>{t.productSubtitle}</p>
           </div>
           <div className="service-board">
             <div className="service-choices" aria-label={t.purchaseLabel}>
@@ -1965,31 +2331,27 @@ export default function App() {
                 const price = t.prices[product.priceKey];
                 const displayPrice = getDisplayPrice(price, language);
                 const isFeatured = product.title === featuredProduct.title;
-                const isMembership = product.title === t.annualMembership.title;
                 const productStatus = getProductStatus(entitlements, product.key);
                 const unlockLabel = fillTemplate(t.simulateUnlockAria, { product: product.title });
 
                 return (
-                  <article
-                    className={`service-choice ${isFeatured ? "featured" : ""} ${
-                      isMembership ? "membership-choice" : ""
-                    }`}
-                    key={product.title}
-                  >
-                    <span>{isMembership ? t.badges.member : isFeatured ? t.badges.featured : t.badges.single}</span>
+                  <article className={`service-choice ${isFeatured ? "featured" : ""}`} key={product.title}>
+                    <span>{isFeatured ? t.badges.featured : t.badges.single}</span>
                     <strong className="dual-price single-price" aria-label={displayPrice}>
                       <span>{displayPrice}</span>
                     </strong>
                     <h3>{product.title}</h3>
                     <p>{product.question}</p>
+                    <div className="product-card-meta">
+                      <span>{t.productDelivery}</span>
+                      <span>{t.productRefund}</span>
+                    </div>
                     <em className="entitlement-pill">{getProductStatusLabel(productStatus, t)}</em>
                     <div className="product-card-actions">
                       <a
-                        href={isMembership ? "#membership" : "#reading"}
+                        href="#reading"
                         onClick={() => {
-                          if (!isMembership) {
-                            selectEntryMode(product.key);
-                          }
+                          selectEntryMode(product.key);
                         }}
                       >
                         {product.action}
@@ -2027,22 +2389,27 @@ export default function App() {
                 <a href="#reading">{featuredProduct.action}</a>
               </article>
 
-              <article className="service-feature membership-detail" id="membership">
+              <article className="service-feature purchase-flow-detail">
                 <div className="service-feature-copy">
-                  <span className="service-label member-service-label">{t.memberLabel}</span>
-                  <h3>{t.memberTitle}</h3>
-                  <p>{t.memberText}</p>
+                  <span className="service-label">{t.purchaseFlowLabel}</span>
+                  <h3>{t.purchaseFlowTitle}</h3>
+                  <p>{t.purchaseFlowText}</p>
                 </div>
-                <div className="membership-benefits inline-benefits" aria-label={t.memberBenefitsLabel}>
-                  {t.memberBenefits.map(([title, amount, note]) => (
-                    <div className="membership-benefit" key={title}>
-                      <span>{title}</span>
-                      <strong>{amount}</strong>
-                      <em>{note}</em>
-                    </div>
+                <ol className="purchase-steps">
+                  {t.purchaseSteps.map(([number, title, text]) => (
+                    <li key={number}>
+                      <span>{number}</span>
+                      <div>
+                        <strong>{title}</strong>
+                        <p>{text}</p>
+                      </div>
+                    </li>
                   ))}
+                </ol>
+                <div className="refund-promise">
+                  <strong>{t.refundPromise}</strong>
+                  <p>{t.refundPromiseText}</p>
                 </div>
-                <a href="#products">{t.annualMembership.action}</a>
               </article>
             </div>
           </div>
