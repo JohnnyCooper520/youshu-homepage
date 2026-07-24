@@ -23,11 +23,11 @@ ENV PORT=8788
 
 WORKDIR /app
 
-COPY --from=build /app/package.json /app/package-lock.json ./
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/server ./server
-COPY --from=build /app/src ./src
+COPY --chown=node:node --from=build /app/package.json /app/package-lock.json ./
+COPY --chown=node:node --from=build /app/node_modules ./node_modules
+COPY --chown=node:node --from=build /app/dist ./dist
+COPY --chown=node:node --from=build /app/server ./server
+COPY --chown=node:node --from=build /app/src ./src
 
 USER node
 
