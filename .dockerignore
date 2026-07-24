@@ -1,0 +1,17 @@
+.git
+.github
+.vercel
+node_modules
+coverage
+dist
+*.log
+*.tar.gz
+.env
+.env.*
+!.env.example
+docs
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.webp
